@@ -12,6 +12,7 @@ import OverviewPage from './components/Overview/OverviewPage';
 import OnlyDifferencesPage from './components/Comparison/OnlyDifferencesPage'
 import ModelbasedParametersTable from './components/ModelbasedParameters/ModelbasedParametersTable';
 import SimulationPage from './components/Simulation/SimulationPage';
+import ProcessMinerPage from './components/Processminer/ProcessMinerPage'
 import ComparePage from "./components/Comparison/ComparePage";
 import TimetableOverview from './components/ResourceParameters/TimeTable/TimetableOverview';
 import ResourceOverview from './components/ResourceParameters/Resources/ResourceOverview';
@@ -249,6 +250,7 @@ useEffect(() => {
               <Route path="/modelbased" element={ <BpmnViewSelector zIndex={-5} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} />} />
               <Route path="/modelbased/tableview" element={ <ModelbasedParametersTable parsed={parsed} setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}   data={data} currentScenario={currentScenario} />} />
               <Route path="/simulation" element={<SimulationPage path="/simulation" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
+              <Route path="/processminer" element={<ProcessMinerPage path="/processminer" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
               <Route path='*' element={<Navigate to='/overview' />} />
             </Routes>
          </Container>
