@@ -30,8 +30,11 @@
         "framer-motion": "^6.5.1",
         "fs": "^0.0.1-security",
         "js-deep-equals": "^2.1.1",
+        "js-untar": "^2.0.0",
+        "jszip": "^3.10.1",
         "next-routes": "^1.4.2",
         "node-fetch": "^3.3.0",
+        "pako": "^2.1.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-hook-form": "^7.42.0",
@@ -81,7 +84,7 @@
     },
     "devDependencies": {
         "@testing-library/cypress": "^8.0.7",
-        "cypress": "^12.0.0",
+        "cypress": "^11.0.0",
         "react-router-dom": "^6.4.3"
     }
 }

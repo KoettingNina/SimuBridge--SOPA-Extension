@@ -2,6 +2,9 @@ import React, { useState, useRef } from "react";
 import { Flex, Heading, Card, CardHeader, CardBody, Text, Select, Stack, Button, Progress, Box, Textarea, UnorderedList, ListItem } from '@chakra-ui/react';
 import { FiChevronDown } from 'react-icons/fi';
 import axios from 'axios';
+import Zip from 'jszip';
+import untar from "js-untar";
+import Gzip from 'pako';
 import configuration from '../../resources/config/sample.yml'
 import event_log from '../../resources/event_logs/PurchasingExample.xes'
 
@@ -40,48 +43,74 @@ const ProcessMinerPage = ({ data, setScenario, toasting }) => {
 
 
         //const r = await axios.post("http://127.0.0.1:7070/simodapi", formData, {
-        const r = await axios.post(apiAddress+"/discoveries", formData, {
-            headers: {
-            'Content-Type': 'multipart/form-data',
-            }
-        });
+        // const r = await axios.post(apiAddress+"/discoveries", formData, {
+        //     headers: {
+        //     'Content-Type': 'multipart/form-data',
+        //     }
+        // });
 
-        const { request_id , request_status} = r.data
-        console.log({request_id , request_status})
+        // const { request_id , request_status} = r.data
+        // console.log({request_id , request_status})
 
-        if (request_status !== 'accepted') {
-            throw 'Process mining request rejected'
-        }
+        // if (request_status !== 'accepted') {
+        //     throw 'Process mining request rejected'
+        // }
         
-        toasting("success", "Success", "Process Mining successfully started");
+        // toasting("success", "Success", "Process Mining successfully started");
         
-        const maxWaitTimeMs = 180000;
-        const waitStartTime = new Date().getTime();
-        function sleep(milliseconds) {
-            return new Promise(resolve => setTimeout(resolve, milliseconds));
-        }
+        // const maxWaitTimeMs = 180000;
+        // const waitStartTime = new Date().getTime();
+        // function sleep(milliseconds) {
+        //     return new Promise(resolve => setTimeout(resolve, milliseconds));
+        // }
 
-        let status;
-        while(true) {
-            const status_request = await axios.get("http://127.0.0.1:8880/discoveries/"+request_id)
-            status = status_request.data;
-            console.log(status_request)
-            if (status.request_status !== 'running') {
-                break;
-            } else if (new Date().getTime() - waitStartTime > maxWaitTimeMs) {
-                throw "Process Mining timed out";
-            }
-            await sleep(5000);
-        }
+        // let status;
+        // while(true) {
+        //     const status_request = await axios.get("http://127.0.0.1:8880/discoveries/"+request_id)
+        //     status = status_request.data;
+        //     console.log(status_request)
+        //     if (status.request_status !== 'running') {
+        //         break;
+        //     } else if (new Date().getTime() - waitStartTime > maxWaitTimeMs) {
+        //         throw "Process Mining timed out";
+        //     }
+        //     await sleep(5000);
+        // }
+
+        const status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/32cea143-a7f5-426a-9504-46266fef7ed4/32cea143-a7f5-426a-9504-46266fef7ed4.tar.gz'}
 
         if(status.request_status === 'success') {
             // console.log(`Request took ${ new Date().getTime() - r.config.meta.requestStartedAt} ms`)
 
-            const result = await axios.get(status.archive_url.replace('http://0.0.0.0', apiAddress));
-            console.log(result)
+            const result = await fetch(status.archive_url.replace('http://0.0.0.0', apiAddress));
+            const raw = await result.arrayBuffer();
+            const raw_tar = Gzip.inflate(raw).buffer
+            console.log('Files:')
+            console.log(raw_tar)
+            // const foo = await (new Blob([files], {
+            //     type: 'application/gzip',
+            //   })).arrayBuffer();
+              
+            // console.log(typeof(foo));
+            //const foo = await untar(new ArrayBuffer(await result.arrayBuffer()));
+            const files = await untar(raw_tar);
+
+            const relevant_files = files
+                .filter(file => file.name.endsWith('.json') || file.name.endsWith('.bpmn'));
+            relevant_files
+                .forEach(file => {
+                   //TODO simplify name
+                   file.data = file.readAsString(); 
+                });
+
+            console.log(relevant_files)
+
     
             // Setting the response state and updating the finished and started states
-            setResponse(result.data);
+            setResponse({
+                message : 'Miner output currently not captured',
+                files : relevant_files
+            });
             setFinished(true);
             setStarted(false);
             // Toasting a success message
