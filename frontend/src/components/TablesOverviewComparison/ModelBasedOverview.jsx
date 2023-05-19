@@ -241,7 +241,7 @@ class ModelBasedOverview extends React.Component {
                                                         <Td>{element.name}</Td>
                                                         <Td>{this.getEventType(element.type)}</Td>
                                                         <Td>{element.interArrivalTime.distributionType}</Td>
-                                                        <Td>{element.interArrivalTime.values.map((value) => {
+                                                        <Td>{(element.interArrivalTime.values || [] /*TODO might be undefined? think about assumptions for well-formedness of scenarios*/).map((value) => {
                                                             return <Text>{value.id + ": " + value.value}</Text>
                                                         })}</Td>
                                                     </Tr>

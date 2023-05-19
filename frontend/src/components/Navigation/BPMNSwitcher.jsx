@@ -2,7 +2,7 @@ import React from 'react'
 import { Flex, Text, Menu, MenuButton, Input, Button, MenuList, MenuItem } from '@chakra-ui/react'
 
 function BPMNSwitcher({ data, currentScenario, currentBpmn, setBpmn }) {
-  const { name } = data[currentScenario].models[currentBpmn]
+  const name = data[currentScenario]?.models[currentBpmn].name
   const fontStyles = { fontSize: { base: "2xs", md: "sm" }, color: "RGBA(0, 0, 0, 0.64)"}
   const inputStyles = { variant: "filled", isDisabled: true, bg: "blackAlpha.200", _hover: "blackAlpha.200", ...fontStyles, w: { base: "100%", md: "65%" } }
 
@@ -12,7 +12,7 @@ function BPMNSwitcher({ data, currentScenario, currentBpmn, setBpmn }) {
         Current BPMN Model:
       </Text>
       <Flex gap={{ base: "3", md: "3" }} flexDirection={{ base: "column", md: "row" }} w="100%">
-        <Input placeholder={name} aria-label="bpmn name" {...inputStyles} />
+        <Input placeholder={name || '<none>'} aria-label="bpmn name" {...inputStyles} />
         <MenuButton
           as={Button}
           variant="outline"
@@ -25,7 +25,7 @@ function BPMNSwitcher({ data, currentScenario, currentBpmn, setBpmn }) {
           <Text {...fontStyles}>Change</Text>
         </MenuButton>
         <MenuList>
-          {data[currentScenario].models.map((bpmn, index) => (
+          {(data[currentScenario]?.models || []).map((bpmn, index) => (
             <MenuItem key={index} onClick={() => setBpmn(index)}>
               {bpmn.name}
             </MenuItem>

@@ -6,8 +6,9 @@ import ViewButtons from "./ViewButtons";
 import axios from "axios";
 import { ButtonGroup, IconButton, Flex, Box } from '@chakra-ui/react'
 import { MinusIcon, AddIcon } from '@chakra-ui/icons'
+import { getFile } from "../../util/Storage";
 
-function BpmnView({currentBpmn, setObject}) {
+function BpmnView({getData, projectName, setObject}) {
 
   // State storing the bpmn diagram
   const [diagram, setDiagram] = useState("");
@@ -25,13 +26,12 @@ function BpmnView({currentBpmn, setObject}) {
 
   // acces bpmn diagram and set bpmn diagram
   useEffect(() => {
-    axios
-      .get(currentBpmn.BPMN)
-      .then(({ data }) => {
+    console.log(getData())
+    var bpmnFileName = getData('currentScenario').modelPaths[0] //TODO magic access
+    getFile(projectName, bpmnFileName).then(({ data }) => {
         setDiagram(data);
-      })
-      .catch(console.error);
-  }, [currentBpmn.BPMN]);
+    });
+  }, [getData]);
 
 
 

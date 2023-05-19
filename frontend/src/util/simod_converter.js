@@ -1,50 +1,35 @@
-const { fstat } = require('fs');
+let xml2js = require('browser-xml2js');
 
-//read InputFile json File
-const jsonObj = require('../Simod_output/input.json')
+export function convertSimodOutput(jsonOutput, bpmnOutput) {
 
-//read Input bpmn File
-var bpmnObj;
-const xml2js = require('xml2js');
-const fs = require('fs');
-const parser = new xml2js.Parser({attrkey: "ATTR"})
-let xml_string = fs.readFileSync("./Simod_output/input.bpmn", "utf8");
+    const jsonObj = JSON.parse(jsonOutput);
+    
+    //TODO replace xml2js
+    // const parser = new DOMParser();
+    // const bpmnParsed = parser.parseFromString(bpmnOutput, "text/xml");
+    
+    let bpmnParsed;
+    const parser = new xml2js.Parser({attrkey: "ATTR"})
+    parser.parseString(bpmnOutput, function(error, result){
+        if (error == null){console.log(result); bpmnParsed = result}
+        else{console.log(error)}
+    });
 
-//parse xml-bpmn-string to json
-parser.parseString(xml_string, function(error, result){
-    if (error == null){console.log(result); bpmnObj = result}
-    else{console.log(error)}
-});
+    //create Array which contains Scenario Objects
+    let Scenario = new Object;
 
-//create Array which contains Scenario Objects
-let dataPetriSim = new Array;
-let Scenario = new Object;
+    //Get Scenario parameters which are needed in the internal Representation of PetriSim
+    Scenario.scenarioName = getScenarioName(jsonObj);
+    Scenario.startingDate = getStartingDate(jsonObj);
+    Scenario.startingTime = getstartingTime(jsonObj);
+    Scenario.numberOfInstances = 100 //TODO doesn't work //getNumberOfInstances(jsonObj);
+    Scenario.interArrivalTime = getInterArrivalTime(jsonObj);
+    Scenario.timeUnit = getTimeUnit(jsonObj);
+    Scenario.currency = getCurrency(jsonObj);
+    Scenario.resourceParameters = getResourceParameters(jsonObj);
+    Scenario.models = getModel(bpmnParsed, jsonObj);
 
-//Get Scenario parameters which are needed in the internal Representation of PetriSim
-Scenario.scenarioName = getScenarioName(jsonObj);
-Scenario.startingDate = getStartingDate(jsonObj);
-Scenario.startingTime = getstartingTime(jsonObj);
-Scenario.NumberOfInstances = getNumberOfInstances(jsonObj);
-Scenario.getInterArrivalTime = getInterArrivalTime(jsonObj);
-Scenario.timeUnit = getTimeUnit(jsonObj);
-Scenario.currency = getCurrency(jsonObj);
-Scenario.resourceParameters = getResourceParameters(jsonObj);
-Scenario.model = getModel(bpmnObj, jsonObj);
-dataPetriSim.push(Scenario)
-
-//write to Ouput File
-writeToFile(dataPetriSim)
-
-//write to Ooutput File
-function writeToFile(dataPetriSim){
-    var dataPetriSimJson = JSON.stringify(dataPetriSim, null, 4)
-    const fs = require('fs');
-    fs.writeFile('./converterOutput/outputConverter.json', dataPetriSimJson, 'utf8', err =>{
-        if(err){
-            console.error(err);
-            return;
-        }
-    })
+    return Scenario;
 }
 
 function getScenarioName(jsonObj){
@@ -54,7 +39,7 @@ function getScenarioName(jsonObj){
 
 function getStartingDate(jsonObj){
     //No Scenario name in Simod, choose default date
-    return "00-00-0000"
+    return "01-01-0000"
 }
 
 function getstartingTime(jsonObj){
@@ -72,19 +57,20 @@ function getNumberOfInstances(jsonObj){
         let EndTime = getTimeInSeconds(element.endTime);
         let secondsPerDay = 86400;
         
-        let Seconds = EndTime - StartingTime;
-        Seconds = secondsPerDay * (EndDay - StartingDay);
-        NumberofSeconds = NumberofSeconds + Seconds
+        let Seconds = EndTime - StartingTime; 
+        Seconds += secondsPerDay * (EndDay - StartingDay);
+        NumberofSeconds += Seconds
     })
     //multiply seconds with mean per seconds of distribution
-    let NumberOfInstances = 0;
-    switch(getDistributionName(jsonObj.arrival_time_distribution)){
-        case "constant": NumberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[0].value; break;
-        case "uniform": NumberOfInstances = (NumberofSeconds/60) * (getValues(jsonObj.arrival_time_distribution)[1].value - getValues(jsonObj.arrival_time_distribution)[0].value); break;
-        case "expon": NumberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[0].value; break;
-        case "norm": NumberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[0].value; break;
+    let numberOfInstances = 0;
+    switch(getDistributionName(jsonObj.arrival_time_distribution)){ //TODO these might all be wrong
+        case "constant": numberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[0].value; break;
+        case "uniform": numberOfInstances = (NumberofSeconds/60) * (getValues(jsonObj.arrival_time_distribution)[1].value - getValues(jsonObj.arrival_time_distribution)[0].value); break;
+        case "expon": numberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[1].value; break;
+        case "norm": numberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[0].value; break;
     }
-    return NumberOfInstances
+
+    return Math.ceil(numberOfInstances);
 }
 
 function getTimeInSeconds(timeString){
@@ -123,7 +109,7 @@ function getCurrency(jsonObj){
 function getInterArrivalTime(jsonObj){
     //provides the interarrivalTime which contains a distribution Name and values
     let interArrivalTime = new Object;
-    interArrivalTime.distribution = getDistributionName(jsonObj.arrival_time_distribution)
+    interArrivalTime.distributionType = getDistributionName(jsonObj.arrival_time_distribution)
     interArrivalTime.values = getValues(jsonObj.arrival_time_distribution)
     return interArrivalTime
 }
@@ -138,7 +124,7 @@ function getDistributionName(distribution){
         case 'expon': return 'exponential'
         case 'lognorm': return 'constant'; //Not in scylla
         case 'norm': return 'normal';
-        case 'default': return 'default';
+        case 'default': return 'uniform'; //NOT in scylla!
     }
 }
 
@@ -153,38 +139,38 @@ function getValues(distribution){
             //variance = mean * distribution.distribution_params[2].value; 
             //values.push({id: "mean", value: mean})
             //values.push({id: "variance", value: variance})
-            values.push({id: "constant_value", value: 60/mean})
+            values.push({id: "constantValue", value: /*60/*/mean})
             break;
         }; //Not in Scylla //Using mean for fix distribution
         case 'fix': {
-            let constant_value = distribution.distribution_params[0].value;
-            values.push({id: "constant_value", value: 60/constant_value});
+            let constantValue = distribution.distribution_params[0].value;
+            values.push({id: "constantValue", value: /*60/*/constantValue});
             break;
         };
-        case 'uniform':{
-            let min = distribution.distribution_params[0].value;
-            let max = distribution.distribution_params[1].value + min;
-            values.push({id: "min", value: 60/min});
-            values.push({id: "max", value: 60/max});
+        case 'uniform': case 'default':{
+            let lower = distribution.distribution_params[0].value;
+            let upper = distribution.distribution_params[1].value + lower;
+            values.push({id: "lower", value: /*60/*/lower});
+            values.push({id: "upper", value: /*60/*/upper});
             break;
         };
         case 'expon': {
             mean = distribution.distribution_params[1].value; 
-            values.push({id: "mean", value: 60/mean})
+            values.push({id: "mean", value: /*60/*/mean})
             break;
         };
         case 'lognorm': {
             mean = distribution.distribution_params[2].value;
             values.push({
-                id: "constant_value", value: 60/mean
+                id: "constantValue", value: /*60/*/mean
             })
             break;
         }; //Not in Scylla //Using math.exp(mu) for fix duration
         case 'norm': {
             mean = distribution.distribution_params[0].value; 
-            let st_dev = distribution.distribution_params[1].value;
-            values.push({id: 'mean', value: 60/mean})
-            values.push({id: 'standard_deviation', value: st_dev})
+            let variance = distribution.distribution_params[1].value;
+            values.push({id: 'mean', value: /*60/*/mean})
+            values.push({id: 'variance', value: variance})
             break;
         };
         case 'default': return values;
@@ -209,7 +195,7 @@ function getResources(jsonObj){
                 resources.push({
                     id: b.id,
                     costHour: b.cost_per_hour,
-                    NumberOfInstances: b.amount,
+                    numberOfInstances: b.amount,
                     schedule: b.calendar
                 })
             })
@@ -222,10 +208,10 @@ function getTaskDuration(jsonObj, Taskid){
     let duration = new Object;
     jsonObj.task_resource_distribution.forEach(element =>{
         if(element.task_id == Taskid){
-            duration.push({
+            duration = {
                 distributionType: getDistributionName(element.resources[0]),
                 values: getValues(element.resources[0])
-            })
+            }
         }
 
     })
@@ -317,7 +303,7 @@ function getEvents(bpmnObj, jsonObj){
     //getStartEvents
     bpmnObj.definitions.process.forEach(element => {
         element.startEvent.forEach(b => {
-            emptyArray = new Array;
+            let emptyArray = new Array;
             Events.push({
                 id: b.ATTR.id,
                 type: "bpmn:StartEvent",
@@ -331,7 +317,7 @@ function getEvents(bpmnObj, jsonObj){
     //getEndEvents
     bpmnObj.definitions.process.forEach(element => {
         element.endEvent.forEach(b => {
-            emptyArray = new Array;
+            let emptyArray = new Array;
             Events.push({
                 id: b.ATTR.id,
                 type: "bpmn:EndEvent",
@@ -350,7 +336,7 @@ function getEvents(bpmnObj, jsonObj){
                     id: b.ATTR.id,
                     type: "bpmn:intermediateCatchEvent",
                     unit: getTimeUnit(),
-                    interArrivalTime: "",
+                    interArrivalTime: "", //TODO this will not work; however, at least simod seems to not give any additional information to intermediate events
                     incoming: getIncomingSequences(b.ATTR.id, bpmnObj),
                     outgoing: getOutgoingSequences(b.ATTR.id, bpmnObj)
                 })
@@ -466,7 +452,7 @@ function getSequences(bpmnObj, jsonObj){
             sequences.push({
                 id: b.ATTR.id,
                 type: "bpmn:SqequenceFlow", 
-                probability: "0"//getSequenceProbability(bpmnObj, jsonObj, b)
+                probability: getSequenceProbability(b, bpmnObj, jsonObj)
             })
         })
     })
@@ -476,36 +462,21 @@ function getSequences(bpmnObj, jsonObj){
 function getSourceNode(bpmnObj, Sequence){
     //returns the source of a current sequence
     let SequenceSourceRef = Sequence.ATTR.sourceRef;
-    let Node = new Object;
-    bpmnObj.definitions.process.forEach(element => {
-        if(element.startEvent != null){
-            element.startEvent.forEach(b =>{
-                if (b.ATTR.id == SequenceSourceRef){Node = b;}
-        })}
-        if(element.task != null){
-            element.task.forEach(b =>{
-                if (b.ATTR.id == SequenceSourceRef){Node = b;}
-        })}
-        if(element.exclusiveGateway != null){
-            element.exclusiveGateway.forEach(b =>{
-                if (b.ATTR.id == SequenceSourceRef){Node = b;}
-        })}
-        if(element.inclusiveGateway != null){
-            element.inclusiveGateway.forEach(b =>{
-                if (b.ATTR.id == SequenceSourceRef){Node = b;}
-        })}
-        if(element.parallelGateway != null){
-        element.parallelGateway.forEach(b =>{
-            if (b.ATTR.id == SequenceSourceRef){Node = b;}
-        })}
-        if(element.intermediateCatchevent != null){
-        element.intermediateCatchevent.forEach(b =>{
-            if (b.ATTR.id == SequenceSourceRef){Node = b;}
-        })}
-    })
-    return Node;
+    let sourceNode = bpmnObj.definitions.process
+        .flatMap(process => [
+            ...(process.startEvent || []), 
+            ...(process.task || []), 
+            ...(process.exclusiveGateway || []), 
+            ...(process.inclusiveGateway || []), 
+            ...(process.parallelGateway || []), 
+            ...(process.intermediateCatchEvent || [])
+        ])
+        .find(element => element.ATTR.id == SequenceSourceRef);
 
+    if (!sourceNode) throw 'Couldn\'t find source node for sequence ' + Sequence.ATTR.id;
+    return sourceNode;
 }
+
 function getNodeType(bpmnObj, NodeId){
     //returns the type of a node
     let NodeTyp = "";
@@ -540,96 +511,99 @@ function getNodeType(bpmnObj, NodeId){
 
 function getSequenceObject(bpmnObj, sequenceID){
     //returns the whole object of the id of a sequence
-    let Sequence = new Object;
-    bpmnObj.definitions.process.forEach(element=>{
-        element.sequenceFlow.forEach(b=>{
-            if(b.ATTR.id == sequenceID){Sequence = b;}
-        })
-    })
-    return Sequence;
+    let sequenceObject =  bpmnObj.definitions.process
+        .flatMap(process => process.sequenceFlow)
+        .find(sequence => sequence.ATTR.id == sequenceID);
+    if (!sequenceObject) throw 'Couldn\'t find object for sequence id '+sequenceID;
+    return sequenceObject; 
 }
 
 function getSequenceProbability(Sequence, bpmnObj, jsonObj){
     //returns the distribution probability of a sequence
-    let probability = 0.0;
-    PreviousNodeObject = getSourceNode(bpmnObj, Sequence);
-    PreviousNodeType = getNodeType(bpmnObj, PreviousNodeObject.ATTR.id)
+    let probability = 1.0;
+    let PreviousNodeObject = getSourceNode(bpmnObj, Sequence);
+    let PreviousNodeType = getNodeType(bpmnObj, PreviousNodeObject.ATTR.id)
 
-    //If the Source of the current Sequence ain't a start event get the previous sequence;
-    let previousSequences = new Array;
-    if(PreviousNodeType != "startEvent"){
-        previousSequences = getIncomingSequences(PreviousNodeObject);
+    if (PreviousNodeType === "exclusiveGateway" && PreviousNodeObject.ATTR.gatewayDirection === "Diverging") {
+        return getGatewaySequenceProbability(Sequence, jsonObj) 
+    } else {
+        return 1.0;
     }
+        
+    //TODO reconsider commented out code
+
+    // //If the Source of the current Sequence ain't a start event get the previous sequence; //TODO why would I?
+    // let previousSequences = new Array;
+    // if(PreviousNodeType != "startEvent"){
+    //     previousSequences = getIncomingSequences(PreviousNodeObject.ATTR.id, bpmnObj).map(sequenceId => getSequenceObject(bpmnObj, sequenceId));
+    // }
     
-    //handle privious Nodes start recursion
-    switch(PreviousNodeType){
-        case "startEvent": probability = 1.0; break;
-        case "Task": { previousSequences.forEach(s => {
-                probability = getSequenceProbability(s, bpmnObj, jsonObj);
-            }); break;
-        }
-        case "intermediateCatchevent": { previousSequences.forEach(s => {
-            probability = getSequenceProbability(s, bpmnObj, jsonObj);
-        }); break;
-        }
-        case "exclusiveGateway": {
-            let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
-            if(GatewayType == "Converging"){
-                previousSequences.forEach(s => {
-                    probability = probability + getSequenceProbability(s, bpmnObj, jsonObj);
-                });
-            }
-            else {
-                previousSequences.forEach(s => {
-                    probability = getGatewaySequenceProbability(Sequence, jsonObj) * getSequenceProbability(s, bpmnObj, jsonObj);
-                });
-            }
-            break;
-        }
-        case "parallelGateway": {
-            let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
-            if(GatewayType == "Converging"){
-                previousSequences.forEach(s => {
-                    if(probability = 1.0){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-                    else if(getSequenceProbability(s, bpmnObj, jsonObj) > probability){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-                });
-            }
-            else {
-                previousSequences.forEach(s => {
-                    probability = getSequenceProbability(s, bpmnObj, jsonObj);
-                });
-            }
-            break;
-        }
-        case "inclusiveGateway" :{
-            if(GatewayType == "Converging"){
-                previousSequences.forEach(s => {
-                    if(probability = 1.0){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-                    else if(getSequenceProbability(s, bpmnObj, jsonObj) > probability){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-                });
-            }
-            else {
-                previousSequences.forEach(s => {
-                    probability = getGatewaySequenceProbability(Sequence, jsonObj) * getSequenceProbability(s, bpmnObj, jsonObj);
-                });
-            }
-            break;
-        }
-    }
-    return probability;
+    // //handle privious Nodes start recursion
+    // switch(PreviousNodeType){
+    //     case "startEvent": probability = 1.0; break;
+    //     case "Task": { previousSequences.forEach(s => {
+    //             probability = getSequenceProbability(s, bpmnObj, jsonObj);
+    //         }); break;
+    //     }
+    //     case "intermediateCatchevent": { previousSequences.forEach(s => {
+    //         probability = getSequenceProbability(s, bpmnObj, jsonObj);
+    //     }); break;
+    //     }
+    //     case "exclusiveGateway": {
+    //         let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
+    //         if(GatewayType == "Converging"){
+    //             previousSequences.forEach(s => {
+    //                 probability = probability + getSequenceProbability(s, bpmnObj, jsonObj);
+    //             });
+    //         }
+    //         else {
+    //             previousSequences.forEach(s => {
+    //                 probability = getGatewaySequenceProbability(Sequence, jsonObj) * getSequenceProbability(s, bpmnObj, jsonObj);
+    //             });
+    //         }
+    //         break;
+    //     }
+    //     case "parallelGateway": {
+    //         let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
+    //         if(GatewayType == "Converging"){
+    //             previousSequences.forEach(s => {
+    //                 if(probability = 1.0){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
+    //                 else if(getSequenceProbability(s, bpmnObj, jsonObj) > probability){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
+    //             });
+    //         }
+    //         else {
+    //             previousSequences.forEach(s => {
+    //                 probability = getSequenceProbability(s, bpmnObj, jsonObj);
+    //             });
+    //         }
+    //         break;
+    //     }
+    //     case "inclusiveGateway" :{
+    //         let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
+    //         if(GatewayType == "Converging"){
+    //             previousSequences.forEach(s => {
+    //                 if(probability = 1.0){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
+    //                 else if(getSequenceProbability(s, bpmnObj, jsonObj) > probability){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
+    //             });
+    //         }
+    //         else {
+    //             previousSequences.forEach(s => {
+    //                 probability = getGatewaySequenceProbability(Sequence, jsonObj) * getSequenceProbability(s, bpmnObj, jsonObj);
+    //             });
+    //         }
+    //         break;
+    //     }
+    // }
+    // return probability;
 }
 
 function getGatewaySequenceProbability(Sequence, jsonObj){
     //returns the probability of a sequence if the source is a gateway
     let probability = 1.0;
-    jsonObj.gateway_branching_probabilities.forEach(element=>{
-        if(element.gateway_id == Sequence.ATTR.sourceRef){
-            element.probabilities.forEach(b=> {
-                if(b.path_id == Sequence.ATTR.targetRef){
-                    probability = b.value;
-                }
-            })
-        }
-    })
+    probability = jsonObj.gateway_branching_probabilities
+        .find(element => element.gateway_id == Sequence.ATTR.sourceRef)
+        .probabilities
+        .find(b => b.path_id == Sequence.ATTR.id)
+        .value;
     return probability;
 }

@@ -13,11 +13,13 @@ import OnlyDifferencesPage from './components/Comparison/OnlyDifferencesPage'
 import ModelbasedParametersTable from './components/ModelbasedParameters/ModelbasedParametersTable';
 import SimulationPage from './components/Simulation/SimulationPage';
 import ProcessMinerPage from './components/Processminer/ProcessMinerPage'
+import DebugPage from './components/Debug/DebugPage';
 import ComparePage from "./components/Comparison/ComparePage";
 import TimetableOverview from './components/ResourceParameters/TimeTable/TimetableOverview';
 import ResourceOverview from './components/ResourceParameters/Resources/ResourceOverview';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
+import { getProjectData, getProjects, setProjectData } from './util/Storage';
 
 const { compare } = require('js-deep-equals')
 
@@ -28,14 +30,20 @@ function App() {
   const [parsed, setParsed] = useState(true) // to be removed
 
   const [data, setDataInternal] = useState([]) // method is used to save data from the discoverytool
+  const [globalState, setGlobalState] = useState({
+    projects : [],
+    currentProject : undefined,
+    currentScenario : undefined,
+    currentBpmn : undefined
+  });
 
-  // State is used for changing / adding a project name, it firest checks if project is already set as current in the session storage
-  const [name, setName] = useState(sessionStorage.getItem('currentProject') || "")
-  const [nameHelper, setNameHelper] = useState(sessionStorage.getItem('currentProject') || "")
+  // State is used for changing / adding a project projectName, it firest checks if project is already set as current in the session storage
+  const [projectName, setProjectName] = useState(sessionStorage.getItem('currentProject') || "")
+  const [projectNameHelper, setProjectNameHelper] = useState(sessionStorage.getItem('currentProject') || "")
 
 
-
-  const [current, setCurrent] = useState("Scenario Parameters")  // Current Page => Imoprtant for the navigation to highlight the current page
+  //TODO to be renamed to currentPage or similar
+  const [current, setCurrent] = useState("Scenario Parameters")  // Current Page => Imoprtant for the navigation to highlight the current page 
 
   // store and set information which BPMN and scenario is currently selected
   const [currentBpmn, setBpmn] = useState(0)
@@ -67,21 +75,16 @@ function App() {
 const setData = (d) => {
   setDataInternal(d)
 
-  if(name){
+  if(projectName){
 
-    if(!compare(JSON.parse(localStorage.getItem(name)), d)){
+    if(!compare(getProjectData(projectName), d)){
       toasting("success", "Saved", "Saved data")
 
 
-      console.log(JSON.parse(localStorage.getItem(name)))
+      console.log(getProjectData(projectName))
       console.log(d)
 
-      localStorage.setItem(name, JSON.stringify(d));
-
-      let projects = JSON.parse(localStorage.getItem('projects'))
-      projects = projects.filter(project => project.name !== name)
-
-      localStorage.setItem('projects', JSON.stringify([...projects, {name: name, date: new Date()}]));
+      setProjectData(projectName, d);
     } else{
       toasting("warning", "Changes", "No changes were detected")
     }
@@ -114,10 +117,10 @@ useEffect(() => {
 } ,[])
 
 
-// if a project is started and has a name (meaning it is started by selecting and existing project), the internal data is filled with data from the localStorage
+// if a project is started and has a projectName (meaning it is started by selecting and existing project), the internal data is filled with data from the Storage
 useEffect(() => {
-  if(name){
-    setDataInternal(JSON.parse(localStorage.getItem(name)))
+  if(projectName){
+    setDataInternal(getProjectData(projectName))
   }
 
 }, [projectStarted]);
@@ -129,31 +132,23 @@ useEffect(() => {
 })
 
 
-  // state to check if a project name already exists
-  const [invalidName, setInvaild] = useState(false)
+  // state to check if a project projectName already exists
+  const [invalidProjectName, setInvaild] = useState(false)
 
-  // function to save a project in the localstorage with a name
-  // The name is also added to the array "projects" in the localstorage, which includes all project names that are saved in the localStorage
+  // function to save a project in the storage with a projectName
+  // The projectName is also added to the array "projects" in the storage, which includes all project projectNames that are saved in the Storage
   const saveProject = () => {
-    let projects = JSON.parse(localStorage.getItem('projects'))
+    let projects = Object.values(getProjects())
 
-    if((projects !== null && projects.map(x => x.name).includes(nameHelper)) || (projects !== null && nameHelper === "projects")){
+    if((projects.map(x => x.projectName).includes(projectNameHelper)) || (projectNameHelper === "projects")){
       setInvaild(true)
-    } else{
-      setName(nameHelper)
-      sessionStorage.setItem('currentProject', nameHelper);
+    } else {
+      setProjectName(projectNameHelper)
+      sessionStorage.setItem('currentProject', projectNameHelper);
 
+      setProjectData(projectNameHelper, data);
 
-      if(projects === null){
-        localStorage.setItem('projects', JSON.stringify([{name: nameHelper, date: new Date()}]));
-      } else{
-        localStorage.setItem('projects', JSON.stringify([...projects, {name: nameHelper, date: new Date()}]));
-      }
-
-        localStorage.setItem(nameHelper, JSON.stringify(data));
-
-
-        toasting("success", "Autosaving", "Autosaving is activated.")
+      toasting("success", "Autosaving", "Autosaving is activated.")
 
     }
   }
@@ -183,12 +178,12 @@ useEffect(() => {
       {/*If not session exists the start view is displayed */}
 
         {projectStarted === "false"?
-          <StartView setStarted={setStarted} giveApp={addFile} setName={setName} setData={setData}/>
+          <StartView setStarted={setStarted} giveApp={addFile} setProjectName={setProjectName} setData={setData}/>
         :
         <>
-
+      {/* TODO: initialize currentProject somehow */}
       {/*If a session and data exists the dashboard is displayed */}
-      {data[0]?
+      {data /*&& data[0]*/ ?
        <>
           <Box zIndex={2} paddingTop={{base: "0", md:"6"}} >
             <Navigation 
@@ -207,9 +202,9 @@ useEffect(() => {
         
           <Container maxWidth="100%" padding={{base: "0", md:"5"}} overflowX="scroll">
 
-            {/* Modal is a chakra UI component similar to a popup. Her it is used to save a pproject by its name and display an error if the name already existis  */}
+            {/* Modal is a chakra UI component similar to a popup. Her it is used to save a pproject by its projectName and display an error if the projectName already existis  */}
           <Modal
-            isOpen={name === ""}  //Modal is only shown as long as no name is set
+            isOpen={projectName === ""}  //Modal is only shown as long as no projectName is set
             onClose={onClose}
           >
             <ModalOverlay />
@@ -217,11 +212,11 @@ useEffect(() => {
               <ModalHeader>Save project</ModalHeader>
               <ModalCloseButton />
               <ModalBody pb={6}>
-                <Text>Provide a projectname under which your data is stored</Text>
-                <FormControl isInvalid={invalidName}>
-                  <FormLabel>Projectname: </FormLabel>
-                  <Input autoFocus={true}  value={nameHelper} onChange={(e) => setNameHelper(e.target.value)} placeholder='Projectname' />
-                  {invalidName?  <FormErrorMessage>Project with this name already exists</FormErrorMessage> : ""}
+                <Text>Provide a projectprojectName under which your data is stored</Text>
+                <FormControl isInvalid={invalidProjectName}>
+                  <FormLabel>ProjectprojectName: </FormLabel>
+                  <Input autoFocus={true}  value={projectNameHelper} onChange={(e) => setProjectNameHelper(e.target.value)} placeholder='ProjectprojectName' />
+                  {invalidProjectName?  <FormErrorMessage>Project with this projectName already exists</FormErrorMessage> : ""}
 
                 </FormControl>
               </ModalBody>
@@ -237,7 +232,7 @@ useEffect(() => {
 
             {/*  These routes define which components are loaded into the center of the page for each path and pass the needed props*/}
             <Routes>
-              <Route path="/overview" element={<OverviewPage path="/overview" parsed={parsed} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
+              <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} parsed={parsed} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
               <Route path="/resource" element={<ResourceOverview path="/resource" setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}  data={data} setScenario={setScenario} currentScenario={currentScenario} currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
               <Route path="/resource/overview" element={<ResourceOverview path="/resource" setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}  data={data} setScenario={setScenario} currentScenario={currentScenario} currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
               <Route path="/resource/timetable" element={<TimetableOverview  path="/resource" setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}  data={data} setScenario={setScenario} currentScenario={currentScenario} currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
@@ -247,10 +242,11 @@ useEffect(() => {
               <Route path="/overview/compare/differences" element={<OnlyDifferencesPage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} data={data} currentScenario={currentScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared}/>} />
 
 
-              <Route path="/modelbased" element={ <BpmnViewSelector zIndex={-5} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} />} />
+              <Route path="/modelbased" element={ <BpmnViewSelector zIndex={-5} projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} />} />
               <Route path="/modelbased/tableview" element={ <ModelbasedParametersTable parsed={parsed} setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}   data={data} currentScenario={currentScenario} />} />
-              <Route path="/simulation" element={<SimulationPage path="/simulation" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
-              <Route path="/processminer" element={<ProcessMinerPage path="/processminer" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
+              <Route path="/simulation" element={<SimulationPage path="/simulation"  projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
+              <Route path="/processminer" element={<ProcessMinerPage path="/processminer" projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
+              <Route path="/debug" element={<DebugPage path="/debug" projectName={projectName} setData={setData} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
               <Route path='*' element={<Navigate to='/overview' />} />
             </Routes>
          </Container>

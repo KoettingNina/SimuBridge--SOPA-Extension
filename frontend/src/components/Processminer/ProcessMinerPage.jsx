@@ -5,16 +5,18 @@ import axios from 'axios';
 import Zip from 'jszip';
 import untar from "js-untar";
 import Gzip from 'pako';
-import configuration from '../../resources/config/sample.yml'
-import event_log from '../../resources/event_logs/PurchasingExample.xes'
+import simodSampleConfiguration from '../../example_data/simod_input/config/sample.yml'
+import { getFile, getFiles, setFile } from "../../util/Storage";
 
-const ProcessMinerPage = ({ data, setScenario, toasting }) => {
+const ProcessMinerPage = ({projectName, data, setScenario, toasting }) => {
 
 // Setting initial states of started, finished, and response
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
   const [errored, setErrored] = useState(false);
   const [response, setResponse] = useState({});
+  const [logFile, setLogFile] = useState();
+  const [miner, setMiner] = useState();
 
   // Creating a reference to the source that can be cancelled if needed
   const source = useRef(null);
@@ -36,49 +38,53 @@ const ProcessMinerPage = ({ data, setScenario, toasting }) => {
         const apiAddress = 'http://127.0.0.1:8880'
         var projectid = 'helloworld' + Math.random();
         var formData = new FormData();
-        var eventlogFile = new File([ await (await fetch(event_log)).text()], "PurchasingExamples.xes");
-        var configurationFile = new File([ await (await fetch(configuration)).text()], "sample.yml");  
+        var eventlogFile = new File([(await getFile(projectName, logFile)).data], logFile);
+        var configurationFile = new File([ await (await fetch(simodSampleConfiguration)).text()], "sample.yml");  //TODO placeholder
         formData.append("configuration", new Blob([configurationFile], { type: 'application/yaml' }), configurationFile.name);
         formData.append("event_log", new Blob([eventlogFile], { type: 'application/xml' }), eventlogFile.name);
 
+        const DEBUG = true;
 
-        //const r = await axios.post("http://127.0.0.1:7070/simodapi", formData, {
-        // const r = await axios.post(apiAddress+"/discoveries", formData, {
-        //     headers: {
-        //     'Content-Type': 'multipart/form-data',
-        //     }
-        // });
+        let status;
+        if (!DEBUG) {        
+            const r = await axios.post(apiAddress+"/discoveries", formData, {
+                headers: {
+                'Content-Type': 'multipart/form-data',
+                }
+            });
 
-        // const { request_id , request_status} = r.data
-        // console.log({request_id , request_status})
+            const { request_id , request_status} = r.data
+            console.log({request_id , request_status})
 
-        // if (request_status !== 'accepted') {
-        //     throw 'Process mining request rejected'
-        // }
+            if (request_status !== 'accepted') {
+                throw 'Process mining request rejected'
+            }
+            
+            toasting("success", "Success", "Process Mining successfully started");
+            
+            const maxWaitTimeMs = 180000;
+            const waitStartTime = new Date().getTime();
+            function sleep(milliseconds) {
+                return new Promise(resolve => setTimeout(resolve, milliseconds));
+            }
+
+            while(true) {
+                const status_request = await axios.get("http://127.0.0.1:8880/discoveries/"+request_id)
+                status = status_request.data;
+                console.log(status_request)
+                if (status.request_status !== 'running') {
+                    break;
+                } else if (new Date().getTime() - waitStartTime > maxWaitTimeMs) {
+                    throw "Process Mining timed out";
+                }
+                await sleep(5000);
+            }
+        } else {
+            //TODO dummy
+            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/30a2e4c4-6deb-4d85-8764-519179a68ad6/30a2e4c4-6deb-4d85-8764-519179a68ad6.tar.gz'}
+        }
+
         
-        // toasting("success", "Success", "Process Mining successfully started");
-        
-        // const maxWaitTimeMs = 180000;
-        // const waitStartTime = new Date().getTime();
-        // function sleep(milliseconds) {
-        //     return new Promise(resolve => setTimeout(resolve, milliseconds));
-        // }
-
-        // let status;
-        // while(true) {
-        //     const status_request = await axios.get("http://127.0.0.1:8880/discoveries/"+request_id)
-        //     status = status_request.data;
-        //     console.log(status_request)
-        //     if (status.request_status !== 'running') {
-        //         break;
-        //     } else if (new Date().getTime() - waitStartTime > maxWaitTimeMs) {
-        //         throw "Process Mining timed out";
-        //     }
-        //     await sleep(5000);
-        // }
-
-        const status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/32cea143-a7f5-426a-9504-46266fef7ed4/32cea143-a7f5-426a-9504-46266fef7ed4.tar.gz'}
-
         if(status.request_status === 'success') {
             // console.log(`Request took ${ new Date().getTime() - r.config.meta.requestStartedAt} ms`)
 
@@ -105,6 +111,11 @@ const ProcessMinerPage = ({ data, setScenario, toasting }) => {
 
             console.log(relevant_files)
 
+            
+            relevant_files.forEach(file => {
+                
+                setFile(projectName, 'simod_results/' + file.name, file.data);
+            })
     
             // Setting the response state and updating the finished and started states
             setResponse({
@@ -140,7 +151,7 @@ const ProcessMinerPage = ({ data, setScenario, toasting }) => {
     // Cancelling the source and updating the finished and started states
     source.current.cancel("Process Mining was canceled");
     setStarted(false);
-    setResponse({ message: "canceled" });
+    setResponse({ message: "canceled" }); 
   };
 
   //  function to download the file
@@ -157,7 +168,13 @@ const ProcessMinerPage = ({ data, setScenario, toasting }) => {
     a.click();
   };
 
+  const [fileList, setFileList] = useState([]);
 
+  getFiles(projectName).then(newFileList => {
+      if (fileList.join(',') !== newFileList.join(',')) { //TODO nicer way to compare
+          setFileList(newFileList);
+      }
+  });
 
     return (
         <Box h="93vh" overflowY="auto" p="5" >
@@ -191,22 +208,26 @@ const ProcessMinerPage = ({ data, setScenario, toasting }) => {
                         mt="-4"
                         >               
                             <Box>
-                                <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select scenario:</Text>
-                                <Select placeholder = 'choose scenario' width = '100%' color="darkgrey" backgroundColor= 'white' icon={<FiChevronDown />}>
-                                {data.map((scenario, index) => {
-                                return  <option value= {scenario.scenarioName} onClick={() =>  setScenario(index)}>{scenario.scenarioName}</option>
-                                })}
+                                <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select Event Log:</Text>
+                                <Select value={logFile} placeholder = 'choose event log' width = '100%' {...(!logFile && {color: "gray"})} backgroundColor= 'white' icon={<FiChevronDown />}>
+                                {
+                                    fileList
+                                        .filter(file => file.endsWith('.xes'))
+                                        .map((file, index) => {
+                                            return  <option value= {file} color="black" onClick={() => setLogFile(file)}>{file}</option>
+                                        })
+                                }
                                 </Select>
                             </Box>
                             <Box>
-                                <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select simulator:</Text>
-                                <Select placeholder = 'choose miner' width = '100%' color="darkgrey"  backgroundColor= 'white' icon={<FiChevronDown />}>
-                                    <option value='Simod'>Simod</option>
+                                <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select Process Miner:</Text>
+                                <Select value={miner} placeholder = 'choose miner' width = '100%' {...(!miner && {color: "gray"})}  backgroundColor= 'white' icon={<FiChevronDown />}>
+                                    <option value='Simod' color="black" onClick={evt => setMiner(evt.target.value)}>Simod</option>
                                 </Select>
                             </Box>
                             
                             {!started&& 
-                            <Button variant="outline" bg="#FFFF" onClick={start} >
+                            <Button variant="outline" bg="#FFFF" onClick={start} disabled={!logFile || !miner}>
                                 <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Start Miner</Text>
                             </Button>}
 

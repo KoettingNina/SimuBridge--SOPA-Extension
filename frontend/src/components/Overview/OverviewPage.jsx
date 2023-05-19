@@ -10,8 +10,9 @@ import {
     ModalFooter,
     ModalBody,
     ModalCloseButton,
-    Card, CardHeader, CardBody, Heading, Box
+    Card, CardHeader, CardBody, Heading, Box,
 } from '@chakra-ui/react'
+
 
 
 import {useState} from 'react'
@@ -38,7 +39,8 @@ function OverviewPage(props) {
     let [switches, setSwitches] = useState([]);
     const [switches_temp] = useState([]);
     const [switchList, setSwitchList] = useState([]);
-
+    
+    
     // method to handle changing switch state for scenarios comparison
     const handleChange = (id) => {
         setSwitches(switches.map(item => {
@@ -68,7 +70,7 @@ function OverviewPage(props) {
         }
     }
 
-    handleRemove(props.getData("currentScenario").scenarioName);
+    //TODO throws bugs handleRemove(props.getData("currentScenario").scenarioName);
     switches = switches_temp
 
 //set switch list. In order to use the data(id of comparing scenarios on other pages

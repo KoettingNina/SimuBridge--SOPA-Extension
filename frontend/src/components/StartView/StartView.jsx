@@ -7,6 +7,8 @@ import {
 import { FiChevronDown } from 'react-icons/fi';
 import FileUpload from './FileUpload';
 import axios from 'axios';
+import { getProjectData, getProjects } from '../../util/Storage';
+import startData from '../../example_data/simulation_input/pizza1.json'
 
 function StartView(props) {
   const [addExistingBPMN, setExistingBPMN] = useState(false);
@@ -20,7 +22,9 @@ function StartView(props) {
   const startNewProjectNow = () => {
     setNewProject(true)
     setExistingProject(false)
+    startNewData() //TODO straighten flow here
   }
+
   const startExistingProjectNow = () => {
     setNewProject(false)
     setExistingProject(true)
@@ -29,16 +33,8 @@ function StartView(props) {
 
 
    const startNewData = () => {  
-    axios
-    .get(
-      "http://127.0.0.1:8000/startdata"
-    )
-    .then(async (r) => {
-      props.setData(r.data)
-      })
-    .catch((err) => {
-        console.log("error", err);
-    });
+
+    props.setData([]);
 
     // Set started to true => dashboard is loaded
     props.setStarted("true")
@@ -50,8 +46,8 @@ function StartView(props) {
    // Function for selecting an existing project
    const selectProject = (project) => {
     sessionStorage.setItem('currentProject', project); // selected project is set as current project
-    props.setData(JSON.parse(localStorage.getItem(project))) // corresponding project data is loaded from local storage
-    props.setName(project)
+    props.setData(getProjectData(project)) // corresponding project data is loaded from local storage
+    props.setProjectName(project)
     props.setStarted("true") // Set started to true => dashboard is loaded
     sessionStorage.setItem('st', true);  // ensures that dashboard is loaded even if the page is reloaded 
    }
@@ -228,7 +224,7 @@ function StartView(props) {
         <Flex flexDir="column" gap="5" width="100%" >
           <Heading size="md">Select existing project</Heading>
            <Flex h="30vh" overflowY="scroll" flexDir="column" gap="5">
-                {!JSON.parse(localStorage.getItem('projects')) ? "" : JSON.parse(localStorage.getItem('projects')).sort((a, b) => new Date(b.date) - new Date(a.date)).map(project => {
+                {Object.values(getProjects()).sort((a, b) => new Date(b.date) - new Date(a.date)).map(project => {
                   return <Button p="4" h="20" onClick={() => selectProject(project.name)}><Flex direction="column" gap="3"><Text fontSize="lg">{project.name}</Text><Text fontSize="sm" color="gray.600">Last change: {dateConverter(project.date)}</Text></Flex></Button>
                 })}
            </Flex>  

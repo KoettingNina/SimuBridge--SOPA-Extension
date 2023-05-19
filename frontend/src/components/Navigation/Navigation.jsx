@@ -34,7 +34,8 @@ import {
         { name: 'Resource Parameters', icon: FiUser, path: '/resource', event: () =>  setCurrent("Resource Parameters") },
         { name: 'Modelbased Parameters', icon: FiStar, path: '/modelbased', event: () =>  setCurrent("Modelbased Parameters") },
         { name: 'Run Simulation', icon: FiPlay, path: '/simulation', event: () =>  setCurrent("Run Simulation") },
-        { name: 'Run Process Miner', icon: FiPlay, path: '/processminer', event: () =>  setCurrent("Run Process Miner") }
+        { name: 'Run Process Miner', icon: FiPlay, path: '/processminer', event: () =>  setCurrent("Run Process Miner") },
+        { name: 'Debugging View', icon: FiPlay, path: '/debug', event: () =>  setCurrent("Debug View") }
       ];
 
       // Define Navigation items that will be displayed at the bottom of the navigation

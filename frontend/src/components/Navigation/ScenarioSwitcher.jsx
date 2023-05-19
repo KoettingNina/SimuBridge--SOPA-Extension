@@ -24,7 +24,7 @@ const ScenarioSwitcher = ({ data, currentScenario, setScenario }) => (
     </Text>
     <Flex gap={{ base: '3', md: '3' }} flexDirection={{ base: 'column', md: 'row' }} w="100%">
       <Input
-        placeholder={data[currentScenario].scenarioName}
+        placeholder={data[currentScenario]?.scenarioName}
         variant="filled"
         isDisabled
         w={{
