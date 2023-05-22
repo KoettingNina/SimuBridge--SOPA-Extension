@@ -225,7 +225,7 @@ function StartView(props) {
           <Heading size="md">Select existing project</Heading>
            <Flex h="30vh" overflowY="scroll" flexDir="column" gap="5">
                 {Object.values(getProjects()).sort((a, b) => new Date(b.date) - new Date(a.date)).map(project => {
-                  return <Button p="4" h="20" onClick={() => selectProject(project.name)}><Flex direction="column" gap="3"><Text fontSize="lg">{project.name}</Text><Text fontSize="sm" color="gray.600">Last change: {dateConverter(project.date)}</Text></Flex></Button>
+                  return <Button p="4" h="20" onClick={() => selectProject(project.projectName)}><Flex direction="column" gap="3"><Text fontSize="lg">{project.projectName}</Text><Text fontSize="sm" color="gray.600">Last change: {dateConverter(project.date)}</Text></Flex></Button>
                 })}
            </Flex>  
         </Flex>

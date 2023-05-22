@@ -16,11 +16,15 @@ function DebugPage(props) {
 
     const [fileList, setFileList] = useState([]);
 
-    getFiles(props.projectName).then(newFileList => {
-        if (fileList.join(',') !== newFileList.join(',')) {
-            setFileList(newFileList);
-        }
-    });
+    function updateFileList() {
+        getFiles(props.projectName).then(newFileList => {
+            if (fileList.join(',') !== newFileList.join(',')) {
+                setFileList(newFileList);
+            }
+        });
+    }
+
+    updateFileList();
 
     return (
         <Box h="93vh" overflowY="auto" p="5" >
@@ -47,7 +51,10 @@ function DebugPage(props) {
                                         props.setData([...props.data, converted])
                                     }}>Convert To Scenario</Button>}
                                     <Button onClick={() => downloadFile(props.projectName, x)} variant="link">{x}</Button>
-                                    <Button onClick={() => deleteFile(props.projectName, x)} ><Icon as={FiTrash2} fontSize="md" color={"RGBA(0, 0, 0, 0.64)"} /></Button>
+                                    <Button onClick={() => {
+                                        deleteFile(props.projectName, x);
+                                        updateFileList();
+                                    }} ><Icon as={FiTrash2} fontSize="md" color={"RGBA(0, 0, 0, 0.64)"} /></Button>
                                 </ListItem>
                             ))}
                         </UnorderedList>
@@ -60,8 +67,12 @@ function DebugPage(props) {
                         <Heading size='ms'> Others </Heading>
                     </CardHeader>
                     <CardBody>
-                        <Button onClick={() => uploadFile(props.projectName)}>Upload File</Button> 
-                        <Button onClick={() => deleteAllFiles(props.projectName)}>Delete All Files</Button> 
+                        <Button onClick={() => {
+                            uploadFile(props.projectName).then(updateFileList);
+                        }}>Upload File</Button> 
+                        <Button onClick={() => {
+                            deleteAllFiles(props.projectName).then(updateFileList);
+                        }}>Delete All Files</Button> 
                         <Button onClick={() => console.log(props.data)}>Print State</Button> 
                     </CardBody>
                 </Card>

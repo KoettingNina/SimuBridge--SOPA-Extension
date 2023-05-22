@@ -153,7 +153,11 @@ function OverviewPage(props) {
                         </CardHeader>
                         <CardBody>
                             {/*Call of Scenario Overview Table*/}
-                            <OverviewTable getSimulData={props.getData}/>
+                            {(props.getData() && props.getData().length)
+                                ? <OverviewTable getSimulData={props.getData}/>
+                                : <CardBody>
+                                   No scenarios exist yet. <Button variant='link' as={Link} to="/processminer">Go to process miner view to create one.</Button>
+                                </CardBody>}
                         </CardBody>
                     </Card>
                     {/*Tabbar to switch between different scenarios*/}

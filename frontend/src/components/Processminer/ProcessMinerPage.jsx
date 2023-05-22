@@ -6,9 +6,10 @@ import Zip from 'jszip';
 import untar from "js-untar";
 import Gzip from 'pako';
 import simodSampleConfiguration from '../../example_data/simod_input/config/sample.yml'
-import { getFile, getFiles, setFile } from "../../util/Storage";
+import { getFile, getFiles, getScenarioFileName, setFile, uploadFile } from "../../util/Storage";
+import { convertSimodOutput } from "../../util/simod_converter";
 
-const ProcessMinerPage = ({projectName, data, setScenario, toasting }) => {
+const ProcessMinerPage = ({projectName, setData, data, setScenario, toasting }) => {
 
 // Setting initial states of started, finished, and response
   const [started, setStarted] = useState(false);
@@ -17,6 +18,9 @@ const ProcessMinerPage = ({projectName, data, setScenario, toasting }) => {
   const [response, setResponse] = useState({});
   const [logFile, setLogFile] = useState();
   const [miner, setMiner] = useState();
+  
+  const [configFile, setConfigFile] = useState();
+  const [bpmnFile, setBpmnFile] = useState();
 
   // Creating a reference to the source that can be cancelled if needed
   const source = useRef(null);
@@ -81,7 +85,7 @@ const ProcessMinerPage = ({projectName, data, setScenario, toasting }) => {
             }
         } else {
             //TODO dummy
-            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/30a2e4c4-6deb-4d85-8764-519179a68ad6/30a2e4c4-6deb-4d85-8764-519179a68ad6.tar.gz'}
+            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/0d606a2b-e00a-4789-89bb-ae1ef468f047/0d606a2b-e00a-4789-89bb-ae1ef468f047.tar.gz'}
         }
 
         
@@ -168,13 +172,33 @@ const ProcessMinerPage = ({projectName, data, setScenario, toasting }) => {
     a.click();
   };
 
+  function fileSelect(title, state, setState, filter, moreOptions=[]) {
+    return <Box>
+        <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" >{title}</Text>
+        <Select value={state} placeholder = {title} width = '100%' {...(!state && {color: "gray"})} backgroundColor= 'white' icon={<FiChevronDown />} onChange={(evt) => {setState(evt.target.value)}}>
+        {
+            fileList
+                .filter(filter)
+                .map((file, index) => {
+                    return  <option value= {file} color="black">{file}</option>
+                })
+                .concat(moreOptions)
+        }
+        </Select>
+    </Box>
+  }
+
   const [fileList, setFileList] = useState([]);
 
-  getFiles(projectName).then(newFileList => {
-      if (fileList.join(',') !== newFileList.join(',')) { //TODO nicer way to compare
-          setFileList(newFileList);
-      }
-  });
+    function updateFileList() {
+        getFiles(projectName).then(newFileList => {
+            if (fileList.join(',') !== newFileList.join(',')) {
+                setFileList(newFileList);
+            }
+        });
+    }
+
+    updateFileList();
 
     return (
         <Box h="93vh" overflowY="auto" p="5" >
@@ -204,25 +228,22 @@ const ProcessMinerPage = ({projectName, data, setScenario, toasting }) => {
                     <Flex
                         gap="5"
                         flexDirection="row"
-                        alignItems="end"
+                        alignItems="top"
                         mt="-4"
-                        >               
-                            <Box>
-                                <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select Event Log:</Text>
-                                <Select value={logFile} placeholder = 'choose event log' width = '100%' {...(!logFile && {color: "gray"})} backgroundColor= 'white' icon={<FiChevronDown />}>
-                                {
-                                    fileList
-                                        .filter(file => file.endsWith('.xes'))
-                                        .map((file, index) => {
-                                            return  <option value= {file} color="black" onClick={() => setLogFile(file)}>{file}</option>
-                                        })
-                                }
-                                </Select>
+                        >
+                            <Box>         
+                                {fileSelect('Select Event Log:', logFile, setLogFile, file => file.endsWith('.xes'))}
+                                <Button /*variant="link"*/ onClick={() => {
+                                    uploadFile(projectName).then(file => {
+                                        updateFileList();
+                                        setLogFile(file);
+                                    })
+                                }}>Upload new Event Log</Button>
                             </Box>
                             <Box>
                                 <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select Process Miner:</Text>
-                                <Select value={miner} placeholder = 'choose miner' width = '100%' {...(!miner && {color: "gray"})}  backgroundColor= 'white' icon={<FiChevronDown />}>
-                                    <option value='Simod' color="black" onClick={evt => setMiner(evt.target.value)}>Simod</option>
+                                <Select value={miner} placeholder = 'choose miner' width = '100%' {...(!miner && {color: "gray"})}  backgroundColor= 'white' icon={<FiChevronDown />} onChange={evt => setMiner(evt.target.value)}>
+                                    <option value='Simod' color="black">Simod</option>
                                 </Select>
                             </Box>
                             
@@ -243,16 +264,45 @@ const ProcessMinerPage = ({projectName, data, setScenario, toasting }) => {
 
             <Card bg="white">
                 <CardHeader>
-                    <Heading size='ms'> Miner feedback </Heading>
+                    <Heading size='md'> Miner feedback </Heading>
                 </CardHeader>
                 <CardBody>
-                    <Textarea isDisabled  value={response.message} />
-                    {response.files && response.message && <>
-                        <Heading size='ms' mt={5}>Click on the name of the file to download it:</Heading>
-                        <UnorderedList>
-                        {response.files.map(x => (<ListItem><Button onClick={() => download(x.data, x.name)} variant="link">{x.name}</Button></ListItem>)) }
-                        </UnorderedList>
-                    </>}
+                    <Flex flexDirection='column' gap='5'>
+                        <Textarea isDisabled value={response.message} />
+                        {response.files && response.message && <>
+                            <Heading size='ms' mt={5}>Click on the name of the file to download it:</Heading>
+                            <UnorderedList>
+                            {response.files.map(x => (<ListItem><Button onClick={() => download(x.data, x.name)} variant="link">{x.name}</Button></ListItem>)) }
+                            </UnorderedList>
+
+                            <Heading size='ms' mt='10'>Convert Miner Output to Scenario:</Heading>
+                            <Flex
+                            gap="15"
+                            flexDirection="row"
+                            alignItems="end"
+                            >               
+                                {fileSelect('Select .json Config File:', configFile, setConfigFile, file => file.endsWith('.json') && file.includes('simulation_parameters') && !file.includes('converted'))}
+                                {fileSelect('Select Bpmn File:', bpmnFile, setBpmnFile, file => file.endsWith('.bpmn'))}
+                                
+                                <Button disabled={!configFile || !bpmnFile} onClick={async () => {
+                                    console.log('Converting files ' + configFile + ' ' + bpmnFile)
+                                    let converted = convertSimodOutput((await getFile(projectName, configFile)).data, (await getFile(projectName, bpmnFile)).data);
+                                    converted.modelPaths = [bpmnFile];  //TODO magical attribute, should be part of converter potentially
+
+                                    let scenarioName = window.prompt('Please enter scenario name');
+                                    if (scenarioName) {
+                                        converted.scenarioName = scenarioName;
+                                        let scenarioFileName = getScenarioFileName(scenarioName);
+                                        setFile(projectName, scenarioFileName, JSON.stringify([converted])); //TODO store without array
+                                        setData([...data, converted]);
+                                    }
+                                }}>
+                                    <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Convert to Scenario</Text>
+                                </Button>
+
+                            </Flex>
+                        </>}
+                    </Flex>
                 </CardBody>
             </Card>
             
