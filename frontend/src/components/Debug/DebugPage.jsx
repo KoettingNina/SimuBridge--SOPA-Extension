@@ -36,20 +36,7 @@ function DebugPage(props) {
                     <CardBody>
                         <UnorderedList>
                             {fileList.sort().map(x => (
-                                <ListItem>
-                                    {x.endsWith('.json') && x.includes('simulation_parameters') && !x.includes('converted') && <Button onClick={async () => {
-                                        let bpmn = fileList.filter(file => file.endsWith('.bpmn') && file.includes('structure_trial'))[0]; //TODO random model selection
-                                        console.log('Converting files ' + x + ' ' + bpmn)
-                                        let converted = convertSimodOutput((await getFile(props.projectName, x)).data, (await getFile(props.projectName, bpmn)).data);
-                                        converted.modelPaths = [bpmn];  //TODO magical attribute, should be part of converter potentially
-
-                                        let scenarioName = window.prompt('Please enter scenario name');
-                                        converted.scenarioName = scenarioName;
-                                        console.log(converted);
-                                        let scenarioFileName = getScenarioFileName(scenarioName);
-                                        setFile(props.projectName, scenarioFileName, JSON.stringify([converted])); //TODO store without array
-                                        props.setData([...props.data, converted])
-                                    }}>Convert To Scenario</Button>}
+                                <ListItem key={x}>
                                     <Button onClick={() => downloadFile(props.projectName, x)} variant="link">{x}</Button>
                                     <Button onClick={() => {
                                         deleteFile(props.projectName, x);

@@ -37,11 +37,12 @@ const SimulationPage = ({projectName, data, toasting }) => {
       //var paramFile = new File([JSON.stringify(simulationConfiguration)], 'pizza1.json'); // Attention: json file is directly imported
       var scenarioFileName = getScenarioFileName(scenario);
       let scenarioFileData = (await getFile(projectName, scenarioFileName)).data;
-      var paramFile = new File([scenarioFileData], scenarioFileName.split('/').pop())
-      var bpmnFileName = JSON.parse(scenarioFileData).modelPaths[0] //TODO magic string
-      let bpmnFileData = (await getFile(projectName, bpmnFileName)).data;
+      var paramFile = new File([scenarioFileData], scenarioFileName.split('/').pop());
+      let scenarioJson = JSON.parse(scenarioFileData)[0]; //TODO remove array acces at one point
+      let bpmnFileName = scenarioJson.models[0].name + '.bpmn' //TODO magic index access
+      let bpmnFileData = scenarioJson.models[0].BPMN
       var bpmnFile = new File([bpmnFileData], bpmnFileName.split('/').pop())
-      formData.append("bpmn", bpmnFile, bpmnFile.name);
+      formData.append("bpmn", bpmnFile, bpmnFile.name); //TODO bpmn file is unnecessary as source is already part of scenario file
       formData.append("param", paramFile, paramFile.name);
 
       // Sending a POST request to apiTool.py in the Scylla-Container subproject, with the cancel token attached
@@ -68,7 +69,10 @@ const SimulationPage = ({projectName, data, toasting }) => {
         toasting("success", "Success", "Simulation was canceled");
       } else {
         // Otherwise, toast an error message
+        setFinished(true);
+        setStarted(false);
         console.log(err)
+        //TODO also display error occurence
         toasting("error", "error", "Simulation was not successful");
       }
     }
@@ -127,10 +131,10 @@ const SimulationPage = ({projectName, data, toasting }) => {
                         >               
                             <Box>
                                 <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select scenario:</Text>
-                                <Select value={scenario} placeholder = 'choose scenario' width = '100%' {...(!scenario && {color: "gray"})} backgroundColor= 'white' icon={<FiChevronDown />}>
+                                <Select value={scenario} placeholder = 'choose scenario' width = '100%' {...(!scenario && {color: "gray"})} backgroundColor= 'white' icon={<FiChevronDown />} onChange={evt => setScenario(evt.target.value)}>
                                 {
                                   data.map((scenario, index) => {
-                                    return  <option value= {scenario.scenarioName} color="black" onClick={evt =>  setScenario(evt.target.value)}>{scenario.scenarioName}</option>
+                                    return  <option value= {scenario.scenarioName} color="black">{scenario.scenarioName}</option>
                                   })
                                 }
                                 </Select>

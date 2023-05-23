@@ -287,7 +287,6 @@ const ProcessMinerPage = ({projectName, setData, data, setScenario, toasting }) 
                                 <Button disabled={!configFile || !bpmnFile} onClick={async () => {
                                     console.log('Converting files ' + configFile + ' ' + bpmnFile)
                                     let converted = convertSimodOutput((await getFile(projectName, configFile)).data, (await getFile(projectName, bpmnFile)).data);
-                                    converted.modelPaths = [bpmnFile];  //TODO magical attribute, should be part of converter potentially
 
                                     let scenarioName = window.prompt('Please enter scenario name');
                                     if (scenarioName) {

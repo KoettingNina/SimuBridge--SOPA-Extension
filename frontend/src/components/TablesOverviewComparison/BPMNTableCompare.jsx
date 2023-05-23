@@ -640,16 +640,15 @@ function BPMNTableCompare(props) {
                                         {/*Inter-arrival time. Distribution*/}
                                         <Td>
                                             {!isDifferentPopover("durationValuesEvent", event.id, event.id) ?
-                                                event.interArrivalTime.values.map((item) => {
+                                                event.interArrivalTime.values?.map((item) => {
                                                         return <Text>{"⠀" + item.id + ": " + item.value}</Text>
                                                     })
                                                 :
                                                 <Popover>
                                                     <PopoverTrigger>
                                                         <Button>
-                                                            {event.interArrivalTime.values.map((item) => {
+                                                            {event.interArrivalTime.values?.map((item) => {
                                                                 return <Text>{"⠀" + item.id + ": " + item.value}</Text>
-
                                                             })}
                                                         </Button>
                                                     </PopoverTrigger>

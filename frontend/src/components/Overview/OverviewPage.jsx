@@ -163,6 +163,7 @@ function OverviewPage(props) {
                     {/*Tabbar to switch between different scenarios*/}
                     <TabBar
                         //onClick={(index) => setTabIndex(index)}
+                        setCurrent={() => {/* TODO */}}
                         items={props.getData("allScenarios").map((element, index) => {
                             return {
                                 tabname: element.scenarioName,
@@ -180,6 +181,7 @@ function OverviewPage(props) {
                                         </Card>
                                         {/*Tabbar to switch between different bpmns within one scenario*/}
                                         <TabBar
+                                            setCurrent={() => {/* TODO */}}
                                             items={props.getData("allModels").models.map((element, index_bpmn) => {
                                                 return {
                                                     tabname: element.name,

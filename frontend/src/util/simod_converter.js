@@ -27,7 +27,8 @@ export function convertSimodOutput(jsonOutput, bpmnOutput) {
     Scenario.timeUnit = getTimeUnit(jsonObj);
     Scenario.currency = getCurrency(jsonObj);
     Scenario.resourceParameters = getResourceParameters(jsonObj);
-    Scenario.models = getModel(bpmnParsed, jsonObj);
+    Scenario.models = getModel(bpmnParsed, jsonObj, bpmnOutput);
+    Scenario.modelJSON = [bpmnParsed] //TODO remove this as soon as not needed anymore
 
     return Scenario;
 }
@@ -279,7 +280,7 @@ function timeToNumber(time){
     return hour
 }
 
-function getModel(bpmnObj, jsonObj){
+function getModel(bpmnObj, jsonObj, bpmnXml){
     //returns the model parameters, contains the BPMN, BPMN-name, activities, gateways, events and sequences
     let models = new Array;
     let modelParameter = new Object;
@@ -289,7 +290,7 @@ function getModel(bpmnObj, jsonObj){
     modelParameter.sequences = getSequences(bpmnObj, jsonObj);
     
     models.push({
-        BPMN: bpmnObj,
+        BPMN: bpmnXml,
         name: "BPMN_1",
         modelParameter: modelParameter
 
@@ -322,7 +323,6 @@ function getEvents(bpmnObj, jsonObj){
                 id: b.ATTR.id,
                 type: "bpmn:EndEvent",
                 unit: getTimeUnit(),
-                interArrivalTime: "",
                 incoming: getIncomingSequences(b.ATTR.id, bpmnObj),
                 outgoing: emptyArray
             })

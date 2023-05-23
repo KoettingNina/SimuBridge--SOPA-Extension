@@ -36,9 +36,12 @@ function ResourceOverview({setCurrent, getData, setRole, setResource}){
                             <Tbody> 
                             
                                 {getData("currentScenario").resourceParameters.roles.map((element) => {
-                                return <><Tr><Td><Flex><Button variant="outline" onClick={() => {setRole(element.id); setCurrent("Resource Parameters for Roles")} }>{element.id}</Button></Flex></Td><Td><Flex gap="4" flexWrap="wrap">{element.resources.map((resource) => {
-                                   return <Button onClick={() => {setResource(resource.id); setCurrent("Resource Parameters") }}> {resource.id} </Button> 
-                                })}</Flex></Td></Tr></>
+                                    return <><Tr key={element.id}>
+                                        <Td><Flex><Button variant="outline" onClick={() => {setRole(element.id); setCurrent("Resource Parameters for Roles")} }>{element.id}</Button></Flex></Td>
+                                        <Td><Flex gap="4" flexWrap="wrap">
+                                            {element.resources.map((resource) => {return <Button onClick={() => {setResource(resource.id); setCurrent("Resource Parameters") }}> {resource.id} </Button>})}
+                                        </Flex></Td>
+                                    </Tr></>
                                 })} 
                                 
                            
