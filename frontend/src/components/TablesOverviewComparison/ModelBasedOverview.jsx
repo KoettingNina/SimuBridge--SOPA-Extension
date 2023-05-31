@@ -64,7 +64,7 @@ class ModelBasedOverview extends React.Component {
     getProbabilities(gateway) {
         if (gateway !== undefined) {
             return gateway.outgoing.map((out) => {
-                let sequence = this.props.getData().getAllModels().models[this.props.bpmn_id].modelParameter.sequences.find(item => item.id === out)
+                let sequence = this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.sequences.find(item => item.id === out)
                 if (sequence !== undefined) {
                     return <Text>{sequence.probability}</Text>
                 } else {
@@ -92,7 +92,7 @@ class ModelBasedOverview extends React.Component {
 // method to find incoming activities/events for gateway
     getIncoming(gateway) {
         let incoming
-        this.props.getData().getAllModels().models[this.props.bpmn_id].modelParameter.activities.map((element) => {
+        this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.activities.map((element) => {
             element.outgoing.map((out) => {
                 if (out === gateway) {
                     incoming = element.name
@@ -100,7 +100,7 @@ class ModelBasedOverview extends React.Component {
             })
         })
         if (incoming === undefined) {
-            this.props.getData().getAllModels().models[this.props.bpmn_id].modelParameter.events.map((element) => {
+            this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.events.map((element) => {
                 element.outgoing.map((out) => {
                     if (out === gateway) {
                         incoming = element.name
@@ -114,7 +114,7 @@ class ModelBasedOverview extends React.Component {
     // method to find outgoing activities/events for gateway
     getOutgoing(gateway) {
         let outgoing
-        this.props.getData().getAllModels().models[this.props.bpmn_id].modelParameter.activities.map((element) => {
+        this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.activities.map((element) => {
             element.incoming.map((inc) => {
                 if (inc === gateway) {
                     outgoing = element.name
@@ -122,7 +122,7 @@ class ModelBasedOverview extends React.Component {
             })
         })
         if (outgoing === undefined) {
-            this.props.getData().getAllModels().models[this.props.bpmn_id].modelParameter.events.map((element) => {
+            this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.events.map((element) => {
                 element.incoming.map((inc) => {
                     if (inc === gateway) {
                         outgoing = element.name
@@ -199,7 +199,7 @@ class ModelBasedOverview extends React.Component {
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {this.props.getData().getAllModels().models[this.props.bpmn_id].modelParameter.gateways.map((element) => {
+                                        {this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.gateways.map((element) => {
                                             return <>
                                                 <Tr>
                                                     <Td>{element.id}</Td>
@@ -236,7 +236,7 @@ class ModelBasedOverview extends React.Component {
                                                 </Tr>
                                             </Thead>
                                             <Tbody>
-                                                {this.props.getData().getAllModels().models[this.props.bpmn_id].modelParameter.events.map((element) => {
+                                                {this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.events.map((element) => {
                                                     
                                                     return <Tr>
                                                         <Td>{element.name}</Td>

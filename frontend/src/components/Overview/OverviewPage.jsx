@@ -182,7 +182,7 @@ function OverviewPage(props) {
                                         {/*Tabbar to switch between different bpmns within one scenario*/}
                                         <TabBar
                                             setCurrent={() => {/* TODO */}}
-                                            items={props.getData().getAllModels().models.map((element, index_bpmn) => {
+                                            items={props.getData().getAllModels().map((element, index_bpmn) => {
                                                 return {
                                                     tabname: element.name,
                                                     content:

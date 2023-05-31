@@ -90,6 +90,9 @@ export async function getFile(projectName, fileName) {
 }
 
 export async function setFile(projectName, fileName, data) {
+    if(!projectName) throw 'No project name provided';
+    if(!fileName) throw 'No file name provided';
+
     const {transaction, filesStore} = await getFileObjectStorage('readwrite');
     filesStore.put({
         path : filePath(projectName, fileName),
@@ -104,6 +107,9 @@ export function getScenarioFileName(scenarioName) {
 }
 
 export async function deleteFile(projectName, fileName) {
+    if(!projectName) throw 'No project name provided';
+    if(!fileName) throw 'No file name provided';
+
     const {transaction, filesStore} = await getFileObjectStorage('readwrite');
     filesStore.delete(filePath(projectName, fileName));
     await transaction.complete;
@@ -116,6 +122,9 @@ export async function deleteAllFiles(projectName) {
 }
 
 export async function downloadFile(projectName, fileName, encoding='charset=UTF-8') {
+    if(!projectName) throw 'No project name provided';
+    if(!fileName) throw 'No file name provided';
+
     const data = (await getFile(projectName, fileName)).data;
     const encodedData = encodeURIComponent(data);
     const a = document.createElement("a");
@@ -128,6 +137,8 @@ export async function downloadFile(projectName, fileName, encoding='charset=UTF-
 }
 
 export async function uploadFile(projectName, encoding='UTF-8') {
+    if(!projectName) throw 'No project name provided';
+
     let fileInput = document.createElement("input");
     document.body.appendChild(fileInput);
     fileInput.setAttribute('type', 'file');

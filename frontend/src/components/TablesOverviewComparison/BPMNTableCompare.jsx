@@ -216,7 +216,7 @@ function BPMNTableCompare(props) {
 // get name of the incoming to the gateway activities or events
     const getIncoming = (gateway) => {
         let incoming
-        props.getData().getAllModels().models[props.modelIndex].modelParameter.activities.map((element) => {
+        props.getData().getAllModels()[props.modelIndex].modelParameter.activities.map((element) => {
             element.outgoing.map((out) => {
                 if (out === gateway) {
                     return incoming = element.name
@@ -224,7 +224,7 @@ function BPMNTableCompare(props) {
             })
         })
         if (incoming === undefined) {
-            props.getData().getAllModels().models[props.modelIndex].modelParameter.events.map((element) => {
+            props.getData().getAllModels()[props.modelIndex].modelParameter.events.map((element) => {
                 element.outgoing.map((out) => {
                     if (out === gateway) {
                         return incoming = element.name
@@ -238,7 +238,7 @@ function BPMNTableCompare(props) {
     // method to find outgoing activities/events for gateway
     const getOutgoing = (gateway) => {
         let outgoing
-        props.getData().getAllModels().models[props.modelIndex].modelParameter.activities.map((element) => {
+        props.getData().getAllModels()[props.modelIndex].modelParameter.activities.map((element) => {
             element.incoming.map((inc) => {
                 if (inc === gateway) {
                     return outgoing = element.name
@@ -246,7 +246,7 @@ function BPMNTableCompare(props) {
             })
         })
         if (outgoing === undefined) {
-            props.getData().getAllModels().models[props.modelIndex].modelParameter.events.map((element) => {
+            props.getData().getAllModels()[props.modelIndex].modelParameter.events.map((element) => {
                 element.incoming.map((inc) => {
                     if (inc === gateway) {
                         return outgoing = element.name

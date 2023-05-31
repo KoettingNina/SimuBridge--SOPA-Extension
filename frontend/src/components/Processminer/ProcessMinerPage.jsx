@@ -291,9 +291,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                                     let scenarioName = window.prompt('Please enter scenario name');
                                     if (scenarioName) {
                                         converted.scenarioName = scenarioName;
-                                        let scenarioFileName = getScenarioFileName(scenarioName);
-                                        setFile(projectName, scenarioFileName, JSON.stringify([converted])); //TODO store without array
-                                        getData().addScenario(converted); //TODO this is a duplicate from above technically
+                                        getData().addScenario(converted);
                                     }
                                 }}>
                                     <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Convert to Scenario</Text>

@@ -14,7 +14,7 @@ const ScenarioPage = ({ setSelectedScenario, setCurrent, getData, selectedScenar
 
     // Define a function to delete a scenario
     const deleteScenario = (index) => {
-        let data = [...getData().getAllScenario()];
+        let data = [...getData().getAllScenarios()];
 
         // ensure that at least one scenario exist //TODO why?
         if (data.length > 1) {

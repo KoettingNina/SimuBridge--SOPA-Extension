@@ -19,7 +19,7 @@ import TimetableOverview from './components/ResourceParameters/TimeTable/Timetab
 import ResourceOverview from './components/ResourceParameters/Resources/ResourceOverview';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
-import { getFiles, getProjectData, getProjects, getScenarios, setProjectData } from './util/Storage';
+import { deleteFile, getFiles, getProjectData, getProjects, getScenarioFileName, getScenarios, setFile, setProjectData } from './util/Storage';
 
 const { compare } = require('js-deep-equals')
 
@@ -62,15 +62,11 @@ function App() {
 
   let projectData;
 
-  let initializeData; //TODO remove
-
   {
     // store and set information which BPMN and scenario is currently selected
     const [data, setDataInternal] = useState([]) // method is used to save data from the discoverytool
     const [currentBpmn, setBpmn] = useState(0)
     const [currentScenario, setScenario] = useState(0);
-
-    initializeData = setDataInternal;
 
     function storeScenario(d) { //TODO
       setDataInternal(d)
@@ -92,34 +88,62 @@ function App() {
       }
     }
 
-    projectData = {
-      getCurrentScenario : () => data[currentScenario],
-      getAllScenarios : () => data,
-      getCurrentModel : () => data[currentScenario]?.models[currentBpmn],
-      getAllModels : () => data[currentScenario],
+    class ProjectData {
 
-      getScenarioByIndex : index => data[index], //TODO remove
-      setScenarioByIndex : (index, scenarioData) => data[index] = scenarioData, //TODO remove
-      deleteScenarioByIndex : (index) => data = data.splice(index, 1), //TODO remove
-      setCurrentScenarioByIndex : index => setScenario(index), //TODO remove
-      setCurrentBpmnByIndex : index => setBpmn(index), //TODO remove
-  
-      addScenario : (scenarioData) => {
-        data.push(scenarioData);
-      },
+      constructor(projectName) {
+        this.projectName = projectName;
+      }
+
+      initializeData() {
+        getScenarios(this.projectName).then(scenarioFiles => {
+          setDataInternal(scenarioFiles.map(scenarioFile => JSON.parse(scenarioFile.data))) //TODO remove scenario data inside array
+        });
+      }
+
+      getAllScenarios() { return data; }
+      getCurrentScenario() { return this.getAllScenarios()[currentScenario]; }
+      getAllModels() { return this.getCurrentScenario()?.models; }
+      getCurrentModel() { return this.getAllModels[currentBpmn]; }
+
+      getScenario(scenarioName) { return this.getAllScenarios().find(scenario => scenario.scenarioName === scenarioName) }//TODO remove
+      getScenarioByIndex(index) { return data[index]; }//TODO remove
+      deleteScenarioByIndex(index) { 
+        const scenario = this.getScenarioByIndex(index);
+        this.deleteScenario(scenario);
+      }//TODO remove
+      setCurrentScenarioByIndex(index) { setScenario(index); }//TODO remove
+      setCurrentBpmnByIndex(index) { setBpmn(index); }//TODO remove
+
+      addScenario(scenario) {
+        this.saveScenario(scenario);
+      }
+
+      renameScenario(scenario, newName) {
+        this.deleteScenario(scenario);
+        scenario.scenarioName = newName;
+        this.addScenario(scenario);
+      }
+
+      saveScenario(scenario) {
+        //TODO automatically detect renames
+        let scenarioFileName = getScenarioFileName(scenario.scenarioName);
+        setFile(this.projectName, scenarioFileName, JSON.stringify(scenario));
+        this.initializeData();
+      }
+
+      deleteScenario(scenario) {
+        const scenarioFileName = getScenarioFileName(scenario.scenarioName);
+        deleteFile(this.projectName, scenarioFileName); 
+        this.initializeData();
+      }
 
       // Call after some in-place operation has happened
-      saveCurrentScenario : () => {
-        throw 'Not yet implemented' //TODO
-      },
-
-      updateCurrentModel : modelData => {
-        throw 'Not yet implemented' //TODO
-      },
-      updateCurrentScenario : scenarioData => {
-        throw 'Not yet implemented' //TODO
-      },
+      saveCurrentScenario() {
+        this.saveScenario(this.getCurrentScenario());
+      }
     }
+
+    projectData = new ProjectData(projectName);
 
     window.projectData = projectData; //TODO for debugging purposes
 
@@ -159,9 +183,7 @@ useEffect(() => {
 // if a project is started and has a projectName (meaning it is started by selecting and existing project), the internal data is filled with data from the Storage
 useEffect(() => {
   if(projectName){
-    getScenarios(projectName).then(scenarioFiles => {
-      initializeData(scenarioFiles.map(scenarioFile => JSON.parse(scenarioFile.data)[0])) //TODO remove scenario data inside array
-    });
+    projectData.initializeData();
   }
 
 }, [projectStarted]);
@@ -200,7 +222,6 @@ useEffect(() => {
           <StartView setStarted={setStarted} setProjectName={setProjectName}/>
         :
         <>
-      {/* TODO: initialize currentProject somehow */}
       {/*If a session and data exists the dashboard is displayed */}
       {true /* data && data[0]*/ ?
        <>
