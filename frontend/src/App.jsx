@@ -19,7 +19,7 @@ import TimetableOverview from './components/ResourceParameters/TimeTable/Timetab
 import ResourceOverview from './components/ResourceParameters/Resources/ResourceOverview';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
-import { getProjectData, getProjects, setProjectData } from './util/Storage';
+import { getFiles, getProjectData, getProjects, getScenarios, setProjectData } from './util/Storage';
 
 const { compare } = require('js-deep-equals')
 
@@ -27,15 +27,9 @@ function App() {
   const [projectStarted, setStarted] = useState(sessionStorage.getItem('st') || "false") // checks if the starting flaf is stet in the session storage to display the dashboard or otherwise the startpage
 
 
-  const [parsed, setParsed] = useState(true) // to be removed
+  const [parsed, setParsed] = useState(true) // TODO to be removed
 
-  const [data, setDataInternal] = useState([]) // method is used to save data from the discoverytool
-  const [globalState, setGlobalState] = useState({
-    projects : [],
-    currentProject : undefined,
-    currentScenario : undefined,
-    currentBpmn : undefined
-  });
+  const [currentProject, setCurrentProject] = useState(); //TODO, yes switching project would be nice
 
   // State is used for changing / adding a project projectName, it firest checks if project is already set as current in the session storage
   const [projectName, setProjectName] = useState(sessionStorage.getItem('currentProject') || "")
@@ -45,11 +39,8 @@ function App() {
   //TODO to be renamed to currentPage or similar
   const [current, setCurrent] = useState("Scenario Parameters")  // Current Page => Imoprtant for the navigation to highlight the current page 
 
-  // store and set information which BPMN and scenario is currently selected
-  const [currentBpmn, setBpmn] = useState(0)
-  const [currentScenario, setScenario] = useState(0)
 
-
+  //TODO remove those or move them to a specific component; this is not global state
   // These states are used to store information which "items" are currently selected in the table and are then displayed on the rigth sidebar (EditorSidebar)
   const [currentResource, setResource] = useState("")
   const [currentRole, setRole] = useState("")
@@ -69,29 +60,77 @@ function App() {
 
   const {onClose } = useDisclosure()
 
+  let projectData;
 
-// This method updates the internal data in the tool if a subcomponent calls the setData method.
-//But before the data is changed first it checks if there is realy a change in the data and gives returns a message which is displayed
-const setData = (d) => {
-  setDataInternal(d)
+  let initializeData; //TODO remove
 
-  if(projectName){
+  {
+    // store and set information which BPMN and scenario is currently selected
+    const [data, setDataInternal] = useState([]) // method is used to save data from the discoverytool
+    const [currentBpmn, setBpmn] = useState(0)
+    const [currentScenario, setScenario] = useState(0);
 
-    if(!compare(getProjectData(projectName), d)){
-      toasting("success", "Saved", "Saved data")
+    initializeData = setDataInternal;
 
+    function storeScenario(d) { //TODO
+      setDataInternal(d)
 
-      console.log(getProjectData(projectName))
-      console.log(d)
-
-      setProjectData(projectName, d);
-    } else{
-      toasting("warning", "Changes", "No changes were detected")
+      if(projectName){
+    
+        if(!compare(getProjectData(projectName), d)){
+          toasting("success", "Saved", "Saved data")
+    
+    
+          console.log(getProjectData(projectName))
+          console.log(d)
+    
+          setProjectData(projectName, d);
+        } else{
+          toasting("warning", "Changes", "No changes were detected")
+        }
+    
+      }
     }
+
+    projectData = {
+      getCurrentScenario : () => data[currentScenario],
+      getAllScenarios : () => data,
+      getCurrentModel : () => data[currentScenario]?.models[currentBpmn],
+      getAllModels : () => data[currentScenario],
+
+      getScenarioByIndex : index => data[index], //TODO remove
+      setScenarioByIndex : (index, scenarioData) => data[index] = scenarioData, //TODO remove
+      deleteScenarioByIndex : (index) => data = data.splice(index, 1), //TODO remove
+      setCurrentScenarioByIndex : index => setScenario(index), //TODO remove
+      setCurrentBpmnByIndex : index => setBpmn(index), //TODO remove
+  
+      addScenario : (scenarioData) => {
+        data.push(scenarioData);
+      },
+
+      // Call after some in-place operation has happened
+      saveCurrentScenario : () => {
+        throw 'Not yet implemented' //TODO
+      },
+
+      updateCurrentModel : modelData => {
+        throw 'Not yet implemented' //TODO
+      },
+      updateCurrentScenario : scenarioData => {
+        throw 'Not yet implemented' //TODO
+      },
+    }
+
+    window.projectData = projectData; //TODO for debugging purposes
+
 
   }
 
-}
+
+// Function to make it easy to access only parts of the data
+ function getData() {
+  return projectData;
+} 
 
 // Is a state that comes from the Chakra-UI and is used to display messages (success, warning or error)
 const toast = useToast()
@@ -120,16 +159,12 @@ useEffect(() => {
 // if a project is started and has a projectName (meaning it is started by selecting and existing project), the internal data is filled with data from the Storage
 useEffect(() => {
   if(projectName){
-    setDataInternal(getProjectData(projectName))
+    getScenarios(projectName).then(scenarioFiles => {
+      initializeData(scenarioFiles.map(scenarioFile => JSON.parse(scenarioFile.data)[0])) //TODO remove scenario data inside array
+    });
   }
 
 }, [projectStarted]);
-
-
-// code for debugging
-useEffect(() => {
-  console.log(data)
-})
 
 
   // state to check if a project projectName already exists
@@ -138,38 +173,22 @@ useEffect(() => {
   // function to save a project in the storage with a projectName
   // The projectName is also added to the array "projects" in the storage, which includes all project projectNames that are saved in the Storage
   const saveProject = () => {
-    let projects = Object.values(getProjects())
+    //TODO implement
+    throw 'Not implemented'
+    // let projects = Object.values(getProjects())
 
-    if((projects.map(x => x.projectName).includes(projectNameHelper)) || (projectNameHelper === "projects")){
-      setInvaild(true)
-    } else {
-      setProjectName(projectNameHelper)
-      sessionStorage.setItem('currentProject', projectNameHelper);
+    // if((projects.map(x => x.projectName).includes(projectNameHelper)) || (projectNameHelper === "projects")){
+    //   setInvaild(true)
+    // } else {
+    //   setProjectName(projectNameHelper)
+    //   sessionStorage.setItem('currentProject', projectNameHelper);
 
-      setProjectData(projectNameHelper, data);
+    //   setProjectData(projectNameHelper, data);
 
-      toasting("success", "Autosaving", "Autosaving is activated.")
+    //   toasting("success", "Autosaving", "Autosaving is activated.")
 
-    }
+    // }
   }
-
-// Function to make it easy to access only parts of the data
- const getData = (type) => {
-  switch (type) {
-    case "currentScenario": return data[currentScenario]
-    case "allScenarios": return data
-    case "currentModel": return data[currentScenario].models[currentBpmn]
-    case "allModels": return data[currentScenario]
-    default:
-      return data
-  }
-
- }
-
- const addFile = (File) => {
-  setData(JSON.parse(JSON.stringify(eval(File))));
-
-}
 
   return (
     <ChakraProvider theme={theme}>
@@ -178,23 +197,21 @@ useEffect(() => {
       {/*If not session exists the start view is displayed */}
 
         {projectStarted === "false"?
-          <StartView setStarted={setStarted} giveApp={addFile} setProjectName={setProjectName} setData={setData}/>
+          <StartView setStarted={setStarted} setProjectName={setProjectName}/>
         :
         <>
       {/* TODO: initialize currentProject somehow */}
       {/*If a session and data exists the dashboard is displayed */}
-      {data /*&& data[0]*/ ?
+      {true /* data && data[0]*/ ?
        <>
           <Box zIndex={2} paddingTop={{base: "0", md:"6"}} >
             <Navigation 
               setCurrent={setCurrent}  
               current={current} 
               setStarted={setStarted} 
-              currentBpmn={currentBpmn} 
-              setBpmn={setBpmn} 
-              currentScenario={currentScenario}
-              data={data} 
-              setScenario={setScenario}
+             
+              getData={getData} 
+
               toasting={toasting}
               />
           </Box>
@@ -202,7 +219,7 @@ useEffect(() => {
         
           <Container maxWidth="100%" padding={{base: "0", md:"5"}} overflowX="scroll">
 
-            {/* Modal is a chakra UI component similar to a popup. Her it is used to save a pproject by its projectName and display an error if the projectName already existis  */}
+            {/* Modal is a chakra UI component similar to a popup. Here it is used to save a project by its projectName and display an error if the projectName already existis  */}
           <Modal
             isOpen={projectName === ""}  //Modal is only shown as long as no projectName is set
             onClose={onClose}
@@ -232,21 +249,21 @@ useEffect(() => {
 
             {/*  These routes define which components are loaded into the center of the page for each path and pass the needed props*/}
             <Routes>
-              <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} parsed={parsed} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
-              <Route path="/resource" element={<ResourceOverview path="/resource" setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}  data={data} setScenario={setScenario} currentScenario={currentScenario} currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
-              <Route path="/resource/overview" element={<ResourceOverview path="/resource" setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}  data={data} setScenario={setScenario} currentScenario={currentScenario} currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
-              <Route path="/resource/timetable" element={<TimetableOverview  path="/resource" setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}  data={data} setScenario={setScenario} currentScenario={currentScenario} currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
+              <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} parsed={parsed} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
+              <Route path="/resource" element={<ResourceOverview path="/resource" getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
+              <Route path="/resource/overview" element={<ResourceOverview path="/resource" getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
+              <Route path="/resource/timetable" element={<TimetableOverview  path="/resource" getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
 
-              <Route path="/scenario" element={<ScenarioPage setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}  data={data} setScenario={setScenario} currentScenario={currentScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}  currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} selectedScenario={selectedScenario} setSelectedScenario={setSelectedScenario}/>} />
-              <Route path="/overview/compare" element={<ComparePage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared}/>}  />
-              <Route path="/overview/compare/differences" element={<OnlyDifferencesPage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} data={data} currentScenario={currentScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared}/>} />
+              <Route path="/scenario" element={<ScenarioPage getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}  currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} selectedScenario={selectedScenario} setSelectedScenario={setSelectedScenario}/>} />
+              <Route path="/overview/compare" element={<ComparePage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared}/>}  />
+              <Route path="/overview/compare/differences" element={<OnlyDifferencesPage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared}/>} />
 
 
-              <Route path="/modelbased" element={ <BpmnViewSelector zIndex={-5} projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} />} />
-              <Route path="/modelbased/tableview" element={ <ModelbasedParametersTable parsed={parsed} setData={setData} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} currentBpmn={currentBpmn}   data={data} currentScenario={currentScenario} />} />
-              <Route path="/simulation" element={<SimulationPage path="/simulation"  projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
-              <Route path="/processminer" element={<ProcessMinerPage path="/processminer" projectName={projectName} setData={setData} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
-              <Route path="/debug" element={<DebugPage path="/debug" projectName={projectName} setData={setData} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} currentBpmn={currentBpmn}  data={data} currentScenario={currentScenario} toasting={toasting} />} />
+              <Route path="/modelbased" element={ <BpmnViewSelector zIndex={-5} projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  />} />
+              <Route path="/modelbased/tableview" element={ <ModelbasedParametersTable parsed={parsed} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
+              <Route path="/simulation" element={<SimulationPage path="/simulation"  projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  toasting={toasting} />} />
+              <Route path="/processminer" element={<ProcessMinerPage path="/processminer" projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  toasting={toasting} />} />
+              <Route path="/debug" element={<DebugPage path="/debug" projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  toasting={toasting} />} />
               <Route path='*' element={<Navigate to='/overview' />} />
             </Routes>
          </Container>
@@ -254,19 +271,19 @@ useEffect(() => {
 {/*  These routes define which components are loaded into the right side of the page (sidebar) for each path and pass the needed props*/}
          <Box zIndex={2} paddingTop={{base: "0", md:"6"}} >
             <Routes>
-            <Route path="/resource" element={<EditorSidebar  setCurrent={setCurrent} setData={setData} getData={getData} current={current} currentBpmn={currentBpmn} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}  currentScenario={currentScenario} setScenario={setScenario} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
-              <Route path="/resource/overview" element={<EditorSidebar  setCurrent={setCurrent} setData={setData} getData={getData} current={current} currentBpmn={currentBpmn} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}  currentScenario={currentScenario} setScenario={setScenario} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
-              <Route path="/resource/timetable" element={<EditorSidebar  setCurrent={setCurrent} setData={setData} getData={getData} current={current} currentBpmn={currentBpmn} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}  currentScenario={currentScenario} setScenario={setScenario} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
+              <Route path="/resource"           element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
+              <Route path="/resource/overview"  element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
+              <Route path="/resource/timetable" element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
               
-              <Route path="/scenario" element={<EditorSidebar  setData={setData} getData={getData} current={current} currentBpmn={currentBpmn} selectedObject={currentObject}  currentScenario={currentScenario} setScenario={setScenario}  setCurrent={setCurrent} selectedScenario={selectedScenario} setSelectedScenario={selectedScenario}/> } />
+              <Route path="/scenario"           element={<EditorSidebar  getData={getData} current={current} selectedObject={currentObject}    setCurrent={setCurrent} selectedScenario={selectedScenario} setSelectedScenario={selectedScenario}/> } />
 
 
-              <Route path="/modelbased" element={<EditorSidebar  setData={setData} getData={getData} current={current} currentBpmn={currentBpmn} selectedObject={currentObject}  currentScenario={currentScenario}  setObject={setObject} />} />
+              <Route path="/modelbased"         element={<EditorSidebar  getData={getData} current={current} selectedObject={currentObject}   setObject={setObject} />} />
 
             </Routes>
           </Box>
         </>
-        : <ProgressPage/> }  {/*  The progresspage is showen if a session is started but the data is still not there (waiting from the discovery tool) */}
+        : <ProgressPage/> }  {/*  The progresspage is shown if a session is started but the data is still not there (waiting from the discovery tool) */}
         </>
         }
       </Flex>

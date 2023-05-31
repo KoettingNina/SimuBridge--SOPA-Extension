@@ -2,7 +2,7 @@ import { Input, Select, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Card, C
 import React, { useState, useEffect } from 'react';
 import ViewButtons from './ViewButtons';
 
-const ModelbasedParametersTable = ({ currentScenario, currentBpmn, getData }) => {
+const ModelbasedParametersTable = ({ getData }) => {
   const [editable, setEditable] = useState(false); // whether the table is in edit mode
 
   // states store array of activites, gateways, events and sequences
@@ -12,29 +12,29 @@ const ModelbasedParametersTable = ({ currentScenario, currentBpmn, getData }) =>
   const [sequences, setSequences] = useState([]);
 
   useEffect(() => {
-    setActivities(getData('currentModel').modelParameter.activities);
-    setGateways(getData('currentModel').modelParameter.gateways);
-    setEvents(getData('currentModel').modelParameter.events);
-    setSequences(getData('currentModel').modelParameter.sequences);
-  }, [currentScenario, currentBpmn, getData]);
+    setActivities(getData().getCurrentModel().modelParameter.activities);
+    setGateways(getData().getCurrentModel().modelParameter.gateways);
+    setEvents(getData().getCurrentModel().modelParameter.events);
+    setSequences(getData().getCurrentModel().modelParameter.sequences);
+  }, [getData().getCurrentScenario(), getData().getCurrentModel(), getData]); //TODO, potentially getData isn't correct here //TODO currentScenario might be needed
 
 
   // function to update a value in the table
   const handleChange = (event, index, group, type) => {
     let value = event.target.value;
 
-    let copy = [...getData('currentModel').modelParameter[group]];
+    let copy = [...getData().getCurrentModel().modelParameter[group]];
     copy[index][type] = value;
 
     console.log(copy)
 
     if(group === 'activities') setActivities(copy)
   
-    setGateways(group === 'gateways' ? copy : getData('currentModel').modelParameter.gateways);
-    setEvents(group === 'events' ? copy : getData('currentModel').modelParameter.events);
-    setSequences(getData('currentModel').modelParameter.sequences);
+    setGateways(group === 'gateways' ? copy : getData().getCurrentModel().modelParameter.gateways);
+    setEvents(group === 'events' ? copy : getData().getCurrentModel().modelParameter.events);
+    setSequences(getData().getCurrentModel().modelParameter.sequences);
 
-    getData('currentModel').modelParameter[group] = copy;
+    getData().getCurrentModel().modelParameter[group] = copy;
   };
 
       return ( 
@@ -178,7 +178,7 @@ const ModelbasedParametersTable = ({ currentScenario, currentBpmn, getData }) =>
                         </Thead>
                         <Tbody>
 
-                            {getData("currentModel").modelParameter.events.map((element) => {
+                            {getData().getCurrentModel().modelParameter.events.map((element) => {
                                 return <Tr>
                                             <Td>{element.id}</Td>
                                             <Td>{element.interArrivalTime.distributionType}</Td>

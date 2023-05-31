@@ -10,8 +10,8 @@ function ResourceOverview({setCurrent, getData, setRole, setResource}){
     },[setCurrent])
 
     // select ressources that are assigned to roles and ressources that are not assigned to roles
-    var assignedRessources = getData("currentScenario").resourceParameters.roles.map(x => x.resources).flat().map(y => y.id)
-    var allRessources = getData("currentScenario").resourceParameters.resources.map(x => x.id)
+    var assignedRessources = getData().getCurrentScenario().resourceParameters.roles.map(x => x.resources).flat().map(y => y.id)
+    var allRessources = getData().getCurrentScenario().resourceParameters.resources.map(x => x.id)
     let unassignedRessources = allRessources.filter(ressource => !assignedRessources.includes(ressource));
 
     return(
@@ -35,7 +35,7 @@ function ResourceOverview({setCurrent, getData, setRole, setResource}){
                             </Thead>
                             <Tbody> 
                             
-                                {getData("currentScenario").resourceParameters.roles.map((element) => {
+                                {getData().getCurrentScenario().resourceParameters.roles.map((element) => {
                                     return <><Tr key={element.id}>
                                         <Td><Flex><Button variant="outline" onClick={() => {setRole(element.id); setCurrent("Resource Parameters for Roles")} }>{element.id}</Button></Flex></Td>
                                         <Td><Flex gap="4" flexWrap="wrap">

@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
 import BpmnView from './BpmnView'
 
-function BpmnViewSelector({projectName, data, getData, currentScenario, currentBpmn, setObject, setCurrent }) {
+function BpmnViewSelector({projectName, getData, setObject, setCurrent }) {
   useEffect(() => { 
     setCurrent("Modelbased Parameters")
   }, [setCurrent])
 
-  return getData('currentScenario') && (
-    <BpmnView key={currentBpmn} projectName={projectName} getData={getData} setObject={setObject} />
+  return getData().getCurrentScenario() && (
+    <BpmnView projectName={projectName} getData={getData} setObject={setObject} />
   )
 }
 

@@ -16,7 +16,7 @@ function StartView(props) {
   const [startExistingProject, setExistingProject] = useState(false);
   
   const pushToApp = (File) => {
-    props.giveApp(File)
+    throw 'Project Import and export currently not supported' //TODO Project Import and export 
   }
 
   const startNewProjectNow = () => {
@@ -34,7 +34,7 @@ function StartView(props) {
 
    const startNewData = () => {  
 
-    props.setData([]);
+    //TODO do something here
 
     // Set started to true => dashboard is loaded
     props.setStarted("true")
@@ -46,7 +46,7 @@ function StartView(props) {
    // Function for selecting an existing project
    const selectProject = (project) => {
     sessionStorage.setItem('currentProject', project); // selected project is set as current project
-    props.setData(getProjectData(project)) // corresponding project data is loaded from local storage
+    // TODO corresponding project data is loaded from local storage
     props.setProjectName(project)
     props.setStarted("true") // Set started to true => dashboard is loaded
     sessionStorage.setItem('st', true);  // ensures that dashboard is loaded even if the page is reloaded 

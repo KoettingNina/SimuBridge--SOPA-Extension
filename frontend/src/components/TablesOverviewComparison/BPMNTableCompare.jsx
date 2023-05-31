@@ -42,7 +42,7 @@ function BPMNTableCompare(props) {
 
         if (gateway !== undefined) {
             return gateway.outgoing.map((out) => {
-                let sequence = props.getData("currentModel").modelParameter.sequences.find(item => item.id === out)
+                let sequence = props.getData().getCurrentModel().modelParameter.sequences.find(item => item.id === out)
                 if (sequence !== undefined) {
                     return <Text>{sequence.probability}</Text>
                 } else {
@@ -57,7 +57,7 @@ function BPMNTableCompare(props) {
 
         if (gateway !== undefined) {
             return gateway.outgoing.map((out) => {
-                let scenario = props.getData("allScenarios").find(item => item.scenarioName === scenarioName)
+                let scenario = props.getData().getAllScenarios().find(item => item.scenarioName === scenarioName)
                 if (scenario !== undefined) {
                     let sequence = scenario.models[props.modelIndex].modelParameter.sequences.find(item => item.id === out)
                     if (sequence !== undefined) {
@@ -73,7 +73,7 @@ function BPMNTableCompare(props) {
 
     // fill costs of activities in popover window
     const costsPopover = (activity_id) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let activity = element.models[props.modelIndex].modelParameter.activities.find(item => item.id === activity_id)
                 if (activity !== undefined) {
@@ -86,7 +86,7 @@ function BPMNTableCompare(props) {
 
     //fill timeunit of activities in popover window
     const timeUnitPopover = (activity_id) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let activity = element.models[props.modelIndex].modelParameter.activities.find(item => item.id === activity_id)
                 if (activity !== undefined) {
@@ -99,7 +99,7 @@ function BPMNTableCompare(props) {
 
     // fill currency
     const currencyPopover = (activity_id) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let activity = element.models[props.modelIndex].modelParameter.activities.find(item => item.id === activity_id)
                 if (activity !== undefined) {
@@ -112,7 +112,7 @@ function BPMNTableCompare(props) {
 
     // checks if this activity exists in other bpmns
     const activityPopover = (activity_id) => {
-        return props.getData("allScenarios").map((element, index) => {
+        return props.getData().getAllScenarios().map((element, index) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let activity = element.models[props.modelIndex].modelParameter.activities.find(item => item.id === activity_id)
                 if (activity !== undefined) {
@@ -126,7 +126,7 @@ function BPMNTableCompare(props) {
 
    // fill duration  of activity
     const durationPopover = (activity_id) => {
-        return props.getData("allScenarios").map((element, index) => {
+        return props.getData().getAllScenarios().map((element, index) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let activity = element.models[props.modelIndex].modelParameter.activities.find(item => item.id === activity_id)
                 if (activity !== undefined) {
@@ -141,7 +141,7 @@ function BPMNTableCompare(props) {
     }
 // fill dustribution in popover window (activity)
     const distributionPopover = (activity_id) => {
-        return props.getData("allScenarios").map((element, index) => {
+        return props.getData().getAllScenarios().map((element, index) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let activity = element.models[props.modelIndex].modelParameter.activities.find(item => item.id === activity_id)
                 if (activity !== undefined) {
@@ -154,7 +154,7 @@ function BPMNTableCompare(props) {
     }
 // fill resources performing this activity
     const resourcePopover = (activity_id) => {
-        return props.getData("allScenarios").map((element, index) => {
+        return props.getData().getAllScenarios().map((element, index) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 console.log(index)
                 let activity = element.models[props.modelIndex].modelParameter.activities.find(item => item.id === activity_id)
@@ -172,7 +172,7 @@ function BPMNTableCompare(props) {
 
     //check if gateway exists in other scenarios
     const gatewayPopover = (gateway_id) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let gateway = element.models[props.modelIndex].modelParameter.gateways.find(item => item.id === gateway_id)
                 if (gateway !== undefined) {
@@ -185,7 +185,7 @@ function BPMNTableCompare(props) {
 
     // fill interarrival time of the events
     const arrivalTimePopover = (event_id) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let event = element.models[props.modelIndex].modelParameter.events.find(item => item.id === event_id)
                 if (event !== undefined) {
@@ -200,7 +200,7 @@ function BPMNTableCompare(props) {
     }
     // fill distribution of event inteaarribal time in popover window
     const distributionEventPopover = (event_id) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let event = element.models[props.modelIndex].modelParameter.events.find(item => item.id === event_id)
                 if (event !== undefined) {
@@ -216,7 +216,7 @@ function BPMNTableCompare(props) {
 // get name of the incoming to the gateway activities or events
     const getIncoming = (gateway) => {
         let incoming
-        props.getData("allModels").models[props.modelIndex].modelParameter.activities.map((element) => {
+        props.getData().getAllModels().models[props.modelIndex].modelParameter.activities.map((element) => {
             element.outgoing.map((out) => {
                 if (out === gateway) {
                     return incoming = element.name
@@ -224,7 +224,7 @@ function BPMNTableCompare(props) {
             })
         })
         if (incoming === undefined) {
-            props.getData("allModels").models[props.modelIndex].modelParameter.events.map((element) => {
+            props.getData().getAllModels().models[props.modelIndex].modelParameter.events.map((element) => {
                 element.outgoing.map((out) => {
                     if (out === gateway) {
                         return incoming = element.name
@@ -238,7 +238,7 @@ function BPMNTableCompare(props) {
     // method to find outgoing activities/events for gateway
     const getOutgoing = (gateway) => {
         let outgoing
-        props.getData("allModels").models[props.modelIndex].modelParameter.activities.map((element) => {
+        props.getData().getAllModels().models[props.modelIndex].modelParameter.activities.map((element) => {
             element.incoming.map((inc) => {
                 if (inc === gateway) {
                     return outgoing = element.name
@@ -246,7 +246,7 @@ function BPMNTableCompare(props) {
             })
         })
         if (outgoing === undefined) {
-            props.getData("allModels").models[props.modelIndex].modelParameter.events.map((element) => {
+            props.getData().getAllModels().models[props.modelIndex].modelParameter.events.map((element) => {
                 element.incoming.map((inc) => {
                     if (inc === gateway) {
                         return outgoing = element.name
@@ -288,7 +288,7 @@ function BPMNTableCompare(props) {
 
     let gatewayO
  // filter scenarios. use only one which participate in comparison
-    const differentScenarios = props.getData("allScenarios").filter(item => props.scenariosCompare.includes(item.scenarioName))
+    const differentScenarios = props.getData().getAllScenarios().filter(item => props.scenariosCompare.includes(item.scenarioName))
 
     return (
         <>
@@ -312,7 +312,7 @@ function BPMNTableCompare(props) {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {props.getData("currentModel").modelParameter.activities.map((element) => {
+                            {props.getData().getCurrentModel().modelParameter.activities.map((element) => {
                                 return <>
                                     <Tr>
                                         {/*Activity*/}
@@ -504,7 +504,7 @@ function BPMNTableCompare(props) {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {props.getData("currentModel").modelParameter.gateways.map((gateway) => {
+                            {props.getData().getCurrentModel().modelParameter.gateways.map((gateway) => {
                                 return <>
                                     <Tr>
                                         {/*Gateway*/}
@@ -603,7 +603,7 @@ function BPMNTableCompare(props) {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {props.getData("currentModel").modelParameter.events.map((event) => {
+                            {props.getData().getCurrentModel().modelParameter.events.map((event) => {
                                 return <>
                                     <Tr>
                                         {/*Event*/}

@@ -6,7 +6,7 @@ import { Input, FormControl, FormLabel, Select, Stack, Button, Box,  ButtonGroup
 import React, { useState, useEffect } from 'react'
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 
-const Activity = ({ getData, setData, selectedObject, currentScenario, currentBpmn, setDataObj }) => {
+const Activity = ({ getData, selectedObject, setDataObj }) => {
   const [unit, setUnit] = useState("");
   const [cost, setCost] = useState("");
   const [currency, setCurrency] = useState("");
@@ -33,7 +33,7 @@ const Activity = ({ getData, setData, selectedObject, currentScenario, currentBp
 
 
   useEffect(() => {
-    const currentActivity = getData("currentModel").modelParameter.activities.find(
+    const currentActivity = getData().getCurrentModel().modelParameter.activities.find(
       value => value.id === selectedObject.id
     );
 
@@ -92,8 +92,7 @@ const Activity = ({ getData, setData, selectedObject, currentScenario, currentBp
 
   const onSubmit = event => {
     event.preventDefault();
-    const data = [...getData("allScenario")];
-    const currentActivity = data[currentScenario].models[currentBpmn].modelParameter.activities.find(
+    const currentActivity = getData().getCurrentModel().modelParameter.activities.find(
       value => value.id === selectedObject.id
     );
 
@@ -107,8 +106,7 @@ const Activity = ({ getData, setData, selectedObject, currentScenario, currentBp
     currentActivity.cost = cost;
     currentActivity.currency = currency;
     currentActivity.resources = resources;
-    setData(data);
-
+    getData().saveCurrentScenario();
   };
 
 
@@ -288,7 +286,7 @@ const Activity = ({ getData, setData, selectedObject, currentScenario, currentBp
                       <FormLabel>Resource { (index + 1 )}:</FormLabel>
                       <Select name="resource" placeholder={resource} onChange={(event) => handleResources(index,event.target.value )} bg="white">
                         <option>select resource</option>
-                        {getData("currentScenario").resourceParameters.resources.map(x =>{
+                        {getData().getCurrentScenario().resourceParameters.resources.map(x =>{
                         return  <option value={x.id}>{x.id}</option>
                         } )}
                         

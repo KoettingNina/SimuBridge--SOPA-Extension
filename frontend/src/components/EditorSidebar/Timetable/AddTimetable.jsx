@@ -11,11 +11,11 @@ class AddTimetable extends React.Component {
         startTime: "0",
         endWeekday: "Monday",
         endTime: "0",
-        timetable: props.getData("currentScenario").resourceParameters.timeTables.map(item => item.id)[0],
+        timetable: props.getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id)[0],
         days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         hours: Array.from({ length: 24 }, (_, i) => i),
         existing: false,
-        timeTables: props.getData("currentScenario").resourceParameters.timeTables.map(item => item.id)
+        timeTables: props.getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id)
       };
 
       this.onSubmit = this.onSubmit.bind(this);
@@ -47,8 +47,6 @@ class AddTimetable extends React.Component {
 
       onSubmit(event){
         event.preventDefault();
-        
-        let data = [...this.props.getData("allScenario")]
 
 
         if(this.state.existing){
@@ -60,8 +58,8 @@ class AddTimetable extends React.Component {
                 endTime: this.state.endTime,
               }
 
-          //this.props.getData("currentScenario").resourceParameters.timeTables.find(item => item.id === this.state.timetable).timeTableItems.push(obj)
-          data[this.props.currentScenario].resourceParameters.timeTables.find(item => item.id === this.state.timetable).timeTableItems.push(obj)
+          //this.props.getData().getCurrentScenario().resourceParameters.timeTables.find(item => item.id === this.state.timetable).timeTableItems.push(obj)
+          this.props.getData().getCurrentScenario().resourceParameters.timeTables.find(item => item.id === this.state.timetable).timeTableItems.push(obj)
         
         } else{ 
 
@@ -73,13 +71,13 @@ class AddTimetable extends React.Component {
                 endWeekday: this.state.endWeekday,
                 endTime: this.state.endTime,
             }]}
-            data[this.props.currentScenario].resourceParameters.timeTables.push(obj)
+            this.props.getData().getCurrentScenario().resourceParameters.timeTables.push(obj)
         
-            //this.props.getData("currentScenario").resourceParameters.timeTables.push(obj)
+            //this.props.getData().getCurrentScenario().resourceParameters.timeTables.push(obj)
         }
 
-        this.props.setData(data)
-        console.log(this.props.getData("currentScenario"))
+        this.props.getData().saveCurrentScenario();
+        console.log(this.props.getData().getCurrentScenario())
         
 
         

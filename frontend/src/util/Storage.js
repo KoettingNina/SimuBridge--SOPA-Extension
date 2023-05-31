@@ -36,7 +36,12 @@ function projectFilesPrefix(projectName) {
     return PROJECT_PREFIX + '/' + projectName + '/' + FILE_PREFIX;
 }
 
+function sanitizePath(fileName) { //TODO unused
+    return fileName.replace(' ', '_')
+}
+
 function filePath(projectName, fileName) {
+
     return projectFilesPrefix(projectName) + '/' + fileName;
 }
 
@@ -66,6 +71,14 @@ export async function getFiles(projectName) {
     return (await (await getFileObjectStorage('readwrite')).filesStore.getAllKeys())
         .filter(key => key.startsWith(folderPrefix))
         .map(key => key.substring(key.indexOf(folderPrefix) + folderPrefix.length + 1))
+}
+
+export async function getScenarios(projectName) {
+    return (await Promise.all(
+        (await getFiles(projectName))
+            .filter(fileName => fileName.startsWith(SCENARIO_PREFIX))
+            .map(fileName => getFile(projectName, fileName))
+        ));
 }
 
 export async function getFile(projectName, fileName) {

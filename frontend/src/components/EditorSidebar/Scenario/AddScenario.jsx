@@ -5,6 +5,7 @@ import { Input, FormControl, FormLabel, Flex, Button, Stack, Select, Text, Butto
     AccordionPanel,
     AccordionIcon } from '@chakra-ui/react';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
+import { deepCopy } from '../../../util/ObjectUtil';
 
 class AddScenario extends React.Component {
     constructor(props) {
@@ -46,24 +47,24 @@ class AddScenario extends React.Component {
 
         let newTypes = this.state.distributionTypes
 
-        if(this.props.getData("allData")[this.state.startScenario].interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution"){
-         newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params = this.props.getData("allData")[this.state.startScenario].interArrivalTime.values.map(v => v.id) 
+        if(this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution"){
+         newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params = this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.values.map(v => v.id) 
           
         }
         
 
         this.setState({
-            scenarioName: this.props.getData("allData")[this.state.startScenario].scenarioName,
-            startingDate: this.props.getData("allData")[this.state.startScenario].startingDate,
-            startingTime: this.props.getData("allData")[this.state.startScenario].startingTime,
-            currency: this.props.getData("allData")[this.state.startScenario].currency,
-            numberOfInstances: this.props.getData("allData")[this.state.startScenario].numberOfInstances,
-            interArrivalTime: this.props.getData("allData")[this.state.startScenario].interArrivalTime,
-            values: this.props.getData("allData")[this.state.startScenario].interArrivalTime,
-            timeUnit: this.props.getData("allData")[this.state.startScenario].timeUnit,
-            distributionType: this.props.getData("allData")[this.state.startScenario].interArrivalTime.distributionType,
-            //distributionValues: new Array(this.state.distributionTypes.find(dis => dis.distribution_name === this.props.getData("allData")[this.state.startScenario].interArrivalTime.distributionType).distribution_params.length).fill(0),
-            distributionValues: this.props.getData("allData")[this.state.startScenario].interArrivalTime.values.map(v => v.value),
+            scenarioName: this.props.getData().getAllScenarios()[this.state.startScenario].scenarioName,
+            startingDate: this.props.getData().getAllScenarios()[this.state.startScenario].startingDate,
+            startingTime: this.props.getData().getAllScenarios()[this.state.startScenario].startingTime,
+            currency: this.props.getData().getAllScenarios()[this.state.startScenario].currency,
+            numberOfInstances: this.props.getData().getAllScenarios()[this.state.startScenario].numberOfInstances,
+            interArrivalTime: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime,
+            values: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime,
+            timeUnit: this.props.getData().getAllScenarios()[this.state.startScenario].timeUnit,
+            distributionType: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.distributionType,
+            //distributionValues: new Array(this.state.distributionTypes.find(dis => dis.distribution_name === this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.distributionType).distribution_params.length).fill(0),
+            distributionValues: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.values.map(v => v.value),
             distributionTypes: newTypes
             
           })
@@ -84,24 +85,24 @@ class AddScenario extends React.Component {
 
         let newTypes = this.state.distributionTypes
 
-        if(this.props.getData("allData")[this.state.startScenario].interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution"){
-         newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params = this.props.getData("allData")[this.state.startScenario].interArrivalTime.values.map(v => v.id) 
+        if(this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution"){
+         newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params = this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.values.map(v => v.id) 
           
         }
 
         
 
         this.setState({
-            scenarioName: this.props.getData("allData")[this.state.startScenario].scenarioName,
-            startingDate: this.props.getData("allData")[this.state.startScenario].startingDate,
-            startingTime: this.props.getData("allData")[this.state.startScenario].startingTime,
-            currency: this.props.getData("allData")[this.state.startScenario].currency,
-            numberOfInstances: this.props.getData("allData")[this.state.startScenario].numberOfInstances,
-            interArrivalTime: this.props.getData("allData")[this.state.startScenario].interArrivalTime,
-            values: this.props.getData("allData")[this.state.startScenario].interArrivalTime.values,
-            timeUnit: this.props.getData("allData")[this.state.startScenario].timeUnit,
-            distributionValues: this.props.getData("allData")[this.state.startScenario].interArrivalTime.values.map(v => v.value),
-            distributionType: this.props.getData("allData")[this.state.startScenario].interArrivalTime.distributionType,
+            scenarioName: this.props.getData().getAllScenarios()[this.state.startScenario].scenarioName,
+            startingDate: this.props.getData().getAllScenarios()[this.state.startScenario].startingDate,
+            startingTime: this.props.getData().getAllScenarios()[this.state.startScenario].startingTime,
+            currency: this.props.getData().getAllScenarios()[this.state.startScenario].currency,
+            numberOfInstances: this.props.getData().getAllScenarios()[this.state.startScenario].numberOfInstances,
+            interArrivalTime: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime,
+            values: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.values,
+            timeUnit: this.props.getData().getAllScenarios()[this.state.startScenario].timeUnit,
+            distributionValues: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.values.map(v => v.value),
+            distributionType: this.props.getData().getAllScenarios()[this.state.startScenario].interArrivalTime.distributionType,
             distributionTypes: newTypes
           })
           console.log(this.state)
@@ -156,11 +157,8 @@ class AddScenario extends React.Component {
     onSubmit(event){
         event.preventDefault();
         
-
-
-        let data = [...this.props.getData("allData")]
                   
-            let obj = JSON.parse(JSON.stringify(data[this.state.startScenario]))
+            let obj = deepCopy(this.props.getData().getScenarioByIndex(this.state.startScenario));
 
             let interArrivalTime = {
                 distributionType: this.state.distributionType,
@@ -175,17 +173,9 @@ class AddScenario extends React.Component {
             obj.interArrivalTime= interArrivalTime
            
             obj.timeUnit = this.state.timeUnit
-        
-
-            data.push(obj)
-
     
           
-        this.props.setData(data)
-        console.log(this.props.getData("allData"))
- 
-
-        
+        this.props.getData().addScenario(obj)        
       }
 
       
@@ -227,7 +217,7 @@ render() {
         <FormControl >
               <FormLabel>Select the startup scenario:</FormLabel>
               <Select placeholder={this.state.startScenario} defaultValue={this.state.startScenario} bg="white" name="startScenario" onChange={(event) => this.handleInputChange(event)} >
-                {this.props.getData("allData").map((scenario, index) => {
+                {this.props.getData().getAllScenarios().map((scenario, index) => {
                     return <option value={index}>{scenario.scenarioName}</option>
                 })}
             </Select>

@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from '@chakra-ui/react';
 
-const ScenarioSwitcher = ({ data, currentScenario, setScenario }) => (
+const ScenarioSwitcher = ({ getData }) => (
   <Menu>
     <Text
       ml={2}
@@ -24,7 +24,7 @@ const ScenarioSwitcher = ({ data, currentScenario, setScenario }) => (
     </Text>
     <Flex gap={{ base: '3', md: '3' }} flexDirection={{ base: 'column', md: 'row' }} w="100%">
       <Input
-        placeholder={data[currentScenario]?.scenarioName}
+        placeholder={getData().getCurrentScenario()?.scenarioName}
         variant="filled"
         isDisabled
         w={{
@@ -53,8 +53,8 @@ const ScenarioSwitcher = ({ data, currentScenario, setScenario }) => (
         </Text>
       </MenuButton>
       <MenuList>
-        {data.map((scenario, index) => (
-          <MenuItem key={index} onClick={() => setScenario(index)}>
+        {getData().getAllScenarios().map((scenario, index) => (
+          <MenuItem key={index} onClick={() => getData().setCurrentScenarioByIndex(index)}>
             {scenario.scenarioName}
           </MenuItem>
         ))}

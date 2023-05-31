@@ -27,7 +27,7 @@ function OverviewTable(props){
                 </Thead>
                 <Tbody>
                     {/*Filling in the table*/}
-                    {props.getSimulData("allScenarios").map((element) => {
+                    {props.getData().getAllScenarios().map((element) => {
                         return <Tr>
                             <Td align="left">{element.scenarioName} </Td>
                             <Td align="left" >{element.startingDate}</Td>

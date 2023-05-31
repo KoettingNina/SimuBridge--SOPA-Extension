@@ -3,7 +3,7 @@ import React from 'react'
 
 import { Box, Heading, Text, Grid, Card, CardBody } from "@chakra-ui/react";
 
-function TimeTable({data}) {
+function TimeTable({timetableItems}) {
     // Create an array of days of the week and an array of hours in a day
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -38,7 +38,7 @@ function TimeTable({data}) {
               // Initialize a variable to keep track of whether the current time slot is highlighted or not
               let isHighlighted = false;
                 // Loop through the "data" prop to check if there are events during the current time slot on the current day
-              data.forEach(({ startWeekday, startTime, endWeekday, endTime }) => {
+              timetableItems.forEach(({ startWeekday, startTime, endWeekday, endTime }) => {
                 const startDayIndex = days.indexOf(startWeekday);
                 const endDayIndex = days.indexOf(endWeekday);
                 const currentDayIndex = days.indexOf(day);

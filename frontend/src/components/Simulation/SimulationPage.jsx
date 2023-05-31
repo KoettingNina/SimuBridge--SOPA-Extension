@@ -5,7 +5,7 @@ import axios from 'axios';
 
 import { getFile, getScenarioFileName, setFile } from "../../util/Storage";
 
-const SimulationPage = ({projectName, data, toasting }) => {
+const SimulationPage = ({projectName, getData, toasting }) => {
 
 // Setting initial states of started, finished, and response
   const [started, setStarted] = useState(false);
@@ -133,7 +133,7 @@ const SimulationPage = ({projectName, data, toasting }) => {
                                 <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select scenario:</Text>
                                 <Select value={scenario} placeholder = 'choose scenario' width = '100%' {...(!scenario && {color: "gray"})} backgroundColor= 'white' icon={<FiChevronDown />} onChange={evt => setScenario(evt.target.value)}>
                                 {
-                                  data.map((scenario, index) => {
+                                  getData().getAllScenarios().map((scenario, index) => {
                                     return  <option value= {scenario.scenarioName} color="black">{scenario.scenarioName}</option>
                                   })
                                 }

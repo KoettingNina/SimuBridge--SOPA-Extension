@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { Button, Input, FormControl, FormLabel, Select, Switch, Stack, Box, Divider,CheckboxGroup, Checkbox } from '@chakra-ui/react';
 
-const AddResource = ({ getData, setData, currentScenario, setCurrent }) => {
+const AddResource = ({ getData, setCurrent }) => {
   const [state, setState] = useState({
     id: "",
     costHour: "",
     numberOfInstances: "",
-    timeTables: getData("currentScenario").resourceParameters.timeTables.map(item => item.id),
-    roles: getData("currentScenario").resourceParameters.roles.map(item => item.id),
+    timeTables: getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id),
+    roles: getData().getCurrentScenario().resourceParameters.roles.map(item => item.id),
     selectedRoles: []
   });
 
@@ -50,21 +50,19 @@ const AddResource = ({ getData, setData, currentScenario, setCurrent }) => {
   const onSubmit = (event) => {
     event.preventDefault();
 
-    let data = [...getData("allScenario")];
-
     let obj = {
       id: state.id,
       costHour: state.costHour,
       numberOfInstances: state.numberOfInstances,
     }
 
-    data[currentScenario].resourceParameters.resources.push(obj);
+    getData().getCurrentScenario().resourceParameters.resources.push(obj);
 
     state.selectedRoles.filter(x => x !== undefined).forEach(item => {
-      data[currentScenario].resourceParameters.roles.find(x => x.id === item).resources.push({ id: state.id })
+      getData().getCurrentScenario().resourceParameters.roles.find(x => x.id === item).resources.push({ id: state.id })
     });
 
-    setData(data);
+    getData().saveCurrentScenario();
 
     clear();
   }

@@ -11,11 +11,11 @@ class EditTimetable extends React.Component {
         startTime: "",
         endWeekday: "",
         endTime: "",
-        timetable: props.getData("currentScenario").resourceParameters.timeTables.map(item => item.id)[0],
+        timetable: props.getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id)[0],
         days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         hours: Array.from({ length: 24 }, (_, i) => i),
         existing: false,
-        timeTables: props.getData("currentScenario").resourceParameters.timeTables.map(item => item.id),
+        timeTables: props.getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id),
         items: [],
         selectedItem: 0,
       };
@@ -28,15 +28,15 @@ class EditTimetable extends React.Component {
 
       console.log(this.props.currentTimetable)
 
-      if(this.props.getData("currentScenario").resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable)){
+      if(this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable)){
         
         this.setState({
-            id: this.props.getData("currentScenario").resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).id,
-            items: this.props.getData("currentScenario").resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems.map((_, index) => index),
-            startWeekday: this.props.getData("currentScenario").resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].startWeekday,
-            endWeekday: this.props.getData("currentScenario").resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].endWeekday,
-            startTime: this.props.getData("currentScenario").resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].startTime,
-            endTime: this.props.getData("currentScenario").resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].endTime
+            id: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).id,
+            items: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems.map((_, index) => index),
+            startWeekday: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].startWeekday,
+            endWeekday: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].endWeekday,
+            startTime: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].startTime,
+            endTime: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((value) => value.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem].endTime
           })
       } 
     }
@@ -49,10 +49,10 @@ class EditTimetable extends React.Component {
 
         if(name === "selectedItem"){
           this.setState({
-          startWeekday: this.props.getData("currentScenario").resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].startWeekday,
-          endWeekday: this.props.getData("currentScenario").resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].endWeekday,
-          startTime: this.props.getData("currentScenario").resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].startTime,
-          endTime: this.props.getData("currentScenario").resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].endTime,
+          startWeekday: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].startWeekday,
+          endWeekday: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].endWeekday,
+          startTime: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].startTime,
+          endTime: this.props.getData().getCurrentScenario().resourceParameters.timeTables.find((v) => v.id === this.props.currentTimetable).timeTableItems[value].endTime,
           selectedItem: value,
         })
 
@@ -82,8 +82,6 @@ class EditTimetable extends React.Component {
       onSubmit(event){
         event.preventDefault();
         
-        let data = [...this.props.getData("allScenario")]
-        
           let obj = {
                 startWeekday: this.state.startWeekday,
                 startTime: this.state.startTime,
@@ -92,15 +90,12 @@ class EditTimetable extends React.Component {
               }
 
           
-          data[this.props.currentScenario].resourceParameters.timeTables.find(item => item.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem] = obj
+          this.props.getData().getCurrentScenario().resourceParameters.timeTables.find(item => item.id === this.props.currentTimetable).timeTableItems[this.state.selectedItem] = obj
           
-          data[this.props.currentScenario].resourceParameters.timeTables.find(item => item.id === this.props.currentTimetable).id = this.state.id
+          this.props.getData().getCurrentScenario().resourceParameters.timeTables.find(item => item.id === this.props.currentTimetable).id = this.state.id
           this.props.setTimetable(this.state.id)
 
-        this.props.setData(data)
-        console.log(this.props.getData("currentScenario"))
-
-        console.log(this.props.currentTimetable)
+        this.props.getData().saveCurrentScenario();
         
       }
 

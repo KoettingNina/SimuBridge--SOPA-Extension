@@ -9,7 +9,7 @@ import simodSampleConfiguration from '../../example_data/simod_input/config/samp
 import { getFile, getFiles, getScenarioFileName, setFile, uploadFile } from "../../util/Storage";
 import { convertSimodOutput } from "../../util/simod_converter";
 
-const ProcessMinerPage = ({projectName, setData, data, setScenario, toasting }) => {
+const ProcessMinerPage = ({projectName, getData, toasting }) => {
 
 // Setting initial states of started, finished, and response
   const [started, setStarted] = useState(false);
@@ -85,7 +85,7 @@ const ProcessMinerPage = ({projectName, setData, data, setScenario, toasting }) 
             }
         } else {
             //TODO dummy
-            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/0d606a2b-e00a-4789-89bb-ae1ef468f047/0d606a2b-e00a-4789-89bb-ae1ef468f047.tar.gz'}
+            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/b5488a21-4914-4a43-93c0-b148fb35a84a/b5488a21-4914-4a43-93c0-b148fb35a84a.tar.gz'}
         }
 
         
@@ -293,7 +293,7 @@ const ProcessMinerPage = ({projectName, setData, data, setScenario, toasting }) 
                                         converted.scenarioName = scenarioName;
                                         let scenarioFileName = getScenarioFileName(scenarioName);
                                         setFile(projectName, scenarioFileName, JSON.stringify([converted])); //TODO store without array
-                                        setData([...data, converted]);
+                                        getData().addScenario(converted); //TODO this is a duplicate from above technically
                                     }
                                 }}>
                                     <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Convert to Scenario</Text>

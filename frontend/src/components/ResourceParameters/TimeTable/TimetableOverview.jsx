@@ -4,7 +4,7 @@ import { DeleteIcon } from '@chakra-ui/icons'
 import TimeTable from './TimeTable';
 import ResourceNavigation from '../ResourceNavigation';
 
-const TimetableOverview = ({setTimetable, getData, setCurrent, currentScenario, setData }) => {
+const TimetableOverview = ({setTimetable, getData, setCurrent }) => {
     // State to hold selected timetable index in the list 
 const [selectedTimeTable, setSelectedTimeTable] = useState(0);
 
@@ -13,29 +13,27 @@ const [selectedTimeTable, setSelectedTimeTable] = useState(0);
  // setTimetable is important for displaying the right timetable in the editorsidebar on the right side
 useEffect(() => {
     setSelectedTimeTable(0);
-    setTimetable(getData("currentScenario").resourceParameters.timeTables[0].id);
+    setTimetable(getData().getCurrentScenario().resourceParameters.timeTables[0].id);
     setCurrent("Edit Timetable");
-}, [getData("currentScenario")]);
+}, [getData().getCurrentScenario()]);
 
 // If the selected timetable is removed, set the first timetable as the new selected timetable
 useEffect(() => {
-    if (getData("currentScenario").resourceParameters.timeTables.length === selectedTimeTable) {
+    if (getData().getCurrentScenario().resourceParameters.timeTables.length === selectedTimeTable) {
         setSelectedTimeTable(0);
     }
 });
 
  // Remove a timetable from the list of timetables in the current scenario
 const deleteTimetable = (item) => {
-    let data = [...getData("allScenario")];
-    data[currentScenario].resourceParameters.timeTables = data[currentScenario].resourceParameters.timeTables.filter(timeTable => timeTable.id !== item);
-    setData(data);
+    getData().getCurrentScenario().resourceParameters.timeTables = getData().getCurrentScenario().resourceParameters.timeTables.filter(timeTable => timeTable.id !== item);
+    getData().saveCurrentScenario();;
 }
 
 // Remove an item from the selected timetable
 const deleteItem = (id, index) => {
-    let data = [...getData("allScenario")];
-    data[currentScenario].resourceParameters.timeTables.find(item => item.id === id).timeTableItems.splice(index, 1);
-    setData(data);
+    getData().getCurrentScenario().resourceParameters.timeTables.find(item => item.id === id).timeTableItems.splice(index, 1);
+    getData().saveCurrentScenario();;
 }
 
         return (
@@ -61,8 +59,8 @@ const deleteItem = (id, index) => {
                                     </Thead>
                                     <Tbody>
                                         {/* Map through the list of timetables in the current scenario */}
-                                        {getData("currentScenario").resourceParameters.timeTables? 
-                                            getData("currentScenario").resourceParameters.timeTables.map((timeTable, index) => {
+                                        {getData().getCurrentScenario().resourceParameters.timeTables? 
+                                            getData().getCurrentScenario().resourceParameters.timeTables.map((timeTable, index) => {
                                                 return <Tr>
                                                     <Td>
                                                         <RadioGroup value={selectedTimeTable} onChange={() => {setSelectedTimeTable(index ); setCurrent("Edit Timetable"); setTimetable(timeTable.id)}}>
@@ -87,8 +85,8 @@ const deleteItem = (id, index) => {
                         </CardBody>
                     </Card>
                     {/* If a timetable is selected, render a TimeTable component */}
-                     {getData("currentScenario").resourceParameters.timeTables[selectedTimeTable]?                        
-                        <TimeTable setData={setData} data={getData("currentScenario").resourceParameters.timeTables[selectedTimeTable].timeTableItems} />
+                     {getData().getCurrentScenario().resourceParameters.timeTables[selectedTimeTable]?                        
+                        <TimeTable timetableItems={getData().getCurrentScenario().resourceParameters.timeTables[selectedTimeTable].timeTableItems} />
                     : ""}
                 </Stack>
             </Box>

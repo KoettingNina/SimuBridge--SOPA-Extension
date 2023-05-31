@@ -45,7 +45,7 @@ function OnlyDifferencesPage(props) {
     ]);
 
     // id of scenarios we are comparing
-    let array_dif = props.scenariosCompare.concat(props.getData("currentScenario").scenarioName)
+    let array_dif = props.scenariosCompare.concat(props.getData().getCurrentScenario().scenarioName)
     // List of Simulation Scenario Parameters, valuer of which are different in compared scenarios
     const distinctArray = [...new Set(props.notSameScenario)];
     // List of Resource Parameters, valuer of which are different in compared scenarios
@@ -53,7 +53,7 @@ function OnlyDifferencesPage(props) {
     ;
 
     // filter allScenarios to have only scenarios which we are comparing
-    const different_array = props.getData("allScenarios").filter(item => array_dif.includes(item.scenarioName))
+    const different_array = props.getData().getAllScenarios().filter(item => array_dif.includes(item.scenarioName))
 
 //creating corresponding Scenario parameters name for displaying(Find names only for parameters which are
 // different in compared scenarios)

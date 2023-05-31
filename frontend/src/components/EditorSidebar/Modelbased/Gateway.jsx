@@ -6,12 +6,12 @@ const Gateway = ({ selectedObject, getData }) => {
   const [outgoing, setOutgoing] = useState([]);
 
   useEffect(() => {
-    const selectedGateway = getData("currentModel").modelParameter.gateways.find((value) => value.id === selectedObject.id);
+    const selectedGateway = getData().getCurrentModel().modelParameter.gateways.find((value) => value.id === selectedObject.id);
     if (selectedGateway) {
       setProbabilities(
         selectedGateway.outgoing.map(
           (element) =>
-            getData("currentModel").modelParameter.sequences.find(
+            getData().getCurrentModel().modelParameter.sequences.find(
               (value) => value.id === element
             ).probability
         )
@@ -25,7 +25,7 @@ const Gateway = ({ selectedObject, getData }) => {
     const newProbabilities = [...probabilities];
     newProbabilities[index] = value;
     setProbabilities(newProbabilities);
-    getData("currentModel").modelParameter.sequences.find(
+    getData().getCurrentModel().modelParameter.sequences.find(
       (seqq) => seqq.id === seq
     ).probability = newProbabilities[index];
   };

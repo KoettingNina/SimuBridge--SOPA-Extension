@@ -36,14 +36,15 @@ function ComparePage(props) {
     // if parameter does not exist or is different we add the parameter to the ResourceCompared array, we use this array
     // later for the displaying
 
-    for (i = 0; i < props.getData("allScenarios").length; i++) {
+    for (i = 0; i < props.getData().getAllScenarios().length; i++) {
+        let scenarioToCompare = props.getData().getAllScenarios()[i];
         // check if this scenario is included to the comparison
-        if (props.scenariosCompare.includes(props.getData("allScenarios")[i].scenarioName)) {
+        if (props.scenariosCompare.includes(scenarioToCompare.scenarioName)) {
             // check if generally are any differences
-            if (props.getData("allScenarios")[i].resourceParameters.resources !== props.getData("currentScenario").resourceParameters.resources) {
-                props.getData("currentScenario").resourceParameters.resources.map((current_element) => {
+            if (scenarioToCompare.resourceParameters.resources !== props.getData().getCurrentScenario().resourceParameters.resources) {
+                props.getData().getCurrentScenario().resourceParameters.resources.map((current_element) => {
                     // find department for the resources
-                    for (let role of props.getData("currentScenario").resourceParameters.roles) {
+                    for (let role of props.getData().getCurrentScenario().resourceParameters.roles) {
                         for (let resource of role.resources) {
                             if (resource.id === current_element.id) {
                                 current_department = role.id;
@@ -51,7 +52,7 @@ function ComparePage(props) {
                             } else current_department = "The Role does not exist in department"
                         }
                     }
-                    for (let role of props.getData("allScenarios")[i].resourceParameters.roles) {
+                    for (let role of scenarioToCompare.resourceParameters.roles) {
                         for (let resource of role.resources) {
                             if (resource.id === current_element.id) {
                                 department = role.id;
@@ -68,7 +69,7 @@ function ComparePage(props) {
                         }
                         ResourceCompared.push(newItem);
                     }
-                    let resource = props.getData("allScenarios")[i].resourceParameters.resources.find(item => item.id === current_element.id)
+                    let resource = scenarioToCompare.resourceParameters.resources.find(item => item.id === current_element.id)
                     // compare resource parameters
                     if (resource !== undefined) {
                         // compare number of instances(quantity of resource)
@@ -120,35 +121,36 @@ function ComparePage(props) {
     // Comparison of Simulation Scenario Parameters. If parameter is different for current scenario and other scenarios
     // we compare,
     // it's name is added to the scenDiff array
-    for (i = 0; i < props.getData("allScenarios").length; i++) {
+    for (i = 0; i < props.getData().getAllScenarios().length; i++) {
+        let scenarioToCompare = props.getData().getAllScenarios()[i];
 
-        if (props.scenariosCompare.includes(props.getData("allScenarios")[i].scenarioName)) {
+        if (props.scenariosCompare.includes(scenarioToCompare.scenarioName)) {
 
-            if (props.getData("allScenarios")[i].scenarioName !== props.getData("currentScenario").scenarioName) {
+            if (scenarioToCompare.scenarioName !== props.getData().getCurrentScenario().scenarioName) {
                 scenDiff[scenDiff.length] = "scenarioName";
             }
 
-            if (props.getData("allScenarios")[i].startingDate !== props.getData("currentScenario").startingDate) {
+            if (scenarioToCompare.startingDate !== props.getData().getCurrentScenario().startingDate) {
                 scenDiff[scenDiff.length] = "startingDate";
             }
 
-            if (props.getData("allScenarios")[i].startingTime !== props.getData("currentScenario").startingTime) {
+            if (scenarioToCompare.startingTime !== props.getData().getCurrentScenario().startingTime) {
                 scenDiff[scenDiff.length] = "startingTime";
             }
-            if (props.getData("allScenarios")[i].numberOfInstances !== props.getData("currentScenario").numberOfInstances) {
+            if (scenarioToCompare.numberOfInstances !== props.getData().getCurrentScenario().numberOfInstances) {
                 scenDiff[scenDiff.length] = "numberOfInstances";
             }
-            if (props.getData("allScenarios")[i].interArrivalTime.distributionType !== props.getData("currentScenario").interArrivalTime.distributionType) {
+            if (scenarioToCompare.interArrivalTime.distributionType !== props.getData().getCurrentScenario().interArrivalTime.distributionType) {
                 scenDiff[scenDiff.length] = "distributionType";
             }
-            if (props.getData("allScenarios")[i].timeUnit !== props.getData("currentScenario").timeUnit) {
+            if (scenarioToCompare.timeUnit !== props.getData().getCurrentScenario().timeUnit) {
                 scenDiff[scenDiff.length] = "timeUnit";
             }
-            if (props.getData("allScenarios")[i].interArrivalTime.values !== props.getData("currentScenario").interArrivalTime.values) {
+            if (scenarioToCompare.interArrivalTime.values !== props.getData().getCurrentScenario().interArrivalTime.values) {
                 scenDiff[scenDiff.length] = "distribution";
             }
 
-            if (props.getData("allScenarios")[i].currency !== props.getData("currentScenario").currency) {
+            if (scenarioToCompare.currency !== props.getData().getCurrentScenario().currency) {
                 scenDiff[scenDiff.length] = "currency";
             }
 
@@ -162,18 +164,18 @@ function ComparePage(props) {
    //set array of different scenario simulation parameters for usage on other pages
     props.setNotSameScenario(scenDiff)
     // Here the index of current bpmn model is found
-    let cur_model = props.getData("currentScenario").models.indexOf(props.getData("currentModel"))
+    let cur_model = props.getData().getCurrentScenario().models.indexOf(props.getData().currentModel())
 
     // creating of new array with scenarios to compare ONLY
-    //let compare = props.scenariosCompare.concat(props.getData("currentScenario").scenarioName)
-    const differentScenarios = props.getData("allScenarios").filter(item => props.scenariosCompare.includes(item.scenarioName))
+    //let compare = props.scenariosCompare.concat(props.getData().getCurrentScenario().scenarioName)
+    const differentScenarios = props.getData().getAllScenarios().filter(item => props.scenariosCompare.includes(item.scenarioName))
 
     // in this loop we compare each activity parameter of bpmn model of current scenario with bpmns from other
     // compared scenario. if parameter is different we add it to ModelCompared array.
     // It is needed for further displaying
     for (i = 0; i < differentScenarios.length; i++) {
 
-        props.getData("currentModel").modelParameter.activities.map((current_act) => {
+        props.getData().getCurrentModel().modelParameter.activities.map((current_act) => {
 
             differentScenarios[i].models[cur_model].modelParameter.activities.map((act) => {
                 // compare costs
@@ -269,7 +271,7 @@ function ComparePage(props) {
     // compared scenario. if parameter is different we add it to ModelCompared array.
     // It is needed for further displaying
     for (i = 0; i < differentScenarios.length; i++) {
-        props.getData("currentModel").modelParameter.gateways.map((current_model) => {
+        props.getData().getCurrentModel().modelParameter.gateways.map((current_model) => {
             differentScenarios[i].models[cur_model].modelParameter.gateways.map((model) => {
                 let gateway = differentScenarios[i].models[cur_model].modelParameter.gateways.find(item => item.id === current_model.id)
                 // check if gateway exists in other models
@@ -304,7 +306,7 @@ function ComparePage(props) {
                     }
                     // compare probability
                     current_model.outgoing.map((out) => {
-                        let sequence = props.getData("currentModel").modelParameter.sequences.find(item => item.id === out)
+                        let sequence = props.getData().getCurrentModel().modelParameter.sequences.find(item => item.id === out)
                         if (sequence !== undefined) {
                             let current_probability = sequence.probability
                             let otherModel = differentScenarios[i].models[cur_model].modelParameter.sequences.find(item => item.id === out)
@@ -344,7 +346,7 @@ function ComparePage(props) {
     // It is needed for further displaying
     // comparison of events
     for (i = 0; i < differentScenarios.length; i++) {
-        props.getData("currentModel").modelParameter.events.map((current_event) => {
+        props.getData().getCurrentModel().modelParameter.events.map((current_event) => {
             differentScenarios[i].models[cur_model].modelParameter.events.map((event) => {
                 let event_ch = differentScenarios[i].models[cur_model].modelParameter.events.find(item => item.id === current_event.id)
                 // check if gateway exists in other models

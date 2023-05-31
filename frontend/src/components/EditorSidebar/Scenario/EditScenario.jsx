@@ -40,21 +40,21 @@ class EditScenario extends React.Component {
     componentDidMount(){
         let newTypes = this.state.distributionTypes
 
-        if(this.props.getData("allData")[this.props.selectedScenario].interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution"){
-         newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params = this.props.getData("allData")[this.props.selectedScenario].interArrivalTime.values.map(v => v.id) 
+        if(this.props.getData().getScenarioByIndex(this.props.selectedScenario).interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution"){
+         newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params = this.props.getData().getScenarioByIndex(this.props.selectedScenario).interArrivalTime.values.map(v => v.id) 
           
         }
         this.setState({
-            scenarioName: this.props.getData("allData")[this.props.selectedScenario].scenarioName,
-            startingDate: this.props.getData("allData")[this.props.selectedScenario].startingDate,
-            startingTime: this.props.getData("allData")[this.props.selectedScenario].startingTime,
-            currency: this.props.getData("allData")[this.props.selectedScenario].currency,
-            numberOfInstances: this.props.getData("allData")[this.props.selectedScenario].numberOfInstances,
-            interArrivalTime: this.props.getData("allData")[this.props.selectedScenario].interArrivalTime,
-            values: this.props.getData("allData")[this.props.selectedScenario].interArrivalTime.values,
-            timeUnit: this.props.getData("allData")[this.props.selectedScenario].timeUnit,
-            distributionType: this.props.getData("allData")[this.props.selectedScenario].interArrivalTime.distributionType,
-            distributionValues: this.props.getData("allData")[this.props.selectedScenario].interArrivalTime.values.map(v => v.value),
+            scenarioName: this.props.getData().getScenarioByIndex(this.props.selectedScenario).scenarioName,
+            startingDate: this.props.getData().getScenarioByIndex(this.props.selectedScenario).startingDate,
+            startingTime: this.props.getData().getScenarioByIndex(this.props.selectedScenario).startingTime,
+            currency: this.props.getData().getScenarioByIndex(this.props.selectedScenario).currency,
+            numberOfInstances: this.props.getData().getScenarioByIndex(this.props.selectedScenario).numberOfInstances,
+            interArrivalTime: this.props.getData().getScenarioByIndex(this.props.selectedScenario).interArrivalTime,
+            values: this.props.getData().getScenarioByIndex(this.props.selectedScenario).interArrivalTime.values,
+            timeUnit: this.props.getData().getScenarioByIndex(this.props.selectedScenario).timeUnit,
+            distributionType: this.props.getData().getScenarioByIndex(this.props.selectedScenario).interArrivalTime.distributionType,
+            distributionValues: this.props.getData().getScenarioByIndex(this.props.selectedScenario).interArrivalTime.values.map(v => v.value),
             distributionTypes: newTypes
           })
           console.log(this.state)
@@ -133,12 +133,8 @@ class EditScenario extends React.Component {
 
     onSubmit(event){
         event.preventDefault();
-        
-
-
-        let data = [...this.props.getData("allData")]
                   
-            let obj = data[this.props.selectedScenario]
+            let obj = this.props.getData().getScenarioByIndex(this.props.selectedScenario);
 
             let interArrivalTime = {
                 distributionType: this.state.distributionType,
@@ -155,15 +151,7 @@ class EditScenario extends React.Component {
             obj.timeUnit = this.state.timeUnit
             obj.distributionType = this.state.distributionType
 
-            data[this.props.selectedScenario] = obj
-
-    
-          
-        this.props.setData(data)
-        console.log(this.props.getData("allData"))
- 
-
-        
+            this.props.getData().setScenarioByIndex(this.props.selectedScenario, obj);        
       }
 
 

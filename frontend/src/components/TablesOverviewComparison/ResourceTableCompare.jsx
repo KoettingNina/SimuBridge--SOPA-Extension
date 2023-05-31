@@ -35,7 +35,7 @@ function ResourceTableCompare(props) {
     // Method finds department for the resource in current scenario
     let department
     const getDepartment = (resource_id) => {
-        for (let role of props.getData("currentScenario").resourceParameters.roles) {
+        for (let role of props.getData().getCurrentScenario().resourceParameters.roles) {
             for (let resource of role.resources) {
                 if (resource.id === resource_id) {
                     return department = role.id;
@@ -48,7 +48,7 @@ function ResourceTableCompare(props) {
 
     //Filling in Department in Pop over window in other compared scenarios (if department differ for the specific resource)
     const fillDepartment = (resource_id, department_id) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let role = element.resourceParameters.roles.find(item => item.id === department_id)
                 if (role !== undefined) {
@@ -102,7 +102,7 @@ function ResourceTableCompare(props) {
 
 // Fill in department Pop over window
     const resPopover = (resource) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let res = element.resourceParameters.resources.find(item => item.id === resource)
                 if (res !== undefined) {
@@ -115,7 +115,7 @@ function ResourceTableCompare(props) {
 
     // Fill in timatable popover window
     const timetablePopover = (resource) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 let res = element.resourceParameters.resources.find(item => item.id === resource)
                 if (res !== undefined) {
@@ -129,7 +129,7 @@ function ResourceTableCompare(props) {
     let res = []
 // Fill in cost popover window
     const costsPopover = (resource) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 res = element.resourceParameters.resources.find(item => item.id === resource)
                 if (res !== undefined) {
@@ -144,7 +144,7 @@ function ResourceTableCompare(props) {
 
     //fill in Quantity popover windows
     const quantityPopover = (resource) => {
-        return props.getData("allScenarios").map((element) => {
+        return props.getData().getAllScenarios().map((element) => {
             if (props.scenariosCompare.includes(element.scenarioName) === true) {
                 res = element.resourceParameters.resources.find(item => item.id === resource)
                 if (res !== undefined) {
@@ -172,7 +172,7 @@ function ResourceTableCompare(props) {
                     </Tr>
                 </Thead>
                 <Tbody>
-                    {props.getData("currentScenario").resourceParameters.resources.map((resource) => {
+                    {props.getData().getCurrentScenario().resourceParameters.resources.map((resource) => {
                         return <Tr>
                             {/*Department*/}
                             <Td>
@@ -276,12 +276,12 @@ function ResourceTableCompare(props) {
                             {/*Currency*/}
                             <Td>
                                 {isPopover("currency") === false ?
-                                    <Text> {props.getData("currentScenario").currency} </Text>
+                                    <Text> {props.getData().getCurrentScenario().currency} </Text>
                                     :
                                     <>
                                         <Popover>
                                             <PopoverTrigger>
-                                                <Button> {props.getData("currentScenario").currency}
+                                                <Button> {props.getData().getCurrentScenario().currency}
                                                 </Button>
                                             </PopoverTrigger>
                                             <Portal>
@@ -289,7 +289,7 @@ function ResourceTableCompare(props) {
                                                     <PopoverArrow/>
                                                     <PopoverCloseButton/>
                                                     <PopoverBody>
-                                                        {props.getData("allScenarios").map((element) => {
+                                                        {props.getData().getAllScenarios().map((element) => {
                                                             {
                                                                 currency = null
                                                                 props.scenariosCompare.includes(element.scenarioName) === true ?

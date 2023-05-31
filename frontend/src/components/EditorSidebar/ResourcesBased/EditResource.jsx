@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { Button, Input, FormControl, FormLabel, Divider,CheckboxGroup, Checkbox, Stack, Box, Select  } from '@chakra-ui/react';
 
-const EditResource = ({getData,currentScenario, currentResource, setData, setCurrent }) => {
+const EditResource = ({getData, currentResource, setCurrent }) => {
   const [id, setId] = useState('');
   const [costHour, setCostHour] = useState('');
   const [schedule, setSchedule] = useState('');
   const [numberOfInstances, setNumberOfInstances] = useState('');
-  const [timeTables, setTimeTables] = useState(getData('currentScenario').resourceParameters.timeTables.map(item => item.id));
-  const [roles, setRoles] = useState(getData('currentScenario').resourceParameters.roles.map(item => item.id));
+  const [timeTables, setTimeTables] = useState(getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id));
+  const [roles, setRoles] = useState(getData().getCurrentScenario().resourceParameters.roles.map(item => item.id));
   const [selectedRoles, setSelectedRoles] = useState([]);
 
   useEffect(() => {
-    const currResource = getData('currentScenario').resourceParameters.resources.find((value) => value.id === currentResource);
+    const currResource = getData().getCurrentScenario().resourceParameters.resources.find((value) => value.id === currentResource);
     if (currResource) {
       setId(currResource.id);
       setNumberOfInstances(currResource.numberOfInstances);
       setCostHour(currResource.costHour);
       setSchedule(currResource.schedule);
       setSelectedRoles(
-        getData('currentScenario').resourceParameters.roles
+        getData().getCurrentScenario().resourceParameters.roles
           .filter(item => item.resources.some(x => x.id === currentResource))
           .map(x => x.id)
       );
@@ -54,43 +54,36 @@ const EditResource = ({getData,currentScenario, currentResource, setData, setCur
 
   const onSubmit = (event) => {
     event.preventDefault();
-  
-    let data = [...getData("allScenario")];
-    const resource = data[currentScenario].resourceParameters.resources.find(value => value.id === currentResource);
+
+    const resource = getData().getCurrentScenario().resourceParameters.resources.find(value => value.id === currentResource);
     resource.id = id;
     resource.costHour = costHour;
     resource.schedule = schedule;
     resource.numberOfInstances = numberOfInstances;
   
-    data[currentScenario].resourceParameters.roles.forEach(obj => {
+    getData().getCurrentScenario().resourceParameters.roles.forEach(obj => {
       obj.resources = obj.resources.filter(resource => resource.id !== currentResource);
     });
   
     selectedRoles.filter(x => x !== undefined).forEach(item => {
-      data[currentScenario].resourceParameters.roles.find(x => x.id === item).resources.push({id});
+      getData().getCurrentScenario().resourceParameters.roles.find(x => x.id === item).resources.push({id});
     });
   
-    console.log(data);
-  
-    setData(data);
+    getData().saveCurrentScenario();
   };
   
 
-      const deleteResource = () =>{
+      const deleteResource = () =>{   
 
-        let data = [... getData("allScenario")]
-
-   
-
-        data[currentScenario].resourceParameters.roles.forEach(obj => {
+        getData().getCurrentScenario().resourceParameters.roles.forEach(obj => {
           obj.resources = obj.resources.filter(resource => resource.id !== id);
         });
 
-        data[currentScenario].resourceParameters.resources = data[currentScenario].resourceParameters.resources.filter(resource => resource.id !== id);
+        getData().getCurrentScenario().resourceParameters.resources = getData().getCurrentScenario().resourceParameters.resources.filter(resource => resource.id !== id);
        
 
-        console.log(data[currentScenario].resourceParameters)
-        setData(data)
+        console.log(getData().getCurrentScenario().resourceParameters)
+        getData().saveCurrentScenario();
         
       }
 

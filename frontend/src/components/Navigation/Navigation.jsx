@@ -23,7 +23,7 @@ import {
   import BPMNSwitcher from './BPMNSwitcher';
   import ScenarioSwitcher from './ScenarioSwitcher';
 
-  function Navigation({setCurrent, data, bpmns,setScenario, currentScenario, setBpmn, scenarios, current, currentBpmn, setStarted}) {
+  function Navigation({setCurrent, getData, current, setStarted}) {
 
 
     // Define Navigation items that will be displayed at the top of the navigation
@@ -54,7 +54,7 @@ import {
 
       // function to download the internal data as a json file
       const save = () =>{
-        const jsonData = JSON.stringify(data);
+        const jsonData = JSON.stringify(getData().getAllScenarios());
         const blob = new Blob([jsonData], { type: "application/json" });
         saveAs(blob, "data.json");
       }
@@ -67,8 +67,8 @@ import {
                   <NavigationItem current={current}  items={LinkItems} clickedcolor="#AEC8CA" color="#FFFF" exitButton={false} setCurrent={setCurrent}  />
                   
                   <Divider/>
-                      <BPMNSwitcher bpmns={bpmns} currentBpmn={currentBpmn} setBpmn={setBpmn} scenarios={scenarios} data={data} currentScenario={currentScenario}/>
-                      <ScenarioSwitcher currentScenario={currentScenario} setScenario={setScenario} scenarios={scenarios} data={data}  />
+                      <BPMNSwitcher getData={getData}/>
+                      <ScenarioSwitcher getData={getData}  />
                   <Divider/>
                   <Spacer/>
                   <NavigationItem items={LinkItems2} clickedColor="blackAlpha.400" color="blackAlpha.00" bottom="0" setStarted={setStarted} exitButton={true} />                    

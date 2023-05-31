@@ -58,7 +58,7 @@ function OverviewPage(props) {
 
     // Array to store temporarily which switches are turned on => which scenarios are we comparing
     switches_temp.length = 0
-    props.getData("allScenarios").map((element) => {
+    props.getData().getAllScenarios().map((element) => {
         switches_temp.push({id: element.scenarioName, value: true})
     });
 
@@ -70,7 +70,7 @@ function OverviewPage(props) {
         }
     }
 
-    //TODO throws bugs handleRemove(props.getData("currentScenario").scenarioName);
+    //TODO throws bugs handleRemove(props.getData().getCurrentScenario().scenarioName);
     switches = switches_temp
 
 //set switch list. In order to use the data(id of comparing scenarios on other pages
@@ -153,8 +153,8 @@ function OverviewPage(props) {
                         </CardHeader>
                         <CardBody>
                             {/*Call of Scenario Overview Table*/}
-                            {(props.getData() && props.getData().length)
-                                ? <OverviewTable getSimulData={props.getData}/>
+                            {(props.getData().getAllScenarios() && props.getData().getAllScenarios().length)
+                                ? <OverviewTable getData={props.getData}/>
                                 : <CardBody>
                                    No scenarios exist yet. <Button variant='link' as={Link} to="/processminer">Go to process miner view to create one.</Button>
                                 </CardBody>}
@@ -164,7 +164,7 @@ function OverviewPage(props) {
                     <TabBar
                         //onClick={(index) => setTabIndex(index)}
                         setCurrent={() => {/* TODO */}}
-                        items={props.getData("allScenarios").map((element, index) => {
+                        items={props.getData().getAllScenarios().map((element, index) => {
                             return {
                                 tabname: element.scenarioName,
                                 content:
@@ -175,19 +175,19 @@ function OverviewPage(props) {
                                             </CardHeader>
                                             <CardBody>
                                                 {/*Call of ResourceParameter Table*/}
-                                                < OverviewResourceTable getResourceData={props.getData}
+                                                < OverviewResourceTable getData={props.getData}
                                                                         scenario_id={index}/>
                                             </CardBody>
                                         </Card>
                                         {/*Tabbar to switch between different bpmns within one scenario*/}
                                         <TabBar
                                             setCurrent={() => {/* TODO */}}
-                                            items={props.getData("allModels").models.map((element, index_bpmn) => {
+                                            items={props.getData().getAllModels().models.map((element, index_bpmn) => {
                                                 return {
                                                     tabname: element.name,
                                                     content:
                                                     // Call of Model-based Table
-                                                        < ModelBasedOverview getModelData={props.getData}
+                                                        < ModelBasedOverview getData={props.getData}
                                                                              scenarioId={index} bpmn_id={index_bpmn}
                                                                              parsed={props.parsed}/>
                                                 }

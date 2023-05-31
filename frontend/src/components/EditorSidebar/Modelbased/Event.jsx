@@ -2,7 +2,7 @@ import { Input, FormControl, FormLabel, Flex, Button, Stack, Select, Box, Button
 import { AddIcon, MinusIcon } from '@chakra-ui/icons';
 import React, { useState, useEffect } from 'react';
 
-const Event = ({getData, selectedObject,setDataObj, setData }) => {
+const Event = ({getData, selectedObject,setDataObj }) => {
   const [unit, setUnit] = useState("");
   const [distributionType, setDistributionType] = useState("");
   const [distributionTypes, setDistributionTypes] = useState([
@@ -18,7 +18,7 @@ const Event = ({getData, selectedObject,setDataObj, setData }) => {
   const [distributionValues, setDistributionValues] = useState([]);
 
   useEffect(() => {
-    const currentEvent = getData("currentModel").modelParameter.events.find(
+    const currentEvent = getData().getCurrentModel().modelParameter.events.find(
       (value) => value.id === selectedObject.id
     );
 
@@ -92,23 +92,21 @@ const Event = ({getData, selectedObject,setDataObj, setData }) => {
 
   const onSubmit = (event) =>{
       event.preventDefault();
-      
-      const data = [...getData("allScenario")];
               
       let interArrivalTime = {
           distributionType: distributionType,
           values: distributionTypes.find(dis => dis.distribution_name === distributionType).distribution_params.map((key, index) => {return {id: key, value: distributionValues[index]}})
       }
     
-      getData("currentModel").modelParameter.events.find(
+      getData().getCurrentModel().modelParameter.events.find(
         value => value.id === selectedObject.id
       ).interArrivalTime = interArrivalTime
 
-      getData("currentModel").modelParameter.events.find(
+      getData().getCurrentModel().modelParameter.events.find(
         value => value.id === selectedObject.id
       ).unit = unit
      
-      setData(data)
+      getData().saveCurrentScenario();
     }
 
   

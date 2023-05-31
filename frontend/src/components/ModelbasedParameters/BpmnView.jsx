@@ -26,7 +26,7 @@ function BpmnView({getData, projectName, setObject}) {
 
   // acces bpmn diagram and set bpmn diagram
   useEffect(() => {
-    let bpmnData = getData('currentScenario').models[0].BPMN; //TODO magic access
+    let bpmnData = getData().getCurrentScenario().models[0].BPMN; //TODO magic access
     setDiagram(bpmnData);
   }, [getData]);
 

@@ -1,11 +1,11 @@
 import React from 'react'
 import { Button, Input, FormControl, FormLabel, Select, Divider, Switch, Stack, Box } from '@chakra-ui/react';
 
-const AddRole = ({getData,currentScenario, setData, setCurrent }) => {
+const AddRole = ({getData, setCurrent }) => {
   const [state, setState] = React.useState({
     id: "",
     schedule: "",
-    timeTables: getData("currentScenario").resourceParameters.timeTables.map(item => item.id)
+    timeTables: getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id)
   });
 
   const handleInputChange = (resource) => {
@@ -29,17 +29,15 @@ const AddRole = ({getData,currentScenario, setData, setCurrent }) => {
   const onSubmit = (event) => {
     event.preventDefault();
 
-    let data = [...getData("allScenario")]
-
     let obj = {
       id: state.id,
       schedule: state.schedule,
       resources: []
     }
 
-    data[currentScenario].resourceParameters.roles.push(obj)
+    getData().getCurrentScenario().resourceParameters.roles.push(obj)
 
-    setData(data)
+    getData().saveCurrentScenario();
 
     clear()
   }

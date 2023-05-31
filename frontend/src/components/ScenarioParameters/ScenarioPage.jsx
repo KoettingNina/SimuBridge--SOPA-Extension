@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useToast, Box, Heading, Text, Card, CardBody, Table, Thead, Tbody, Tr, Th, Td, Radio, RadioGroup, Stack, Button, CardHeader, TableContainer } from "@chakra-ui/react";
 import { DeleteIcon } from '@chakra-ui/icons'
 
-const ScenarioPage = ({ setSelectedScenario, setCurrent, getData, setData, selectedScenario }) => {
+const ScenarioPage = ({ setSelectedScenario, setCurrent, getData, selectedScenario }) => {
     const toast = useToast();
 
     // Run once when the component mounts to set selected scenario and set currentPage
@@ -14,13 +14,12 @@ const ScenarioPage = ({ setSelectedScenario, setCurrent, getData, setData, selec
 
     // Define a function to delete a scenario
     const deleteScenario = (index) => {
-        let data = [...getData("allScenario")];
+        let data = [...getData().getAllScenario()];
 
-        // ensure that at least one scenario exist
+        // ensure that at least one scenario exist //TODO why?
         if (data.length > 1) {
-            data.splice(index, 1);
-            setData(data);
-            setSelectedScenario(0)
+            getData().deleteScenarioByIndex(index);
+            setSelectedScenario(0);
         } else {
             toast({
                 title: 'Cannot delete only scenario',
@@ -58,8 +57,8 @@ const ScenarioPage = ({ setSelectedScenario, setCurrent, getData, setData, selec
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {getData("allScenarios") ?
-                                            getData("allScenarios").map((scenario, index) => {
+                                        {getData().getAllScenarios() ?
+                                            getData().getAllScenarios().map((scenario, index) => {
                                                 return <Tr key={index}>
                                                     <Td>
                                                         <RadioGroup value={selectedScenario} onChange={() => { setCurrent("Edit Scenario"); setSelectedScenario(index) }}>

@@ -1,16 +1,16 @@
 import { React, useState, useEffect } from 'react';
 import { Button, Input, FormControl, FormLabel, Divider, Select, Stack, Box } from '@chakra-ui/react';
 
-const EditRole = ({getData, setData, currentRole, currentScenario, setCurrent}) => {
+const EditRole = ({getData, currentRole, setCurrent}) => {
   const [id, setId] = useState("");
   const [schedule, setSchedule] = useState("");
 
-  const timeTables = getData("currentScenario").resourceParameters.timeTables.map(item => item.id);
+  const timeTables = getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id);
 
   useEffect(() => {
-    if (getData("currentScenario").resourceParameters.roles.find(value => value.id === currentRole)) {
-      setId(getData("currentScenario").resourceParameters.roles.find(value => value.id === currentRole).id);
-      setSchedule(getData("currentScenario").resourceParameters.roles.find(value => value.id === currentRole).schedule);
+    if (getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole)) {
+      setId(getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).id);
+      setSchedule(getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).schedule);
     }
   }, []);
 
@@ -28,18 +28,15 @@ const EditRole = ({getData, setData, currentRole, currentScenario, setCurrent}) 
   const onSubmit = (event) => {
     event.preventDefault();
 
-    let data = [...getData("allScenario")];
+    getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).schedule = schedule;
+    getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).id = id;
 
-    data[currentScenario].resourceParameters.roles.find(value => value.id === currentRole).schedule = schedule;
-    data[currentScenario].resourceParameters.roles.find(value => value.id === currentRole).id = id;
-
-    setData(data);
+    getData().saveCurrentScenario();
   };
 
   const deleteRole = () => {
-    let data = [...getData("allScenario")];
-    data[currentScenario].resourceParameters.roles = data[currentScenario].resourceParameters.roles.filter(role => role.id !== id);
-    setData(data);
+    getData().getCurrentScenario().resourceParameters.roles = getData().getCurrentScenario().resourceParameters.roles.filter(role => role.id !== id);
+    getData().saveCurrentScenario();
   };
 
   return (
