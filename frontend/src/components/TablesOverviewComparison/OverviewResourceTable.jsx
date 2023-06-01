@@ -17,7 +17,7 @@ function OverviewResourceTable(props) {
         <Table variant='simple' >
             <Thead>
                 <Tr>
-                    <Th>Department</Th>
+                    <Th>Role</Th>
                     <Th>Resource</Th>
                     <Th>Cost</Th>
                     <Th>Currency</Th>

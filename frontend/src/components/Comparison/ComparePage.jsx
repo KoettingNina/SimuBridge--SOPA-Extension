@@ -18,7 +18,7 @@ import BPMNTableCompare from "../TablesOverviewComparison/BPMNTableCompare";
 function ComparePage(props) {
 // declaration of variables
     const {onOpen, onClose} = useDisclosure()
-    let current_department, department, Cur = []
+    let current_role, role, Cur = []
     let i, notsameRes = [], valueRes = [], ModelCompared = [];
     const [notsameScenario, notSameScenario] = useState([]);
     const [scenDiff, myScenDiff] = useState([]);
@@ -43,29 +43,29 @@ function ComparePage(props) {
             // check if generally are any differences
             if (scenarioToCompare.resourceParameters.resources !== props.getData().getCurrentScenario().resourceParameters.resources) {
                 props.getData().getCurrentScenario().resourceParameters.resources.map((current_element) => {
-                    // find department for the resources
+                    // find role for the resources
                     for (let role of props.getData().getCurrentScenario().resourceParameters.roles) {
                         for (let resource of role.resources) {
                             if (resource.id === current_element.id) {
-                                current_department = role.id;
+                                current_role = role.id;
                                 break
-                            } else current_department = "The Role does not exist in department"
+                            } else current_role = "The resource does not exist for this role" //TODO this message seems odd
                         }
                     }
-                    for (let role of scenarioToCompare.resourceParameters.roles) {
-                        for (let resource of role.resources) {
+                    for (let roleToCompare of scenarioToCompare.resourceParameters.roles) {
+                        for (let resource of roleToCompare.resources) {
                             if (resource.id === current_element.id) {
-                                department = role.id;
+                                role = roleToCompare.id;
                                 break
-                            } else department = "The Role does not exist in department"
+                            } else role = "The Role does not exist in role" //TODO this message seems odd
                         }
                     }
-                    // compare department of the resources
-                    if (current_department !== department) {
+                    // compare role of the resources
+                    if (current_role !== role) {
                         newItem = {
-                            field: "department",
+                            field: "role",
                             id: current_element.id,
-                            value: current_department
+                            value: current_role
                         }
                         ResourceCompared.push(newItem);
                     }
