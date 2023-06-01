@@ -3,6 +3,7 @@ import { Button, Input, FormControl, FormLabel, Divider, Select, Stack, Box } fr
 
 const EditRole = ({getData, currentRole, setCurrent}) => {
   const [id, setId] = useState("");
+  const [costHour, setCostHour] = useState('');
   const [schedule, setSchedule] = useState("");
 
   const timeTables = getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id);
@@ -23,13 +24,20 @@ const EditRole = ({getData, currentRole, setCurrent}) => {
     if (name === 'schedule') {
       setSchedule(value);
     } 
+    
+    if (name === 'costHour') {
+      setCostHour(value);
+    } 
   }
 
   const onSubmit = (event) => {
     event.preventDefault();
 
-    getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).schedule = schedule;
-    getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).id = id;
+    let currentRoleData = getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole);
+
+    currentRoleData.schedule = schedule;
+    currentRoleData.id = id;
+    currentRoleData.costHour = costHour;
 
     getData().saveCurrentScenario();
   };
@@ -64,20 +72,25 @@ const EditRole = ({getData, currentRole, setCurrent}) => {
         <Box w="100%">
         <form onSubmit={onSubmit}>
         <Stack gap="2" mt="4">
-         <FormControl >
+          <FormControl >
               <FormLabel>Role Name:</FormLabel>
               <Input value={id} bg="white" name = "id" onChange={(event) => handleInputChange(event)} />
           </FormControl>
 
-
           <FormControl >
-              <FormLabel>Timetable:</FormLabel>
+              <FormLabel> Default Timetable:</FormLabel>
               <Select value={schedule} bg="white" name="schedule" onChange={(event) => handleInputChange(event)} >
                 {timeTables.map((id, index) => {
                     return <option value={id} key={index}>{id}</option>
                 })}
             </Select>
-         </FormControl>
+          </FormControl>
+
+
+          <FormControl >
+              <FormLabel> Default Cost per Hour:</FormLabel>
+              <Input value={costHour} bg="white"  name="costHour" onChange={(event) => handleInputChange(event)} />
+          </FormControl>
 
           <Button 
               type="submit"

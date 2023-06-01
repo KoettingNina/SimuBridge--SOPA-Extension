@@ -63,7 +63,7 @@ const AddRole = ({getData, setCurrent }) => {
             </FormControl>
 
             <FormControl>
-              <FormLabel>Select timetable:</FormLabel>
+              <FormLabel>Select default timetable:</FormLabel>
               <Select value={state.schedule} placeholder='Select timetable' bg="white" name="schedule" onChange={handleInputChange}>
                 {getData().getCurrentScenario().resourceParameters.timeTables.map(item => {
                   return <option value={item.id} key={item.id}>{item.id}</option>

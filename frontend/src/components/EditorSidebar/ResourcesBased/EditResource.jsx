@@ -57,7 +57,7 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
 
     const resource = getData().getCurrentScenario().resourceParameters.resources.find(value => value.id === currentResource);
     resource.id = id;
-    resource.costHour = costHour;
+    resource.costHour = costHour || undefined; // Is nullable by putting in empty string
     resource.schedule = schedule || undefined; // Is nullable by putting in empty string
     resource.numberOfInstances = numberOfInstances;
   
@@ -123,7 +123,7 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
 
           <FormControl>
               <FormLabel>Cost per Hour:</FormLabel>
-              <Input value={costHour} bg="white"  name="costHour" onChange={(event) => handleInputChange(event)} />
+              <Input placeholder={`default for ${selectedRoles[0]}`} value={costHour} bg="white"  name="costHour" onChange={(event) => handleInputChange(event)} />
           </FormControl>
 
 
@@ -135,7 +135,7 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
           <FormControl >
               <FormLabel>Timetable:</FormLabel>
               <Select value={schedule} bg="white" {...(!schedule && {color : 'darkgray'})} name="schedule" onChange={(event) => handleInputChange(event)} >
-                <option value={''} key='default'>default for {roles[0]}</option>
+                <option value={''} key='default'>default for {selectedRoles[0]}</option>
                 {timeTables.map((id, index) => {
                     return <option style={{ color: 'black' }} value={id} key={index}>{id}</option>
                 })}

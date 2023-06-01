@@ -192,10 +192,11 @@ function getResources(jsonObj){
     //returns the resources Array, which contains the id, cost per hour, number of instances and schedule for each schedule
     return jsonObj.resource_profiles.flatMap(role => {
         let defaultTimetableId = role.resource_list[0].calendar;
+        let defaultCostHour = role.resource_list[0].cost_per_hour;
         return role.resource_list.map(instance => ({
             id: instance.id,
-            costHour: instance.cost_per_hour,
-            numberOfInstances: instance.amount,
+            costHour: instance.cost_per_hour !== defaultCostHour ? instance.cost_per_hour : undefined,
+            numberOfInstances: instance.amount, //TODO unused attribute?
             schedule: instance.calendar !== defaultTimetableId ? instance.calendar : undefined
         }));
     });
@@ -221,6 +222,7 @@ function getRoles(jsonObj){
     return jsonObj.resource_profiles.map(role => ({
         id: role.id,
         schedule: role.resource_list[0].calendar, //Take first calendar by default
+        costHour: role.resource_list[0].cost_per_hour, // Take first cost per hour by default
         resources: role.resource_list.map(instance => ({id: instance.id}))
     }));
 }
