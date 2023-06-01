@@ -419,19 +419,17 @@ function getActivities(bpmnObj, jsonObj){
     let activities = new Array;
     bpmnObj.definitions.process.forEach(element => {
         element.task.forEach(b => {
-            let resources = new Array;
-            jsonObj.task_resource_distribution.forEach(c => {
-                if (c.task_id == b.ATTR.id){
-                    c.resources.forEach(d=> {
-                        resources.push(d.resource_id);
-                    })
-                }
-            })
+
+            let roles = jsonObj.resource_profiles;
+            let assignedRoles = roles
+                .filter(role => role.resource_list.some(instance => instance.assignedTasks.includes(b.ATTR.id)))
+                .map(role => role.id);
+
             activities.push({
                 id: b.ATTR.id,
                 name: b.ATTR.name,
                 type: "bpmn:Task",
-                resources: resources,
+                resources: assignedRoles,
                 unit: getTimeUnit(),
                 cost: 0,
                 currency: getCurrency(),

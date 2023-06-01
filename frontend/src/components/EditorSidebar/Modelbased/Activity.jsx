@@ -278,10 +278,10 @@ const Activity = ({ getData, selectedObject, setDataObj }) => {
                       <FormLabel>Resource { (index + 1 )}:</FormLabel>
                       <Flex gap='0' flexDirection='row'>
                       <Select name="resource" value={resource} {...(!resource && {placeholder : 'Select resource', color : 'red'})} onChange={(event) => handleResources(index,event.target.value )} bg="white">
-                        {getData().getCurrentScenario().resourceParameters.resources
+                        {getData().getCurrentScenario().resourceParameters.roles
                           .filter(alternativeResource => !resources.includes(alternativeResource.id) || alternativeResource.id === resource)
                           .map(x =>{
-                            return  <option style={{ color: 'black' }} value={x.id}>{x.id}</option>
+                            return  <option style={{ color: 'black' }} value={x.id} key={x.id}>{x.id}</option>
                         } )}
                         
                       </Select>

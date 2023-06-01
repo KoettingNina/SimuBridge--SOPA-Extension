@@ -35,7 +35,7 @@ calendars:
   max_evaluations: 1
   optimization_metric: absolute_hourly_emd
   resource_profiles:
-    discovery_type: differentiated
+    discovery_type: pool
     granularity: 60
     confidence: 0.1
     support: 0.7
