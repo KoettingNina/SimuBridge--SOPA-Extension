@@ -38,7 +38,7 @@ function ProgressPage() {
 
           >
             <Text fontWeight="bold" fontSize="26">Waiting</Text>
-            <Text fontWeight="bold">Waiting for the discovery tool to send the data</Text>
+            <Text fontWeight="bold">Loading project...</Text>
             <CircularProgress isIndeterminate color='#A2987F'  size="160px"/>
 
           </Flex>

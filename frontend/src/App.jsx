@@ -103,7 +103,7 @@ function App() {
       getAllScenarios() { return data; }
       getCurrentScenario() { return this.getAllScenarios()[currentScenario]; }
       getAllModels() { return this.getCurrentScenario()?.models; }
-      getCurrentModel() { return this.getAllModels[currentBpmn]; }
+      getCurrentModel() { return this.getAllModels()[currentBpmn]; }
 
       getScenario(scenarioName) { return this.getAllScenarios().find(scenario => scenario.scenarioName === scenarioName) }//TODO remove
       getScenarioByIndex(index) { return data[index]; }//TODO remove

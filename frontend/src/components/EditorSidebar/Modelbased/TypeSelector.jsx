@@ -5,7 +5,6 @@ import Gateway from './Gateway';
 function TypeSelector({
   getData,
   selectedObject,
-  setData,
   setDataObj
 }) {
 

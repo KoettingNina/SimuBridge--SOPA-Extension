@@ -5,6 +5,7 @@ import { Input, FormControl, FormLabel, Select, Stack, Button, Box,  ButtonGroup
   AccordionIcon } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react'
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
+import { CloseIcon } from '@chakra-ui/icons';
 
 const Activity = ({ getData, selectedObject, setDataObj }) => {
   const [unit, setUnit] = useState("");
@@ -110,17 +111,12 @@ const Activity = ({ getData, selectedObject, setDataObj }) => {
   };
 
 
-  const changeValueAmount = (amount) => {
-    let newResources = [...resources]
-    if(amount === 1){
-      newResources.push("")
-    }
+  const addResource = () => {
+    setResources([...resources.filter(resource => resource), undefined])
+  }
 
-    if(amount === -1){
-      newResources.pop()
-    }
-
-    setResources(newResources)
+  const removeResource = (index) => {
+    setResources(resources.filter((value, localIndex) => localIndex !== index))
   }
 
   const changeValueAmountDuration = (amount) => {
@@ -143,7 +139,8 @@ const Activity = ({ getData, selectedObject, setDataObj }) => {
   }
 
   const handleResources = (index, value) =>{
-    resources[index] = value
+    resources[index] = value;
+    setResources(resources.filter(resource => resource))
     console.log(resources)
   }
 
@@ -275,26 +272,30 @@ const Activity = ({ getData, selectedObject, setDataObj }) => {
               <AccordionPanel pb={4}>
               <Text fontWeight="bold" fontSize="md">Resources:</Text>
 
-                <ButtonGroup size='md' isAttached variant="outline" >
-                    <IconButton icon={<MinusIcon />} onClick={() => changeValueAmount(-1)} />
-                    <IconButton icon={<AddIcon />} onClick={() => changeValueAmount(1)} />
-                </ButtonGroup>
-
                 {
                   resources.map((resource, index) => {
                     return <FormControl>
                       <FormLabel>Resource { (index + 1 )}:</FormLabel>
-                      <Select name="resource" placeholder={resource} onChange={(event) => handleResources(index,event.target.value )} bg="white">
-                        <option>select resource</option>
-                        {getData().getCurrentScenario().resourceParameters.resources.map(x =>{
-                        return  <option value={x.id}>{x.id}</option>
+                      <Flex gap='0' flexDirection='row'>
+                      <Select name="resource" value={resource} {...(!resource && {placeholder : 'Select resource', color : 'red'})} onChange={(event) => handleResources(index,event.target.value )} bg="white">
+                        {getData().getCurrentScenario().resourceParameters.resources
+                          .filter(alternativeResource => !resources.includes(alternativeResource.id) || alternativeResource.id === resource)
+                          .map(x =>{
+                            return  <option style={{ color: 'black' }} value={x.id}>{x.id}</option>
                         } )}
                         
                       </Select>
+                    <IconButton icon={<CloseIcon />} onClick={() => removeResource(index)} />
+                    </Flex>
                     </FormControl>
                   })
 
                 }
+
+                <ButtonGroup size='md' isAttached variant="outline" >
+                    {/* <IconButton icon={<MinusIcon />} onClick={() => changeValueAmount(-1)} /> */}
+                    <IconButton icon={<AddIcon />} disabled={resources.filter(res => !res).length} onClick={() => addResource()} />
+                </ButtonGroup>
               </AccordionPanel>
             </AccordionItem>
           </Accordion>
