@@ -89,7 +89,7 @@ const EditRole = ({getData, currentRole, setCurrent}) => {
               color ='#6E6E6F'
               _hover={{ bg: '#B4C7C9' }}> Save changes </Button> 
 
-        <Button colorScheme='red' variant='outline' w="100%" onClick={deleteRole}>Delete resource</Button>
+        <Button colorScheme='red' variant='outline' w="100%" onClick={deleteRole}>Delete role</Button>
         </Stack>
         </form>
         </Box>

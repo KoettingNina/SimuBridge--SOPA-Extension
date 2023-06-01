@@ -39,7 +39,7 @@ function ResourceOverview({setCurrent, getData, setRole, setResource}){
                                     return <><Tr key={element.id}>
                                         <Td><Flex><Button variant="outline" onClick={() => {setRole(element.id); setCurrent("Resource Parameters for Roles")} }>{element.id}</Button></Flex></Td>
                                         <Td><Flex gap="4" flexWrap="wrap">
-                                            {element.resources.map((resource) => {return <Button onClick={() => {setResource(resource.id); setCurrent("Resource Parameters") }}> {resource.id} </Button>})}
+                                            {element.resources.map((resource) => {return <Button key={resource.id} onClick={() => {setResource(resource.id); setCurrent("Resource Parameters") }}> {resource.id} </Button>})}
                                         </Flex></Td>
                                     </Tr></>
                                 })} 

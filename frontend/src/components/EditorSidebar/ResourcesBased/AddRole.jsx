@@ -4,8 +4,7 @@ import { Button, Input, FormControl, FormLabel, Select, Divider, Switch, Stack, 
 const AddRole = ({getData, setCurrent }) => {
   const [state, setState] = React.useState({
     id: "",
-    schedule: "",
-    timeTables: getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id)
+    schedule: ""
   });
 
   const handleInputChange = (resource) => {
@@ -66,8 +65,8 @@ const AddRole = ({getData, setCurrent }) => {
             <FormControl>
               <FormLabel>Select timetable:</FormLabel>
               <Select value={state.schedule} placeholder='Select timetable' bg="white" name="schedule" onChange={handleInputChange}>
-                {state.timeTables.map((id, index) => {
-                  return <option value={id}>{id}</option>
+                {getData().getCurrentScenario().resourceParameters.timeTables.map(item => {
+                  return <option value={item.id} key={item.id}>{item.id}</option>
                 })}
               </Select>
             </FormControl>

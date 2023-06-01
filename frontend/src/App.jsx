@@ -223,7 +223,7 @@ useEffect(() => {
         :
         <>
       {/*If a session and data exists the dashboard is displayed */}
-      {true /* data && data[0]*/ ?
+      {getData().getCurrentScenario() /* data && data[0]*/ ?
        <>
           <Box zIndex={2} paddingTop={{base: "0", md:"6"}} >
             <Navigation 
