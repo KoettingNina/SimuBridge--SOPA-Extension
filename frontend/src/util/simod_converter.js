@@ -182,26 +182,23 @@ function getValues(distribution){
 function getResourceParameters(jsonObj){
     //returns the resource Parameters, which contains Resources, Roles and Timetables
     let ResourceParameters = new Object;
-    ResourceParameters.resources = getResources(jsonObj);
     ResourceParameters.roles = getRoles(jsonObj);
+    ResourceParameters.resources = getResources(jsonObj);
     ResourceParameters.timeTables = getTimeTables(jsonObj);
     return ResourceParameters
 }
 
 function getResources(jsonObj){
     //returns the resources Array, which contains the id, cost per hour, number of instances and schedule for each schedule
-    let resources = new Array
-    jsonObj.resource_profiles.forEach(element => {
-            element.resource_list.forEach(b => {
-                resources.push({
-                    id: b.id,
-                    costHour: b.cost_per_hour,
-                    numberOfInstances: b.amount,
-                    schedule: b.calendar
-                })
-            })
+    return jsonObj.resource_profiles.flatMap(role => {
+        let defaultTimetableId = role.resource_list[0].calendar;
+        return role.resource_list.map(instance => ({
+            id: instance.id,
+            costHour: instance.cost_per_hour,
+            numberOfInstances: instance.amount,
+            schedule: instance.calendar !== defaultTimetableId ? instance.calendar : undefined
+        }));
     });
-    return resources;
 }
 
 function getTaskDuration(jsonObj, Taskid){
@@ -221,28 +218,11 @@ function getTaskDuration(jsonObj, Taskid){
 
 function getRoles(jsonObj){
     //returns the roles, contains for each role the id, a schedule and the specific resources
-    let roles = new Array
-    jsonObj.resource_profiles.forEach(element =>{
-        let resources = new Array
-        element.resource_list.forEach(b => {resources.push({id: b.id})})
-        roles.push({
-            id: element.id,
-            schedule: getFirstSchedule(jsonObj, element.id),
-            resources: resources
-        })
-    });
-    return roles
-}
-
-function getFirstSchedule(jsonObj, RoleID){
-    //returns the schedule of a the first resource for a role
-    let schedule = "";
-    jsonObj.resource_profiles.forEach(element => {
-        if(element.id == RoleID){
-            schedule = element.resource_list[0].calendar;
-        }
-    })
-    return schedule
+    return jsonObj.resource_profiles.map(role => ({
+        id: role.id,
+        schedule: role.resource_list[0].calendar, //Take first calendar by default
+        resources: role.resource_list.map(instance => ({id: instance.id}))
+    }));
 }
 
 function getTimeTables(jsonObj){

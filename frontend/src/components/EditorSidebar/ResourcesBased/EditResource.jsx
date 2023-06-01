@@ -58,7 +58,7 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
     const resource = getData().getCurrentScenario().resourceParameters.resources.find(value => value.id === currentResource);
     resource.id = id;
     resource.costHour = costHour;
-    resource.schedule = schedule;
+    resource.schedule = schedule || undefined; // Is nullable by putting in empty string
     resource.numberOfInstances = numberOfInstances;
   
     getData().getCurrentScenario().resourceParameters.roles.forEach(obj => {
@@ -134,9 +134,10 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
 
           <FormControl >
               <FormLabel>Timetable:</FormLabel>
-              <Select value={schedule} bg="white" name="schedule" onChange={(event) => handleInputChange(event)} >
+              <Select value={schedule} bg="white" {...(!schedule && {color : 'darkgray'})} name="schedule" onChange={(event) => handleInputChange(event)} >
+                <option value={''} key='default'>default for {roles[0]}</option>
                 {timeTables.map((id, index) => {
-                    return <option value={id} key={index}>{id}</option>
+                    return <option style={{ color: 'black' }} value={id} key={index}>{id}</option>
                 })}
             </Select>
          </FormControl>
