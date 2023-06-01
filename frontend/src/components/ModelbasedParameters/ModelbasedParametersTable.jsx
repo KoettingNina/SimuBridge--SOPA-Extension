@@ -181,8 +181,8 @@ const ModelbasedParametersTable = ({ getData }) => {
                             {getData().getCurrentModel().modelParameter.events.map((element) => {
                                 return <Tr>
                                             <Td>{element.id}</Td>
-                                            <Td>{element.interArrivalTime.distributionType}</Td>
-                                            <Td>{element.interArrivalTime.values.map((value) => {return <Text>{value.id + ": " + value.value}</Text>})}</Td>
+                                            <Td>{element.interArrivalTime?.distributionType}</Td>
+                                            <Td>{element.interArrivalTime?.values.map((value) => {return <Text>{value.id + ": " + value.value}</Text>})}</Td>
                                             
                                         </Tr>
 

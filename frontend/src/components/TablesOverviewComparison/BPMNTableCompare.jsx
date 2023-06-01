@@ -616,12 +616,12 @@ function BPMNTableCompare(props) {
                                         </Td>
                                         {/*Inter-arrival time*/}
                                         <Td>
-                                            {!isDifferentPopover("distributionTypeEvent", event.id, event.interArrivalTime.distributionType) ?
-                                                <Text>{event.interArrivalTime.distributionType}</Text>
+                                            {!isDifferentPopover("distributionTypeEvent", event.id, event.interArrivalTime?.distributionType) ?
+                                                <Text>{event.interArrivalTime?.distributionType}</Text>
                                                 :
                                                 <Popover>
                                                     <PopoverTrigger>
-                                                        <Button>{event.interArrivalTime.distributionType}</Button>
+                                                        <Button>{event.interArrivalTime?.distributionType}</Button>
                                                     </PopoverTrigger>
                                                     <Portal>
                                                         <PopoverContent bg='#dce5e6' zIndex={4}>
@@ -640,14 +640,14 @@ function BPMNTableCompare(props) {
                                         {/*Inter-arrival time. Distribution*/}
                                         <Td>
                                             {!isDifferentPopover("durationValuesEvent", event.id, event.id) ?
-                                                event.interArrivalTime.values?.map((item) => {
+                                                event.interArrivalTime?.values.map((item) => {
                                                         return <Text>{"⠀" + item.id + ": " + item.value}</Text>
                                                     })
                                                 :
                                                 <Popover>
                                                     <PopoverTrigger>
                                                         <Button>
-                                                            {event.interArrivalTime.values?.map((item) => {
+                                                            {event.interArrivalTime?.values.map((item) => {
                                                                 return <Text>{"⠀" + item.id + ": " + item.value}</Text>
                                                             })}
                                                         </Button>

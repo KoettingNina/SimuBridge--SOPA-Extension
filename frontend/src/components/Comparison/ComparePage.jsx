@@ -164,7 +164,7 @@ function ComparePage(props) {
    //set array of different scenario simulation parameters for usage on other pages
     props.setNotSameScenario(scenDiff)
     // Here the index of current bpmn model is found
-    let cur_model = props.getData().getCurrentScenario().models.indexOf(props.getData().currentModel())
+    let cur_model = props.getData().getCurrentScenario().models.indexOf(props.getData().getCurrentModel())
 
     // creating of new array with scenarios to compare ONLY
     //let compare = props.scenariosCompare.concat(props.getData().getCurrentScenario().scenarioName)
@@ -370,25 +370,25 @@ function ComparePage(props) {
 
                     }
                     // interArrivalTime comparison
-                    console.log(current_event.interArrivalTime.distributionType)
-                    console.log(event.interArrivalTime.distributionType)
-                    if (current_event.interArrivalTime.distributionType !== event.interArrivalTime.distributionType) {
-                        newItem = {
-                            field: "distributionTypeEvent",
-                            id: current_event.id,
-                            value: current_event.interArrivalTime.distributionType
+                    if (current_event.interArrivalTime) {
+                        if (current_event.interArrivalTime.distributionType !== event.interArrivalTime.distributionType) {
+                            newItem = {
+                                field: "distributionTypeEvent",
+                                id: current_event.id,
+                                value: current_event.interArrivalTime.distributionType
+                            }
+                            ModelCompared.push(newItem);
+    
                         }
-                        ModelCompared.push(newItem);
-
-                    }
-                    // compare distribution data
-                    if (!equalsCheck(current_event.interArrivalTime.values, event.interArrivalTime.values)) {
-                        newItem = {
-                            field: "durationValuesEvent",
-                            id: current_event.id,
-                            value: current_event.id,
+                        // compare distribution data
+                        if (!equalsCheck(current_event.interArrivalTime.values, event.interArrivalTime.values)) {
+                            newItem = {
+                                field: "durationValuesEvent",
+                                id: current_event.id,
+                                value: current_event.id,
+                            }
+                            ModelCompared.push(newItem);
                         }
-                        ModelCompared.push(newItem);
                     }
                 }
 
