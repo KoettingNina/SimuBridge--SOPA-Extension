@@ -6,8 +6,6 @@ const AddResource = ({ getData, setCurrent }) => {
     id: "",
     costHour: "",
     numberOfInstances: "",
-    timeTables: getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id),
-    roles: getData().getCurrentScenario().resourceParameters.roles.map(item => item.id),
     selectedRoles: []
   });
 
@@ -109,8 +107,8 @@ const AddResource = ({ getData, setCurrent }) => {
         <FormLabel>Select roles:</FormLabel>
           <CheckboxGroup colorScheme='green' value={state.selectedRoles} name="selectedRoles" onChange={(event) => handleRolesChange(event)}>
             <Stack spacing={[1, 5]} direction="column">
-            {state.roles.map((id, index) => {
-                    return <Checkbox value={id}>{id}</Checkbox>
+            {getData().getCurrentScenario().resourceParameters.roles.map(item =>  {
+                    return <Checkbox key={item.id} value={item.id}>{item.id}</Checkbox>
                 })}
             </Stack>
           </CheckboxGroup>
