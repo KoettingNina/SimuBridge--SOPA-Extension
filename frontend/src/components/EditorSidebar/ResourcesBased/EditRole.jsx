@@ -9,9 +9,11 @@ const EditRole = ({getData, currentRole, setCurrent}) => {
   const timeTables = getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id);
 
   useEffect(() => {
-    if (getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole)) {
-      setId(getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).id);
-      setSchedule(getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole).schedule);
+    let currentRoleData = getData().getCurrentScenario().resourceParameters.roles.find(value => value.id === currentRole);
+    if (currentRoleData) {
+      setId(currentRoleData.id);
+      setSchedule(currentRoleData.schedule);
+      setCostHour(currentRoleData.costHour);
     }
   }, []);
 
