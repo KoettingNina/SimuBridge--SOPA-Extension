@@ -11,13 +11,13 @@ import { deleteAllFiles, deleteFile, downloadFile, getFile, getFiles, getScenari
 import { convertSimodOutput } from '../../util/simod_converter';
 
 
-function DebugPage(props) {
+function DebugPage({projectName, getData}) {
 
 
     const [fileList, setFileList] = useState([]);
 
     function updateFileList() {
-        getFiles(props.projectName).then(newFileList => {
+        getFiles(projectName).then(newFileList => {
             if (fileList.join(',') !== newFileList.join(',')) {
                 setFileList(newFileList);
             }
@@ -37,9 +37,9 @@ function DebugPage(props) {
                         <UnorderedList>
                             {fileList.sort().map(x => (
                                 <ListItem key={x}>
-                                    <Button onClick={() => downloadFile(props.projectName, x)} variant="link">{x}</Button>
+                                    <Button onClick={() => downloadFile(projectName, x)} variant="link">{x}</Button>
                                     <Button onClick={() => {
-                                        deleteFile(props.projectName, x);
+                                        deleteFile(projectName, x);
                                         updateFileList();
                                     }} ><Icon as={FiTrash2} fontSize="md" color={"RGBA(0, 0, 0, 0.64)"} /></Button>
                                 </ListItem>
@@ -55,12 +55,12 @@ function DebugPage(props) {
                     </CardHeader>
                     <CardBody>
                         <Button onClick={() => {
-                            uploadFile(props.projectName).then(updateFileList);
+                            uploadFile(projectName).then(updateFileList);
                         }}>Upload File</Button> 
                         <Button onClick={() => {
-                            deleteAllFiles(props.projectName).then(updateFileList);
+                            deleteAllFiles(projectName).then(updateFileList);
                         }}>Delete All Files</Button> 
-                        <Button onClick={() => console.log(props.data)}>Print State</Button> 
+                        <Button onClick={() => console.log(getData())}>Print State</Button> 
                     </CardBody>
                 </Card>
 

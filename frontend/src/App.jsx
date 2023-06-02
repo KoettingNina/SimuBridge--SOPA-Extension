@@ -216,6 +216,28 @@ useEffect(() => {
     // }
   }
 
+  //TODO further encapsulate side bar related functionality
+  function SideBarContentSetterButton({ type, id, ...props }) {
+
+    const sideBarContentTypes = {
+      'role': { setter: setRole, getter: () => currentRole, current: 'Resource Parameters for Roles' },
+      'resource': { setter: setResource, getter: () => currentResource, current: 'Resource Parameters' }
+    }
+
+    function setSideBarContent(type, id) {
+      Object.values(sideBarContentTypes).forEach(sideBarContentType => sideBarContentType.setter(undefined)); // Reset all others
+      sideBarContentTypes[type].setter(id);
+      setCurrent(sideBarContentTypes[type].current);
+    }
+
+    function getSideBarContentId() {
+      const contentTypeKey = Object.keys(sideBarContentTypes).find(key => sideBarContentTypes[key].current === current);
+      return sideBarContentTypes[contentTypeKey]?.getter();
+    }
+
+    return <Button {...(getSideBarContentId() === id && { background: "#AEC8CA!important" })} onClick={() => setSideBarContent(type, id)} {...props} >{id}</Button>;
+  }
+
   return (
     <ChakraProvider theme={theme}>
       <Flex bg="#F9FAFC" h="100%" zIndex={-3} minH="100vh" overflowX="hidden">
@@ -277,9 +299,9 @@ useEffect(() => {
               <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} parsed={parsed} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
               
               {getData().getCurrentScenario() && <>
-                <Route path="/resource" element={<ResourceOverview path="/resource" getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
-                <Route path="/resource/overview" element={<ResourceOverview path="/resource" getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
-                <Route path="/resource/timetable" element={<TimetableOverview  path="/resource" getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
+                <Route path="/resource" element={<ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton}/>} />
+                <Route path="/resource/overview" element={<ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />
+                <Route path="/resource/timetable" element={<TimetableOverview  path="/resource" getData={getData} setCurrent={setCurrent} setTimetable={setTimetable} /*TODO timetable is write only?*/ />} />
 
                 <Route path="/scenario" element={<ScenarioPage getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}  currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} selectedScenario={selectedScenario} setSelectedScenario={setSelectedScenario}/>} />
                 <Route path="/overview/compare" element={<ComparePage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared}/>}  />
@@ -292,7 +314,7 @@ useEffect(() => {
 
               <Route path="/simulation" element={<SimulationPage path="/simulation"  projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  toasting={toasting} />} />
               <Route path="/processminer" element={<ProcessMinerPage path="/processminer" projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  toasting={toasting} />} />
-              <Route path="/debug" element={<DebugPage path="/debug" projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  toasting={toasting} />} />
+              <Route path="/debug" element={<DebugPage path="/debug" projectName={projectName} getData={getData} toasting={toasting} />} />
               <Route path='*' element={<Navigate to='/overview' />} />
             </Routes>
          </Container>

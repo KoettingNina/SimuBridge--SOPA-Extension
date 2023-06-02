@@ -1,7 +1,7 @@
 import {React, useEffect} from 'react'
-import { Box, Card, CardBody, Table, TableContainer, Thead,  Tbody, Tr, Th, Td, Button, Flex, Stack, Heading} from '@chakra-ui/react'
+import { Box, Card, CardBody, Table, TableContainer, Thead,  Tbody, Tr, Th, Td, Flex, Stack, Heading} from '@chakra-ui/react'
 import ResourceNavigation from '../ResourceNavigation';
-function ResourceOverview({setCurrent, getData, setRole, setResource}){
+function ResourceOverview({SideBarContentSetterButton, setCurrent, getData}){
 
     // Run once when the component mounts to set currentPage
     //setCurrent is important for displaying the right editorsidebar on the right side
@@ -13,6 +13,7 @@ function ResourceOverview({setCurrent, getData, setRole, setResource}){
     var assignedRessources = getData().getCurrentScenario().resourceParameters.roles.map(x => x.resources).flat().map(y => y.id)
     var allRessources = getData().getCurrentScenario().resourceParameters.resources.map(x => x.id)
     let unassignedRessources = allRessources.filter(ressource => !assignedRessources.includes(ressource));
+
 
     return(
         <>
@@ -37,9 +38,9 @@ function ResourceOverview({setCurrent, getData, setRole, setResource}){
                             
                                 {getData().getCurrentScenario().resourceParameters.roles.map((element) => {
                                     return <><Tr key={element.id}>
-                                        <Td><Flex><Button variant="outline" onClick={() => {setRole(element.id); setCurrent("Resource Parameters for Roles")} }>{element.id}</Button></Flex></Td>
+                                        <Td><Flex><SideBarContentSetterButton type='role' id={element.id} variant='outline'/></Flex></Td>
                                         <Td><Flex gap="4" flexWrap="wrap">
-                                            {element.resources.map((resource) => {return <Button key={resource.id} onClick={() => {setResource(resource.id); setCurrent("Resource Parameters") }}> {resource.id} </Button>})}
+                                            {element.resources.map((resource) => <SideBarContentSetterButton type='resource' id={resource.id}/>)}
                                         </Flex></Td>
                                     </Tr></>
                                 })} 
@@ -57,7 +58,7 @@ function ResourceOverview({setCurrent, getData, setRole, setResource}){
                     <Flex alignItems="center"  gap="4" flexWrap="wrap">
                         {
                         unassignedRessources.map((id) => {
-                        return <Button onClick={() => {setResource(id); setCurrent("Resource Parameters") }}> {id} </Button> 
+                        return <SideBarContentSetterButton type='resource' id={id}/>
                     })}
                     </Flex> 
                 </CardBody>
