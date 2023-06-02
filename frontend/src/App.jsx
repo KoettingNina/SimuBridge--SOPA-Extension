@@ -17,9 +17,10 @@ import DebugPage from './components/Debug/DebugPage';
 import ComparePage from "./components/Comparison/ComparePage";
 import TimetableOverview from './components/ResourceParameters/TimeTable/TimetableOverview';
 import ResourceOverview from './components/ResourceParameters/Resources/ResourceOverview';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
 import { deleteFile, getFiles, getProjectData, getProjects, getScenarioFileName, getScenarios, setFile, setProjectData } from './util/Storage';
+
 
 const { compare } = require('js-deep-equals')
 
@@ -45,7 +46,22 @@ function App() {
   const [currentResource, setResource] = useState("")
   const [currentRole, setRole] = useState("")
   const [currentTimetable, setTimetable] = useState("")
-  const [selectedScenario, setSelectedScenario] = useState("")
+
+  const [currentRightSideBar, setCurrentRightSideBarInternal] = useState(<></>);
+  const [rightSideBarHasToBeReset, setRightSideBarHasToBeReset] = useState(false);
+  function setCurrentRightSideBar(newRightSideBar) {
+    setRightSideBarHasToBeReset(false);
+    setCurrentRightSideBarInternal(newRightSideBar);
+  }
+  // Location effect is racing with component effect, but happens later!
+  const location = useLocation();
+  useEffect(() => {
+    if (rightSideBarHasToBeReset) {
+      setCurrentRightSideBar(<></>);
+    } else {
+      setRightSideBarHasToBeReset(true);
+    }
+  }, [location])
 
   // State is used to store information about which BPMN object (event, gateway, task) is selected and displayed on the rigth sidebar (EditorSidebar)
   const [currentObject, setObject] = useState({})
@@ -306,7 +322,7 @@ useEffect(() => {
               <Route path="/resource/overview" element={atLeastOnScenario && <ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />
               <Route path="/resource/timetable" element={atLeastOnScenario && <TimetableOverview path="/resource" getData={getData} setCurrent={setCurrent} setTimetable={setTimetable} /*TODO timetable is write only?*/ />} />
 
-              <Route path="/scenario" element={atLeastOnScenario && <ScenarioPage getData={getData} current={current} setCurrent={setCurrent} setObject={setObject} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} currentResource={currentResource} setResource={setResource} currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} selectedScenario={selectedScenario} setSelectedScenario={setSelectedScenario} />} />
+              <Route path="/scenario" element={atLeastOnScenario && <ScenarioPage {...{ getData, setCurrentRightSideBar }} />} />
               
               <Route path="/modelbased" element={atLeastOnScenario && <BpmnViewSelector zIndex={-5} projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} />} />
               <Route path="/modelbased/tableview" element={atLeastOnScenario && <ModelbasedParametersTable parsed={parsed} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
@@ -320,16 +336,14 @@ useEffect(() => {
          </Container>
 
 {/*  These routes define which components are loaded into the right side of the page (sidebar) for each path and pass the needed props*/}
-         <Box zIndex={2} paddingTop={{base: "0", md:"6"}} >
+         <Box zIndex={2} paddingTop={{base: "0", md:"6"}} > {/*TODO Translate all other sidebars to the setCurrentRightSideBar pattern*/}
             <Routes>
               <Route path="/resource"           element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable} />} />
               <Route path="/resource/overview"  element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
               <Route path="/resource/timetable" element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
-              
-              <Route path="/scenario"           element={<EditorSidebar  getData={getData} current={current} selectedObject={currentObject}    setCurrent={setCurrent} selectedScenario={selectedScenario} setSelectedScenario={selectedScenario}/> } />
-
-
+          
               <Route path="/modelbased"         element={<EditorSidebar  getData={getData} current={current} selectedObject={currentObject}   setObject={setObject} />} />
+              <Route path='*'                   element={currentRightSideBar} />
             </Routes>
           </Box>
         </>

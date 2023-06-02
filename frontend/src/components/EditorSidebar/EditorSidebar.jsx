@@ -16,10 +16,12 @@ import EditScenario from './Scenario/EditScenario';
 import EditResource from './ResourcesBased/EditResource';
 import EditRole from './ResourcesBased/EditRole';
 
+
+const Title = ({text}) => {
+    return <Text fontSize={{base: "xs", md:"sm"}} textAlign="center" color="RGBA(0, 0, 0, 0.80)" fontWeight="bold" textTransform="uppercase">{text}</Text>            
+};
+
 function EditorSidebar(props) {
-    const Editor = () => {
-    return <Text fontSize={{base: "xs", md:"sm"}} textAlign="center" color="RGBA(0, 0, 0, 0.80)" fontWeight="bold" textTransform="uppercase">{props.current}</Text>            
-    };
 
 
     const SelectEditor = () =>{
@@ -27,7 +29,6 @@ function EditorSidebar(props) {
             case "Resource Parameters": return <EditResource currentResource={props.currentResource} setResource={props.setResource} getData={props.getData} setCurrent={props.setCurrent}/>
             case "Resource Parameters for Roles": return <EditRole currentRole={props.currentRole} setRole={props.setRole} getData={props.getData} setCurrent={props.setCurrent}/>
             case "Add Scenario": return  <AddScenario getData={props.getData} setCurrent={props.setCurrent} selectedScenario={props.selectedScenario} setSelectedScenario={props.selectedScenario}/>
-            case "Edit Scenario": return  <EditScenario getData={props.getData} setCurrent={props.setCurrent} selectedScenario={props.selectedScenario} setSelectedScenario={props.selectedScenario}/>
             case "Modelbased Parameters": return <TypeSelector setDataObj={props.setObject} selectedObject={props.selectedObject} getData={props.getData} />
             case "Add Timetable": return <AddTimetable getData={props.getData}  setCurrent={props.setCurrent} currentTimetable={props.currentTimetable} setTimetable={props.setTimetable}/>
             case "Edit Timetable": return <EditTimetable getData={props.getData}  setCurrent={props.setCurrent} currentTimetable={props.currentTimetable} setTimetable={props.setTimetable} />
@@ -39,7 +40,15 @@ function EditorSidebar(props) {
     }
     return (
         <>
-            <Sidebar side="right" backgroundColor="#F0F0F1" title={<Editor/>} content={<SelectEditor/>} />
+            <Sidebar side="right" backgroundColor="#F0F0F1" title={<Title text={props.current}/>} content={<SelectEditor/>} />
+        </>
+    )
+}
+
+export function EditorSidebarAlternate({content, title}) {
+    return (
+        <>
+            <Sidebar side="right" backgroundColor="#F0F0F1" title={<Title text={title}/>} content={content} />
         </>
     )
 }

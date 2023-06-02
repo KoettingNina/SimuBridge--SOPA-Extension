@@ -168,7 +168,7 @@ render() {
         <>
         <Box w="100%">
         <Stack gap="3">
-        <Button onClick={() => this.props.setCurrent("Add Scenario")}
+        <Button onClick={() => this.props.setIsInCreateNewMode(true)}
                 colorScheme='#ECF4F4'
                 variant='outline'
                 w="100%"

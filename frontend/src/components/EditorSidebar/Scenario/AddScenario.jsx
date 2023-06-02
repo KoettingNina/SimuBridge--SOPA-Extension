@@ -126,11 +126,6 @@ class AddScenario extends React.Component {
             distributionValues: newArr
         })
     }
-
-      this.props.setCurrent("Add Scenario")
-
-      
-
     
     }
 
@@ -200,7 +195,7 @@ render() {
     return (
         <>
 <Box w="100%">
-        <Button onClick={() => this.props.setCurrent("Edit Scenario")}
+        <Button onClick={() => this.props.setIsInCreateNewMode(false)}
                 colorScheme='#ECF4F4'
                 variant='outline'
                 w="100%"

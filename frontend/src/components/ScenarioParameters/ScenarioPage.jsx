@@ -1,16 +1,33 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useToast, Box, Heading, Text, Card, CardBody, Table, Thead, Tbody, Tr, Th, Td, Radio, RadioGroup, Stack, Button, CardHeader, TableContainer } from "@chakra-ui/react";
 import { DeleteIcon } from '@chakra-ui/icons'
+import { EditorSidebarAlternate } from '../EditorSidebar/EditorSidebar';
+import EditScenario from '../EditorSidebar/Scenario/EditScenario';
+import AddScenario from '../EditorSidebar/Scenario/AddScenario';
 
-const ScenarioPage = ({ setSelectedScenario, setCurrent, getData, selectedScenario }) => {
+const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
     const toast = useToast();
 
-    // Run once when the component mounts to set selected scenario and set currentPage
-    // setCurrent is important for displaying the right editorsidebar on the right side
+    
+    const [isInCreateNewMode, setIsInCreateNewMode] = useState(false);
+    const [selectedScenario, setSelectedScenario] = useState("")
+
+    // Run once when the component mounts to set selected scenario
     useEffect(() => {
         setSelectedScenario(0)
-        setCurrent("Edit Scenario")  
-    }, [])
+    }, []);
+
+    useEffect(() => { 
+        if (!isInCreateNewMode) {
+            setCurrentRightSideBar(
+                <EditorSidebarAlternate title='Edit Scenario' content={<EditScenario {...{getData, selectedScenario, setIsInCreateNewMode}}/>}/>
+            )
+        } else {
+            setCurrentRightSideBar(
+                <EditorSidebarAlternate title='Add Scenario' content={<AddScenario {...{getData, selectedScenario, setIsInCreateNewMode}}/>}/>
+            )
+        }
+    }, [isInCreateNewMode])
 
     // Define a function to delete a scenario
     const deleteScenario = (index) => {
@@ -61,7 +78,7 @@ const ScenarioPage = ({ setSelectedScenario, setCurrent, getData, selectedScenar
                                             getData().getAllScenarios().map((scenario, index) => {
                                                 return <Tr key={index}>
                                                     <Td>
-                                                        <RadioGroup value={selectedScenario} onChange={() => { setCurrent("Edit Scenario"); setSelectedScenario(index) }}>
+                                                        <RadioGroup value={selectedScenario} onChange={() => { setIsInCreateNewMode(false); setSelectedScenario(index) }}>
                                                             <Radio value={index} colorScheme="green"></Radio>
                                                         </RadioGroup>
                                                     </Td>
