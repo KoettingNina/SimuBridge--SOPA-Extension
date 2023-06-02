@@ -196,7 +196,7 @@ function getResources(jsonObj){
         return role.resource_list.map(instance => ({
             id: instance.id,
             costHour: instance.cost_per_hour !== defaultCostHour ? instance.cost_per_hour : undefined,
-            numberOfInstances: instance.amount, //TODO unused attribute?
+            //TODO unused attribute numberOfInstances: instance.amount,
             schedule: instance.calendar !== defaultTimetableId ? instance.calendar : undefined
         }));
     });

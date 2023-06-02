@@ -5,7 +5,6 @@ const AddResource = ({ getData, setCurrent }) => {
   const [state, setState] = useState({
     id: "",
     costHour: "",
-    numberOfInstances: "",
     selectedRoles: []
   });
 
@@ -40,8 +39,7 @@ const AddResource = ({ getData, setCurrent }) => {
     setState({
       id: "",
       costHour: "",
-      selectedRoles: [],
-      numberOfInstances: ""
+      selectedRoles: []
     })
   }
 
@@ -51,7 +49,6 @@ const AddResource = ({ getData, setCurrent }) => {
     let obj = {
       id: state.id,
       costHour: state.costHour,
-      numberOfInstances: state.numberOfInstances,
     }
 
     getData().getCurrentScenario().resourceParameters.resources.push(obj);
@@ -96,11 +93,6 @@ const AddResource = ({ getData, setCurrent }) => {
           <FormControl>
               <FormLabel>Cost per hour:</FormLabel>
               <Input value={state.costHour} bg="white" name="costHour" onChange={(event) => handleInputChange(event)} />
-          </FormControl>
-
-          <FormControl>
-              <FormLabel>Number of instances:</FormLabel>
-              <Input value={state.numberOfInstances} bg="white" name="numberOfInstances" onChange={(event) => handleInputChange(event)} />
           </FormControl>
          
         <FormControl >

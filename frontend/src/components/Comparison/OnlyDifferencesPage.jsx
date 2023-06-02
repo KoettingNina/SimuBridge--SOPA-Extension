@@ -38,7 +38,6 @@ function OnlyDifferencesPage(props) {
     // table to store name of the Resource parameters which will be displayed to the user. Access by if
     const [tableNamesRes] = useState([
         {id: "id", value: 'Resource'},
-        {id: "numberOfInstances", value: 'Quantity'},
         {id: "costHour", value: 'Costs'},
         {id: "schedule", value: 'Timetable'},
         {id: "currency", value: 'Currency'},

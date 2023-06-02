@@ -21,7 +21,6 @@ function OverviewResourceTable(props) {
                     <Th>Resource</Th>
                     <Th>Cost</Th>
                     <Th>Currency</Th>
-                    <Th>Quantity</Th>
                     <Th>Timetable</Th>
                 </Tr>
             </Thead>
@@ -38,10 +37,6 @@ function OverviewResourceTable(props) {
                             return <Text>{resource.costHour}</Text>
                         })}</Td>
                         <Td>{props.getData().getScenarioByIndex(props.scenario_id).currency}</Td>
-                        <Td>{element.resources.map((res1) => {
-                            let resource1 = props.getData().getScenarioByIndex(props.scenario_id).resourceParameters.resources.find(item => item.id === res1.id)
-                            return <Text>{resource1.numberOfInstances}</Text>
-                        })}</Td>
                         <Td>{element.schedule}</Td>
                     </Tr>
                 })}

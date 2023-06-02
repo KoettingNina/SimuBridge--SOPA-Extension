@@ -72,15 +72,6 @@ function ComparePage(props) {
                     let resource = scenarioToCompare.resourceParameters.resources.find(item => item.id === current_element.id)
                     // compare resource parameters
                     if (resource !== undefined) {
-                        // compare number of instances(quantity of resource)
-                        if (current_element.numberOfInstances !== resource.numberOfInstances) {
-                            newItem = {
-                                field: "numberOfInstances",
-                                id: current_element.id,
-                                value: current_element.numberOfInstances
-                            }
-                            ResourceCompared.push(newItem);
-                        }
                         // compare costs
                         if (current_element.costHour !== resource.costHour) {
                             newItem = {

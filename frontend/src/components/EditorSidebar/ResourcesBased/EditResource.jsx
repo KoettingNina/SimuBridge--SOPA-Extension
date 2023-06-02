@@ -5,7 +5,6 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
   const [id, setId] = useState('');
   const [costHour, setCostHour] = useState('');
   const [schedule, setSchedule] = useState('');
-  const [numberOfInstances, setNumberOfInstances] = useState('');
   const [timeTables, setTimeTables] = useState(getData().getCurrentScenario().resourceParameters.timeTables.map(item => item.id));
   const [roles, setRoles] = useState(getData().getCurrentScenario().resourceParameters.roles.map(item => item.id));
   const [selectedRoles, setSelectedRoles] = useState([]);
@@ -14,7 +13,6 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
     const currResource = getData().getCurrentScenario().resourceParameters.resources.find((value) => value.id === currentResource);
     if (currResource) {
       setId(currResource.id);
-      setNumberOfInstances(currResource.numberOfInstances);
       setCostHour(currResource.costHour);
       setSchedule(currResource.schedule);
       setSelectedRoles(
@@ -46,8 +44,6 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
       setCostHour(value);
     } else if (name === 'schedule') {
       setSchedule(value);
-    } else if (name === 'numberOfInstances') {
-      setNumberOfInstances(value);
     }
   }
 
@@ -59,7 +55,6 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
     resource.id = id;
     resource.costHour = costHour || undefined; // Is nullable by putting in empty string
     resource.schedule = schedule || undefined; // Is nullable by putting in empty string
-    resource.numberOfInstances = numberOfInstances;
   
     getData().getCurrentScenario().resourceParameters.roles.forEach(obj => {
       obj.resources = obj.resources.filter(resource => resource.id !== currentResource);
@@ -124,12 +119,6 @@ const EditResource = ({getData, currentResource, setCurrent }) => {
           <FormControl>
               <FormLabel>Cost per Hour:</FormLabel>
               <Input placeholder={`default for ${selectedRoles[0]}`} value={costHour} bg="white"  name="costHour" onChange={(event) => handleInputChange(event)} />
-          </FormControl>
-
-
-          <FormControl >
-              <FormLabel>Number of Instances:</FormLabel>
-              <Input value={numberOfInstances} bg="white" name = "numberOfInstances" onChange={(event) => handleInputChange(event)}  />
           </FormControl>
 
           <FormControl >

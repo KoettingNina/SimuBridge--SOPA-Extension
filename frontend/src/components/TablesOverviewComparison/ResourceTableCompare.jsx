@@ -142,22 +142,6 @@ function ResourceTableCompare(props) {
         })
     }
 
-    //fill in Quantity popover windows
-    const quantityPopover = (resource) => {
-        return props.getData().getAllScenarios().map((element) => {
-            if (props.scenariosCompare.includes(element.scenarioName) === true) {
-                res = element.resourceParameters.resources.find(item => item.id === resource)
-                if (res !== undefined) {
-                    return <> <Text fontWeight='semibold'>{element.scenarioName}: </Text>
-                        <Text> {res.id}: {res.numberOfInstances} </Text>
-                    </>
-                } else return <Text fontWeight='semibold'>{element.scenarioName}:<Text fontWeight='normal'> Resource is
-                    not defined</Text></Text>
-            }
-        })
-    }
-
-
     return (
         <>
             <Table variant='simple'>
@@ -217,30 +201,6 @@ function ResourceTableCompare(props) {
                                                     <PopoverCloseButton/>
                                                     <PopoverBody>
                                                         {resPopover(resource.id)}
-                                                    </PopoverBody>
-                                                </PopoverContent>
-                                            </Portal>
-                                        </Popover>
-                                    </>
-                                }
-                            </Td>
-                            {/*Quantity*/}
-                            <Td>
-                                {isDifferentPopover("numberOfInstances", resource.id, resource.numberOfInstances) === false ?
-                                    <Text> {resource.numberOfInstances} </Text>
-                                    :
-                                    <>
-                                        <Popover>
-                                            <PopoverTrigger>
-                                                <Button>{resource.numberOfInstances}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <Portal>
-                                                <PopoverContent bg='#dce5e6'>
-                                                    <PopoverArrow/>
-                                                    <PopoverCloseButton/>
-                                                    <PopoverBody>
-                                                        {quantityPopover(resource.id)}
                                                     </PopoverBody>
                                                 </PopoverContent>
                                             </Portal>
