@@ -54,7 +54,7 @@ class AddScenario extends React.Component {
         
 
         this.setState({
-            scenarioName: this.props.getData().getAllScenarios()[this.state.startScenario].scenarioName,
+            scenarioName: this.props.getData().getAllScenarios()[this.state.startScenario].scenarioName + '_duplicate',
             startingDate: this.props.getData().getAllScenarios()[this.state.startScenario].startingDate,
             startingTime: this.props.getData().getAllScenarios()[this.state.startScenario].startingTime,
             currency: this.props.getData().getAllScenarios()[this.state.startScenario].currency,
@@ -195,14 +195,6 @@ render() {
     return (
         <>
 <Box w="100%">
-        <Button onClick={() => this.props.setIsInCreateNewMode(false)}
-                colorScheme='#ECF4F4'
-                variant='outline'
-                w="100%"
-                border='1px'
-                borderColor='#B4C7C9'
-                color ='#6E6E6F'
-                _hover={{ bg: '#B4C7C9' }}> Edit Scenario </Button> 
                 
 
         
@@ -339,9 +331,19 @@ render() {
               border='1px'
               borderColor='#B4C7C9'
               color ='#6E6E6F'
-              _hover={{ bg: '#B4C7C9' }}> Add scenario </Button> 
+              _hover={{ bg: '#B4C7C9' }}> Confirm </Button> 
 
         </>
+
+        
+        <Button onClick={() => this.props.setIsInDuplicateMode(false)}
+                colorScheme='#ECF4F4'
+                variant='outline'
+                w="100%"
+                border='1px'
+                borderColor='#B4C7C9'
+                color ='#6E6E6F'
+                _hover={{ bg: '#B4C7C9' }}> Cancel </Button> 
             
 
         </Stack>

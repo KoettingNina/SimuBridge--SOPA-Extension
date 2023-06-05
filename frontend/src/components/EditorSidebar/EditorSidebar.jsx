@@ -11,7 +11,7 @@ import AddTimetable from './Timetable/AddTimetable';
 import AddResource from './ResourcesBased/AddResource';
 import AddRole from './ResourcesBased/AddRole';
 import EditTimetable from './Timetable/EditTimetable';
-import AddScenario from './Scenario/AddScenario';
+import AddScenario from './Scenario/DuplicateScenario';
 import EditScenario from './Scenario/EditScenario';
 import EditResource from './ResourcesBased/EditResource';
 import EditRole from './ResourcesBased/EditRole';

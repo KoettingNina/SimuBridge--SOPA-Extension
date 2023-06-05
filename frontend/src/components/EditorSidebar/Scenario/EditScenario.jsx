@@ -168,14 +168,14 @@ render() {
         <>
         <Box w="100%">
         <Stack gap="3">
-        <Button onClick={() => this.props.setIsInCreateNewMode(true)}
+        <Button onClick={() => this.props.setIsInDuplicateMode(true)}
                 colorScheme='#ECF4F4'
                 variant='outline'
                 w="100%"
                 border='1px'
                 borderColor='#B4C7C9'
                 color ='#6E6E6F'
-                _hover={{ bg: '#B4C7C9' }}> Add Scenario </Button> 
+                _hover={{ bg: '#B4C7C9' }}> Duplicate Scenario </Button> 
                 
 
         

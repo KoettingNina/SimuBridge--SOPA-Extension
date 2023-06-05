@@ -3,13 +3,13 @@ import { useToast, Box, Heading, Text, Card, CardBody, Table, Thead, Tbody, Tr, 
 import { DeleteIcon } from '@chakra-ui/icons'
 import { EditorSidebarAlternate } from '../EditorSidebar/EditorSidebar';
 import EditScenario from '../EditorSidebar/Scenario/EditScenario';
-import AddScenario from '../EditorSidebar/Scenario/AddScenario';
+import AddScenario from '../EditorSidebar/Scenario/DuplicateScenario';
 
 const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
     const toast = useToast();
 
     
-    const [isInCreateNewMode, setIsInCreateNewMode] = useState(false);
+    const [isInDuplicateMode, setIsInDuplicateMode] = useState(false);
     const [selectedScenario, setSelectedScenario] = useState("")
 
     // Run once when the component mounts to set selected scenario
@@ -18,16 +18,16 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
     }, []);
 
     useEffect(() => { 
-        if (!isInCreateNewMode) {
+        if (!isInDuplicateMode) {
             setCurrentRightSideBar(
-                <EditorSidebarAlternate title='Edit Scenario' content={<EditScenario {...{getData, selectedScenario, setIsInCreateNewMode}}/>}/>
+                <EditorSidebarAlternate title='Edit Scenario' content={<EditScenario {...{getData, selectedScenario, setIsInDuplicateMode}}/>}/>
             )
         } else {
             setCurrentRightSideBar(
-                <EditorSidebarAlternate title='Add Scenario' content={<AddScenario {...{getData, selectedScenario, setIsInCreateNewMode}}/>}/>
+                <EditorSidebarAlternate title='Duplicate Scenario' content={<AddScenario {...{getData, selectedScenario, setIsInDuplicateMode}}/>}/>
             )
         }
-    }, [isInCreateNewMode])
+    }, [isInDuplicateMode])
 
     // Define a function to delete a scenario
     const deleteScenario = (index) => {
@@ -78,7 +78,7 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                                             getData().getAllScenarios().map((scenario, index) => {
                                                 return <Tr key={index}>
                                                     <Td>
-                                                        <RadioGroup value={selectedScenario} onChange={() => { setIsInCreateNewMode(false); setSelectedScenario(index) }}>
+                                                        <RadioGroup value={selectedScenario} onChange={() => { setIsInDuplicateMode(false); setSelectedScenario(index) }}>
                                                             <Radio value={index} colorScheme="green"></Radio>
                                                         </RadioGroup>
                                                     </Td>
