@@ -27,7 +27,7 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                 <EditorSidebarAlternate title='Duplicate Scenario' content={<AddScenario {...{getData, selectedScenario, setIsInDuplicateMode}}/>}/>
             )
         }
-    }, [isInDuplicateMode])
+    }, [isInDuplicateMode, selectedScenario]);
 
     // Define a function to delete a scenario
     const deleteScenario = (index) => {
@@ -55,7 +55,7 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                     <Card bg="white" w="100%"  >
                         <CardBody >
                             <CardHeader>
-                                <Heading size='md'>Select Scenario</Heading>
+                                <Heading size='md'>Select Scenario {selectedScenario}</Heading>
                             </CardHeader>
                             <TableContainer>
                                 <Table variant='simple' size="sm">
