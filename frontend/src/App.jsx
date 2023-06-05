@@ -113,6 +113,10 @@ function App() {
         this.projectName = projectName;
       }
 
+      getProjectName() {
+        return this.projectName;
+      }
+
       initializeData() {
         getScenarios(this.projectName).then(scenarioFiles => {
           setDataInternal(scenarioFiles.map(scenarioFile => JSON.parse(scenarioFile.data))) //TODO remove scenario data inside array
@@ -125,7 +129,7 @@ function App() {
       getAllModels() { return this.getCurrentScenario()?.models; }
       getCurrentModel() { return this.getAllModels()?.[currentBpmn]; }
 
-      getScenario(scenarioName) { return this.getAllScenarios().find(scenario => scenario.scenarioName === scenarioName) }//TODO remove
+      getScenario(scenarioName) { return this.getAllScenarios().find(scenario => scenario.scenarioName === scenarioName) }
       getScenarioByIndex(index) { return data[index]; }//TODO remove
       deleteScenarioByIndex(index) { 
         const scenario = this.getScenarioByIndex(index);
@@ -254,7 +258,8 @@ useEffect(() => {
     return <Button {...(getSideBarContentId() === id && { background: "#AEC8CA!important" })} onClick={() => setSideBarContent(type, id)} {...props} >{id}</Button>;
   }
 
-  const atLeastOnScenario = getData().getCurrentScenario();
+  const atLeastOneScenario = getData().getCurrentScenario();
+  const atLeastOneModel = atLeastOneScenario && getData().getCurrentModel();
 
   return (
     <ChakraProvider theme={theme}>
@@ -315,17 +320,17 @@ useEffect(() => {
             {/*  These routes define which components are loaded into the center of the page for each path and pass the needed props*/}
             <Routes>
               <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} parsed={parsed} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
-              <Route path="/overview/compare" element={atLeastOnScenario && <ComparePage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
-              <Route path="/overview/compare/differences" element={atLeastOnScenario && <OnlyDifferencesPage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
+              <Route path="/overview/compare" element={atLeastOneScenario && <ComparePage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
+              <Route path="/overview/compare/differences" element={atLeastOneScenario && <OnlyDifferencesPage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
 
-              <Route path="/resource" element={atLeastOnScenario && <ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />
-              <Route path="/resource/overview" element={atLeastOnScenario && <ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />
-              <Route path="/resource/timetable" element={atLeastOnScenario && <TimetableOverview path="/resource" getData={getData} setCurrent={setCurrent} setTimetable={setTimetable} /*TODO timetable is write only?*/ />} />
+              <Route path="/resource" element={atLeastOneScenario && <ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />
+              <Route path="/resource/overview" element={atLeastOneScenario && <ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />
+              <Route path="/resource/timetable" element={atLeastOneScenario && <TimetableOverview path="/resource" getData={getData} setCurrent={setCurrent} setTimetable={setTimetable} /*TODO timetable is write only?*/ />} />
 
-              <Route path="/scenario" element={atLeastOnScenario && <ScenarioPage {...{ getData, setCurrentRightSideBar }} />} />
+              <Route path="/scenario" element={atLeastOneScenario && <ScenarioPage {...{ getData, setCurrentRightSideBar }} />} />
               
-              <Route path="/modelbased" element={atLeastOnScenario && <BpmnViewSelector zIndex={-5} projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} />} />
-              <Route path="/modelbased/tableview" element={atLeastOnScenario && <ModelbasedParametersTable parsed={parsed} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
+              <Route path="/modelbased" element={atLeastOneModel && <BpmnViewSelector zIndex={-5} projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} />} />
+              <Route path="/modelbased/tableview" element={atLeastOneModel && <ModelbasedParametersTable parsed={parsed} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
 
 
               <Route path="/simulation" element={<SimulationPage path="/simulation"  projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  toasting={toasting} />} />
@@ -342,7 +347,7 @@ useEffect(() => {
               <Route path="/resource/overview"  element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
               <Route path="/resource/timetable" element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole} currentTimetable={currentTimetable} setTimetable={setTimetable}/>} />
           
-              <Route path="/modelbased"         element={<EditorSidebar  getData={getData} current={current} selectedObject={currentObject}   setObject={setObject} />} />
+              <Route path="/modelbased"         element={atLeastOneModel && <EditorSidebar  getData={getData} current={current} selectedObject={currentObject}   setObject={setObject} />} />
               <Route path='*'                   element={currentRightSideBar} />
             </Routes>
           </Box>

@@ -145,15 +145,19 @@ export async function uploadFile(projectName, encoding='UTF-8') {
     const filePromise = new Promise((resolve, reject) => {
         fileInput.addEventListener('change', function (e) {
             let file = e.target.files[0];
-            let reader = new FileReader();
-            if (encoding === 'base64') {
-                reader.readAsDataURL(file);
+            if (file) {
+                let reader = new FileReader();
+                if (encoding === 'base64') {
+                    reader.readAsDataURL(file);
+                } else {
+                    reader.readAsText(file, encoding);
+                }
+                reader.onload = function (evt) {
+                    const fileContents = evt.target.result;
+                    setFile(projectName, file.name, fileContents).then(() => resolve(file.name));
+                }
             } else {
-                reader.readAsText(file, encoding);
-            }
-            reader.onload = function (evt) {
-                const fileContents = evt.target.result;
-                setFile(projectName, file.name, fileContents).then(() => resolve(file.name));
+                reject();
             }
         }, false);
         fileInput.click();

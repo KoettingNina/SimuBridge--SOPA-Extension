@@ -7,12 +7,13 @@ import {
     Th,
     Td, Text,
 } from '@chakra-ui/react'
+import CreateEmptyScenarioButton from "../CreateEmptyScenarioButton";
 
 
-function OverviewTable(props){
+function OverviewTable({getData, toast}){
 
-    return(
-// Displaying of general simulation parameters for all scenarios
+    return(<>
+    {/* Displaying of general simulation parameters for all scenarios */}
               <Table variant='simple'>
                   <Thead w="100%">
                     <Tr>
@@ -27,22 +28,24 @@ function OverviewTable(props){
                 </Thead>
                 <Tbody>
                     {/*Filling in the table*/}
-                    {props.getData().getAllScenarios().map((element) => {
+                    {getData().getAllScenarios().map((scenario) => {
                         return <Tr>
-                            <Td align="left">{element.scenarioName} </Td>
-                            <Td align="left" >{element.startingDate}</Td>
-                            <Td align="left" >{element.startingTime}</Td>
-                            <Td align="left">{element.numberOfInstances}</Td>
-                            <Td align="left">{element.interArrivalTime.distributionType}</Td>
-                            <Td align="left">{element.interArrivalTime.values.map((distribution) => {
+                            <Td align="left">{scenario.scenarioName} </Td>
+                            <Td align="left" >{scenario.startingDate}</Td>
+                            <Td align="left" >{scenario.startingTime}</Td>
+                            <Td align="left">{scenario.numberOfInstances}</Td>
+                            <Td align="left">{scenario.interArrivalTime.distributionType}</Td>
+                            <Td align="left">{scenario.interArrivalTime.values.map((distribution) => {
                                 return <Text> {distribution.id} : {distribution.value} </Text>
                             })} </Td>
-                            <Td>{element.timeUnit}</Td>
+                            <Td>{scenario.timeUnit}</Td>
                         </Tr>
                     })}
                 </Tbody>
             </Table>
-                    )
+            
+            <CreateEmptyScenarioButton {...{getData, toast}}/>
+            </>)
 }
 
 export default OverviewTable

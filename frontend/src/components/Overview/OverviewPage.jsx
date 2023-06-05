@@ -29,9 +29,11 @@ import OverviewResourceTable from "../TablesOverviewComparison/OverviewResourceT
 
 
 import ModelBasedOverview from "../TablesOverviewComparison/ModelBasedOverview";
+import CreateEmptyScenarioButton from '../CreateEmptyScenarioButton';
+import { getFile, uploadFile } from '../../util/Storage';
 
 
-function OverviewPage(props) {
+function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
 
     // declaration of variables
     const {isOpen, onOpen, onClose} = useDisclosure()
@@ -58,7 +60,7 @@ function OverviewPage(props) {
 
     // Array to store temporarily which switches are turned on => which scenarios are we comparing
     switches_temp.length = 0
-    props.getData().getAllScenarios().map((element) => {
+    getData().getAllScenarios().map((element) => {
         switches_temp.push({id: element.scenarioName, value: true})
     });
 
@@ -70,11 +72,11 @@ function OverviewPage(props) {
         }
     }
 
-    //TODO throws bugs handleRemove(props.getData().getCurrentScenario().scenarioName);
+    //TODO throws bugs handleRemove(getData().getCurrentScenario().scenarioName);
     switches = switches_temp
 
 //set switch list. In order to use the data(id of comparing scenarios on other pages
-    props.setScenariosCompare(switchList)
+    setScenariosCompare(switchList)
 
     return (
         <>
@@ -153,10 +155,10 @@ function OverviewPage(props) {
                         </CardHeader>
                         <CardBody>
                             {/*Call of Scenario Overview Table*/}
-                            {(props.getData().getAllScenarios() && props.getData().getAllScenarios().length)
-                                ? <OverviewTable getData={props.getData}/>
+                            {(getData().getAllScenarios() && getData().getAllScenarios().length)
+                                ? <OverviewTable getData={getData}/>
                                 : <CardBody>
-                                   No scenarios exist yet. <Button variant='link' as={Link} to="/processminer">Go to process miner view to create one.</Button>
+                                   No scenarios exist yet. <Button variant='link' as={Link} to="/processminer">Go to process miner view to create one</Button> or <CreateEmptyScenarioButton variant='link' {...{getData, toast, label:'create an empy scenario'}}/>
                                 </CardBody>}
                         </CardBody>
                     </Card>
@@ -164,9 +166,9 @@ function OverviewPage(props) {
                     <TabBar
                         //onClick={(index) => setTabIndex(index)}
                         setCurrent={() => {/* TODO */}}
-                        items={props.getData().getAllScenarios().map((element, index) => {
+                        items={getData().getAllScenarios().map((scenario, index) => {
                             return {
-                                tabname: element.scenarioName,
+                                tabname: scenario.scenarioName,
                                 content:
                                     <>
                                         <Card bg="white" mt="25px">
@@ -175,23 +177,48 @@ function OverviewPage(props) {
                                             </CardHeader>
                                             <CardBody>
                                                 {/*Call of ResourceParameter Table*/}
-                                                < OverviewResourceTable getData={props.getData}
+                                                < OverviewResourceTable getData={getData}
                                                                         scenario_id={index}/>
                                             </CardBody>
                                         </Card>
                                         {/*Tabbar to switch between different bpmns within one scenario*/}
-                                        <TabBar
+                                        {(scenario.models?.length)
+                                            ? <TabBar
                                             setCurrent={() => {/* TODO */}}
-                                            items={props.getData().getAllModels().map((element, index_bpmn) => {
+                                            items={scenario.models.map((model, index_bpmn) => {
                                                 return {
-                                                    tabname: element.name,
+                                                    tabname: model.name,
                                                     content:
                                                     // Call of Model-based Table
-                                                        < ModelBasedOverview getData={props.getData}
+                                                        < ModelBasedOverview getData={getData}
                                                                              scenarioId={index} bpmn_id={index_bpmn}
-                                                                             parsed={props.parsed}/>
+                                                                             parsed={parsed}/>
                                                 }
                                             })}/>
+                                            : <Card bg="white" mt="25px">
+                                                <CardHeader>
+                                                    <Heading size='md'>Models Overview</Heading>
+                                                </CardHeader>
+                                                <CardBody>
+                                                    This scenario currently does not have any models. <Button variant='link' onClick={async () => {
+                                                        const fileName = await uploadFile(getData().getProjectName()); //TODO potentially do not create an additional file for this?
+                                                        if (fileName) {
+                                                            const fileData = (await getFile(getData().getProjectName(), fileName)).data;
+                                                            scenario.models.push({
+                                                                BPMN : fileData,
+                                                                name : fileName,
+                                                                modelParameter : {
+                                                                    activities : [],
+                                                                    events : [],
+                                                                    gateways : [],
+                                                                    sequences : []
+                                                                }
+                                                            });
+                                                            getData().saveScenario(scenario);
+                                                        }
+                                                    }}> Upload one</Button>.
+                                                </CardBody>
+                                            </Card>}
                                     </>
 
                             }

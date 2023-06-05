@@ -42,6 +42,10 @@ import {
         LinkItems = LinkItems.filter(item => !['/scenario', '/resource', '/modelbased'].includes(item.path))
       }
 
+      if (!getData().getCurrentModel()) {
+        LinkItems = LinkItems.filter(item => !['/modelbased'].includes(item.path))
+      }
+
       // Define Navigation items that will be displayed at the bottom of the navigation
      
       const LinkItems2 = [

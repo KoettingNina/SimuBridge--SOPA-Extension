@@ -9,6 +9,17 @@ import {
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
 
+  const distributionTypes = [
+    { distribution_name: "exponential", distribution_params: ["mean"] },
+    { distribution_name: "normal", distribution_params: ["mean", "standard deviation"] },
+    { distribution_name: "uniform", distribution_params: ["min", "max"] },
+    { distribution_name: "constant", distribution_params: ["constant value"] },
+    { distribution_name: "erlang", distribution_params: ["order", "mean"] },
+    { distribution_name: "triangular", distribution_params: ["lower", "peak", "upper"] },
+    { distribution_name: "binomial", distribution_params: ["probabiliy", "amount"] },
+    { distribution_name: "arbitraryFiniteProbabilityDistribution", distribution_params: [] }
+  ]
+
 
   const [state, setState] = useState({
     scenarioName: "",
@@ -20,21 +31,11 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
     values: "",
     timeUnit: "",
     distributionType: "",
-    distributionTypes: [
-      { distribution_name: "exponential", distribution_params: ["mean"] },
-      { distribution_name: "normal", distribution_params: ["mean", "standard deviation"] },
-      { distribution_name: "uniform", distribution_params: ["min", "max"] },
-      { distribution_name: "constant", distribution_params: ["constant value"] },
-      { distribution_name: "erlang", distribution_params: ["order", "mean"] },
-      { distribution_name: "triangular", distribution_params: ["lower", "peak", "upper"] },
-      { distribution_name: "binomial", distribution_params: ["probabiliy", "amount"] },
-      { distribution_name: "arbitraryFiniteProbabilityDistribution", distribution_params: [] }
-    ],
     distributionValues: []
   });
 
   useEffect(() => {
-    let newTypes = state.distributionTypes;
+    let newTypes = distributionTypes;
 
     const selectedScenarioData = getData().getScenarioByIndex(selectedScenario);
     console.log('mounted')
@@ -55,8 +56,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
       values: selectedScenarioData.interArrivalTime.values,
       timeUnit: selectedScenarioData.timeUnit,
       distributionType: selectedScenarioData.interArrivalTime.distributionType,
-      distributionValues: selectedScenarioData.interArrivalTime.values.map(v => v.value),
-      distributionTypes: newTypes
+      distributionValues: selectedScenarioData.interArrivalTime.values.map(v => v.value)
     })
     console.log(state)
     console.log(state.distributionValues)
@@ -74,7 +74,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
 
     if (name === "distributionType") {
       setState({
-        distributionValues: new Array(state.distributionTypes.find(dis => dis.distribution_name === value).distribution_params.length).fill(0)
+        distributionValues: new Array(distributionTypes.find(dis => dis.distribution_name === value).distribution_params.length).fill(0)
       })
     }
 
@@ -88,6 +88,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
     } else {
 
       setState({
+        ...state,
         [name]: value
       });
 
@@ -96,17 +97,17 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
 
   }
 
-  function changeValueAmount(amount){
+  function changeValueAmount(amount){ //TODO fix this code
     if (amount === 1) {
-      let newTypes = state.distributionTypes
-      newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.push("entry" + (state.distributionTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.length + 1))
+      let newTypes = distributionTypes
+      newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.push("entry" + (distributionTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.length + 1))
 
 
       setState({ distributionTypes: newTypes })
       state.distributionValues.push(0)
     } else {
 
-      let newTypes = state.distributionTypes
+      let newTypes = distributionTypes
       newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.pop()
 
 
@@ -122,7 +123,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
     const value = target.value;
 
 
-    let params = state.distributionTypes
+    let params = distributionTypes
     params.find(dis => dis.distribution_name === state.distributionType).distribution_params[index] = value
 
     setState({ distributionTypes: params })
@@ -140,7 +141,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
 
     let interArrivalTime = {
       distributionType: state.distributionType,
-      values: state.distributionTypes.find(dis => dis.distribution_name === state.distributionType).distribution_params.map((key, index) => { return { id: key, value: state.distributionValues[index] } })
+      values: distributionTypes.find(dis => dis.distribution_name === state.distributionType).distribution_params.map((key, index) => { return { id: key, value: state.distributionValues[index] } })
     }
 
     if (obj.scenarioName !== state.scenarioName) {
@@ -234,8 +235,8 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
                     <FormControl w="47%">
                       <FormLabel>Distribution:</FormLabel>
                       <Select value={state.distributionType} bg="white" name="distributionType" onChange={(event) => handleInputChange(event)} >
-                        {state.distributionTypes.map((distribution, index) => {
-                          return <option value={distribution.distribution_name}>{distribution.distribution_name}</option>
+                        {distributionTypes.map((distribution, index) => {
+                          return <option key={index} value={distribution.distribution_name}>{distribution.distribution_name}</option>
                         })}
                       </Select>
                     </FormControl>
@@ -258,7 +259,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
                     </ButtonGroup>
                     : ""}
 
-                  {state.distributionTypes.find((dis) => dis.distribution_name === state.distributionType) && state.distributionTypes.find(dis => dis.distribution_name === state.distributionType).distribution_params.map((key, index) => {
+                  {distributionTypes.find((dis) => dis.distribution_name === state.distributionType) && distributionTypes.find(dis => dis.distribution_name === state.distributionType).distribution_params.map((key, index) => {
 
 
                     return <>

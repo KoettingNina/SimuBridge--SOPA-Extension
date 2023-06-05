@@ -4,6 +4,7 @@ import { DeleteIcon } from '@chakra-ui/icons'
 import { EditorSidebarAlternate } from '../EditorSidebar/EditorSidebar';
 import EditScenario from '../EditorSidebar/Scenario/EditScenario';
 import AddScenario from '../EditorSidebar/Scenario/DuplicateScenario';
+import CreateEmptyScenarioButton from '../CreateEmptyScenarioButton';
 
 const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
     const toast = useToast();
@@ -102,7 +103,7 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                             
                                 </Table>    
                                 </TableContainer>
-  
+                            <CreateEmptyScenarioButton {...{getData, toast}}/>
                         </CardBody>
                     </Card>
                    
