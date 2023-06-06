@@ -85,7 +85,7 @@ function App() {
     // store and set information which BPMN and scenario is currently selected
     const [data, setDataInternal] = useState([]) // method is used to save data from the discoverytool
     const [currentBpmn, setBpmn] = useState(0)
-    const [currentScenario, setScenario] = useState(0);
+    const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
 
     function storeScenario(d) { //TODO
       setDataInternal(d)
@@ -125,7 +125,7 @@ function App() {
       }
 
       getAllScenarios() { return data; }
-      getCurrentScenario() { return this.getAllScenarios()[currentScenario]; }
+      getCurrentScenario() { return this.getAllScenarios()[currentScenarioIndex]; }
       getAllModels() { return this.getCurrentScenario()?.models; }
       getCurrentModel() { return this.getAllModels()?.[currentBpmn]; }
 
@@ -134,12 +134,18 @@ function App() {
       deleteScenarioByIndex(index) { 
         const scenario = this.getScenarioByIndex(index);
         this.deleteScenario(scenario);
+        setCurrentScenarioIndex(0);
       }//TODO remove
-      setCurrentScenarioByIndex(index) { setScenario(index); }//TODO remove
+      setCurrentScenarioByIndex(index) { setCurrentScenarioIndex(index); }//TODO remove
       setCurrentBpmnByIndex(index) { setBpmn(index); }//TODO remove
 
       addScenario(scenario) {
         this.saveScenario(scenario);
+      }
+
+      setCurrentScenario(scenario) {
+        if(!this.getAllScenarios().includes(scenario)) throw 'Setting current scenario to unknown scenario';
+        setCurrentScenarioIndex(this.getAllScenarios().indexOf(scenario));
       }
 
       renameScenario(scenario, newName) {

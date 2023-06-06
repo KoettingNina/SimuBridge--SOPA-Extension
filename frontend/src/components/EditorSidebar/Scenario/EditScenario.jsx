@@ -30,7 +30,7 @@ function getParamsForDistribution(distributionType, distributionValues) {
 }
 
 
-const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
+const EditScenario = ({getData, setIsInDuplicateMode}) => {
 
   const [state, setState] = useState({
     scenarioName: "",
@@ -48,9 +48,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
   useEffect(() => {
     let newTypes = distributionTypes;
 
-    const selectedScenarioData = getData().getScenarioByIndex(selectedScenario);
-    console.log('mounted')
-    console.log(selectedScenario)
+    const selectedScenarioData = getData().getCurrentScenario();
     if (!selectedScenarioData) return;
 
     if (selectedScenarioData.interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution") {
@@ -71,7 +69,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
     })
     console.log(state)
     console.log(state.distributionValues)
-  }, [selectedScenario]);
+  }, [getData().getCurrentScenario()]);
 
 
   function handleInputChange(resource, index) {
@@ -124,7 +122,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
   function onSubmit(event){
     event.preventDefault();
 
-    let obj = getData().getScenarioByIndex(selectedScenario);
+    let obj = getData().getCurrentScenario();
 
     let interArrivalTime = {
       distributionType: state.distributionType,

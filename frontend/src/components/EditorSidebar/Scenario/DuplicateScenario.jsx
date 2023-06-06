@@ -7,6 +7,7 @@ import { Input, FormControl, FormLabel, Flex, Button, Stack, Select, Text, Butto
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 import { deepCopy } from '../../../util/ObjectUtil';
 
+//TODO remove this class, merge with EditScenario
 class AddScenario extends React.Component {
     constructor(props) {
       super(props);

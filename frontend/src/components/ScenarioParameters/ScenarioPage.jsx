@@ -11,33 +11,24 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
 
     
     const [isInDuplicateMode, setIsInDuplicateMode] = useState(false);
-    const [selectedScenario, setSelectedScenario] = useState("")
-
-    // Run once when the component mounts to set selected scenario
-    useEffect(() => {
-        setSelectedScenario(0)
-    }, []);
 
     useEffect(() => { 
         if (!isInDuplicateMode) {
             setCurrentRightSideBar(
-                <EditorSidebarAlternate title='Edit Scenario' content={<EditScenario {...{getData, selectedScenario, setIsInDuplicateMode}}/>}/>
+                <EditorSidebarAlternate title='Edit Scenario' content={<EditScenario {...{getData, setIsInDuplicateMode}}/>}/>
             )
         } else {
             setCurrentRightSideBar(
-                <EditorSidebarAlternate title='Duplicate Scenario' content={<AddScenario {...{getData, selectedScenario, setIsInDuplicateMode}}/>}/>
+                <EditorSidebarAlternate title='Duplicate Scenario' content={<AddScenario {...{getData, setIsInDuplicateMode}}/>}/>
             )
         }
-    }, [isInDuplicateMode, selectedScenario]);
+    }, [isInDuplicateMode, getData().getCurrentScenario()]);
 
     // Define a function to delete a scenario
     const deleteScenario = (index) => {
-        let data = [...getData().getAllScenarios()];
-
         // ensure that at least one scenario exist //TODO why?
-        if (data.length > 1) {
+        if (getData().getAllScenarios().length > 1) {
             getData().deleteScenarioByIndex(index);
-            setSelectedScenario(0);
         } else {
             toast({
                 title: 'Cannot delete only scenario',
@@ -79,7 +70,7 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                                             getData().getAllScenarios().map((scenario, index) => {
                                                 return <Tr key={index}>
                                                     <Td>
-                                                        <RadioGroup value={selectedScenario} onChange={() => { setIsInDuplicateMode(false); setSelectedScenario(index) }}>
+                                                        <RadioGroup value={getData().getAllScenarios().indexOf(getData().getCurrentScenario())} onChange={() => { setIsInDuplicateMode(false); getData().setCurrentScenario(scenario) }}>
                                                             <Radio value={index} colorScheme="green"></Radio>
                                                         </RadioGroup>
                                                     </Td>
