@@ -7,25 +7,36 @@ import {
   AccordionIcon
 } from '@chakra-ui/react';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
+
+
+// TODO extract distribution types and currencies
+const distributionTypes = {
+  exponential : { distribution_params: ["mean"] },
+  normal : { distribution_params: ["mean", "standard deviation"] },
+  uniform : { distribution_params: ["min", "max"] },
+  constant : { distribution_params: ["constant value"] },
+  erlang : { distribution_params: ["order", "mean"] },
+  triangular : { distribution_params: ["lower", "peak", "upper"] },
+  binomial : { distribution_params: ["probabiliy", "amount"] },
+  arbitraryFiniteProbabilityDistribution : { distribution_params: [] }
+}
+
+const currencies = ['euro', 'dollar'];
+
+function getParamsForDistribution(distributionType, distributionValues) {
+  return (distributionType === "arbitraryFiniteProbabilityDistribution"
+    ? distributionValues?.map((_, index) => 'entry'+index) //TODO: this currently only supports single frequency entries
+    : distributionTypes[distributionType]?.distribution_params);
+}
+
+
 const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
-
-  const distributionTypes = [
-    { distribution_name: "exponential", distribution_params: ["mean"] },
-    { distribution_name: "normal", distribution_params: ["mean", "standard deviation"] },
-    { distribution_name: "uniform", distribution_params: ["min", "max"] },
-    { distribution_name: "constant", distribution_params: ["constant value"] },
-    { distribution_name: "erlang", distribution_params: ["order", "mean"] },
-    { distribution_name: "triangular", distribution_params: ["lower", "peak", "upper"] },
-    { distribution_name: "binomial", distribution_params: ["probabiliy", "amount"] },
-    { distribution_name: "arbitraryFiniteProbabilityDistribution", distribution_params: [] }
-  ]
-
 
   const [state, setState] = useState({
     scenarioName: "",
     startingDate: "",
     startingTime: "",
-    currenry: "",
+    currency: "",
     numberOfInstances: "",
     interArrivalTime: "",
     values: "",
@@ -43,7 +54,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
     if (!selectedScenarioData) return;
 
     if (selectedScenarioData.interArrivalTime.distributionType === "arbitraryFiniteProbabilityDistribution") {
-      newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params = selectedScenarioData.interArrivalTime.values.map(v => v.id)
+      newTypes["arbitraryFiniteProbabilityDistribution"].distribution_params = selectedScenarioData.interArrivalTime.values.map(v => v.id)
 
     }
     setState({
@@ -74,15 +85,16 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
 
     if (name === "distributionType") {
       setState({
-        distributionValues: new Array(distributionTypes.find(dis => dis.distribution_name === value).distribution_params.length).fill(0)
+        ...state,
+        distributionType : value,
+        distributionValues: new Array(distributionTypes[value].distribution_params.length).fill(0)
       })
-    }
-
-    if (name === "distributionValues") {
+    } else if (name === "distributionValues") {
       let newArr = state.distributionValues
       newArr[index] = value
 
       setState({
+        ...state,
         distributionValues: newArr
       })
     } else {
@@ -93,45 +105,20 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
       });
 
     }
-
-
   }
 
-  function changeValueAmount(amount){ //TODO fix this code
+  function changeValueAmount(amount){ // For arbitrary final distributions
     if (amount === 1) {
-      let newTypes = distributionTypes
-      newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.push("entry" + (distributionTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.length + 1))
-
-
-      setState({ distributionTypes: newTypes })
-      state.distributionValues.push(0)
+      setState({
+        ...state,
+        distributionValues : [... state.distributionValues, 0]
+      });
     } else {
-
-      let newTypes = distributionTypes
-      newTypes.find(dis => dis.distribution_name === "arbitraryFiniteProbabilityDistribution").distribution_params.pop()
-
-
-      setState({ distributionTypes: newTypes })
-      state.distributionValues.pop()
+      setState({
+        ...state,
+        distributionValues : state.distributionValues.slice(0, -1) // remove last element
+      });
     }
-
-  }
-
-  function handleKeyChange(resource, index) {
-
-    const target = resource.target;
-    const value = target.value;
-
-
-    let params = distributionTypes
-    params.find(dis => dis.distribution_name === state.distributionType).distribution_params[index] = value
-
-    setState({ distributionTypes: params })
-
-
-    console.log(params)
-
-
   }
 
   function onSubmit(event){
@@ -141,7 +128,7 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
 
     let interArrivalTime = {
       distributionType: state.distributionType,
-      values: distributionTypes.find(dis => dis.distribution_name === state.distributionType).distribution_params.map((key, index) => { return { id: key, value: state.distributionValues[index] } })
+      values: getParamsForDistribution(state.distributionType, state.distributionValues).map((key, index) => { return { id: key, value: state.distributionValues[index] } })
     }
 
     if (obj.scenarioName !== state.scenarioName) {
@@ -213,9 +200,8 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
 
                   <FormControl>
                     <FormLabel>Currency:</FormLabel>
-                    <Select name="currency" placeholder={state.currency} bg="white" onChange={(event) => handleInputChange(event)} >
-                      <option value='euro'>euro</option>
-                      <option value='dollar'>dollar</option>
+                    <Select name="currency" value={state.currency} bg="white" onChange={(event) => handleInputChange(event)} >
+                        {currencies.map((currency) => (<option key={currency} value={currency}>{currency}</option>))}
                     </Select>
                   </FormControl>
                 </AccordionPanel>
@@ -235,8 +221,8 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
                     <FormControl w="47%">
                       <FormLabel>Distribution:</FormLabel>
                       <Select value={state.distributionType} bg="white" name="distributionType" onChange={(event) => handleInputChange(event)} >
-                        {distributionTypes.map((distribution, index) => {
-                          return <option key={index} value={distribution.distribution_name}>{distribution.distribution_name}</option>
+                        {Object.keys(distributionTypes).map((distributionType, index) => {
+                          return <option key={index} value={distributionType}>{distributionType}</option>
                         })}
                       </Select>
                     </FormControl>
@@ -259,22 +245,13 @@ const EditScenario = ({getData, selectedScenario, setIsInDuplicateMode}) => {
                     </ButtonGroup>
                     : ""}
 
-                  {distributionTypes.find((dis) => dis.distribution_name === state.distributionType) && distributionTypes.find(dis => dis.distribution_name === state.distributionType).distribution_params.map((key, index) => {
-
-
+                  {getParamsForDistribution(state.distributionType, state.distributionValues)?.map((key, index) => {
                     return <>
 
-                      <Flex justifyContent="space-between">
-                        <FormControl w="47%">
-                          <FormLabel>key:</FormLabel>
-                          <Input value={key} bg="white" name="distributionKey" onChange={(event) => handleKeyChange(event, index)} />
-                        </FormControl>
-
-                        <FormControl w="47%">
-                          <FormLabel>value:</FormLabel>
+                        <FormControl>
+                          <FormLabel>{key}:</FormLabel>
                           <Input value={state.distributionValues[index]} bg="white" name="distributionValues" onChange={(event) => handleInputChange(event, index)} />
-                        </FormControl>
-                      </Flex></>
+                        </FormControl></>
 
                   })}
 

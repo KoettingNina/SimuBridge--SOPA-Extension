@@ -56,7 +56,7 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                     <Card bg="white" w="100%"  >
                         <CardBody >
                             <CardHeader>
-                                <Heading size='md'>Select Scenario {selectedScenario}</Heading>
+                                <Heading size='md'>Select Scenario</Heading>
                             </CardHeader>
                             <TableContainer>
                                 <Table variant='simple' size="sm">
