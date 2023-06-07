@@ -1,98 +1,108 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Heading, Text, Card, CardBody, Table, Thead, Tbody, Tr, Th, Td, Radio, RadioGroup, TableContainer, Stack, Button } from "@chakra-ui/react";
-import { DeleteIcon } from '@chakra-ui/icons'
+import { Box, Card, CardBody, Stack, Tabs, TabList, Tab, IconButton } from "@chakra-ui/react";
+import { DeleteIcon, EditIcon, PlusSquareIcon } from '@chakra-ui/icons'
 import TimeTable from './TimeTable';
 import ResourceNavigation from '../ResourceNavigation';
 
-const TimetableOverview = ({setTimetable, getData, setCurrent }) => {
+const TimetableOverview = ({getData, setCurrentRightSideBar }) => {
     // State to hold selected timetable index in the list 
-const [selectedTimeTable, setSelectedTimeTable] = useState(0);
-
- // On mount or whenever the currentScenario changes, set the default selected timetable and call the setCurrent and setTimetable 
- // setCurrent is important for displaying the right editorsidebar on the right side
- // setTimetable is important for displaying the right timetable in the editorsidebar on the right side
-useEffect(() => {
-    setSelectedTimeTable(0);
-    setTimetable(getData().getCurrentScenario().resourceParameters.timeTables[0].id);
-    setCurrent("Edit Timetable");
-}, [getData().getCurrentScenario()]);
-
-// If the selected timetable is removed, set the first timetable as the new selected timetable
-useEffect(() => {
-    if (getData().getCurrentScenario().resourceParameters.timeTables.length === selectedTimeTable) {
-        setSelectedTimeTable(0);
+    const [selectedTimeTable, setSelectedTimeTableInternal] = useState(0);
+    function setSelectedTimeTable(index) {
+        let indexToSet = index;
+        const timeTables = getData().getCurrentScenario().resourceParameters.timeTables;
+        const currentCount = timeTables.length;
+        if (index >= currentCount) {
+            indexToSet = currentCount - 1;
+        } else if (index < 0) {
+            indexToSet = 0;
+        }
+        setSelectedTimeTableInternal(indexToSet);
     }
-});
 
- // Remove a timetable from the list of timetables in the current scenario
-const deleteTimetable = (item) => {
-    getData().getCurrentScenario().resourceParameters.timeTables = getData().getCurrentScenario().resourceParameters.timeTables.filter(timeTable => timeTable.id !== item);
-    getData().saveCurrentScenario();;
-}
+    // On mount or whenever the currentScenario changes, set the default selected timetable and call the setCurrent and setTimetable 
+    // setCurrent is important for displaying the right editorsidebar on the right side
+    // setTimetable is important for displaying the right timetable in the editorsidebar on the right side
+    useEffect(() => {
+        setSelectedTimeTable(0);
+    }, []);
 
-// Remove an item from the selected timetable
-const deleteItem = (id, index) => {
-    getData().getCurrentScenario().resourceParameters.timeTables.find(item => item.id === id).timeTableItems.splice(index, 1);
-    getData().saveCurrentScenario();;
-}
 
-        return (
-            <>
+    function addTimetable() {
+        getData().getCurrentScenario().resourceParameters.timeTables.push({
+            "id": "NewTimetable",
+            "timeTableItems" : []
+        });
+        getData().saveCurrentScenario();
+        setSelectedTimeTable(getData().getCurrentScenario().resourceParameters.timeTables.length - 1);
+    }
+
+    // Remove a timetable from the list of timetables in the current scenario
+    const deleteTimetable = (item) => {
+        const selectedTimeTableData = getData().getCurrentScenario().resourceParameters.timeTables[selectedTimeTable];
+        getData().getCurrentScenario().resourceParameters.timeTables = getData().getCurrentScenario().resourceParameters.timeTables.filter(timeTable => timeTable.id !== item);
+        getData().saveCurrentScenario();
+        const newSelectedIndex = getData().getCurrentScenario().resourceParameters.timeTables.indexOf(selectedTimeTableData);
+        if (selectedTimeTable != newSelectedIndex) {
+            setSelectedTimeTable(newSelectedIndex > 0 ? newSelectedIndex : Math.max(selectedTimeTable - 1, 0))
+        }
+    }
+
+
+    const currentTimetable = getData().getCurrentScenario().resourceParameters.timeTables[selectedTimeTable];
+
+    return (
+        <>
             <Box h="93vh" overflowY="auto" p="5" >
                 <Stack spacing={5} >
-                     {/* Display the Navigation for ressources and set curent Tab to timetable to highlight the current tab */}
+                    {/* Display the Navigation for ressources and set curent Tab to timetable to highlight the current tab */}
                     <ResourceNavigation currentTab="timetable" />
-                    <Card bg="white" w="100%">
-                        <CardBody>
-                            <Heading size='md'>Select Timetable</Heading>
+                    {/* If a timetable is selected, render a TimeTable component */}
 
-                            <TableContainer>
-                                <Table variant='simple'>
-                                    <Thead>
-                                        <Tr>
-                                            <Th></Th>
-                                            <Th>Name</Th>
-                                            <Th>Weekday</Th>
-                                            <Th>Time</Th>
-                                            <Th></Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {/* Map through the list of timetables in the current scenario */}
-                                        {getData().getCurrentScenario().resourceParameters.timeTables? 
-                                            getData().getCurrentScenario().resourceParameters.timeTables.map((timeTable, index) => {
-                                                return <Tr>
-                                                    <Td>
-                                                        <RadioGroup value={selectedTimeTable} onChange={() => {setSelectedTimeTable(index ); setCurrent("Edit Timetable"); setTimetable(timeTable.id)}}>
-                                                            <Radio value={index} colorScheme="green"></Radio>
-                                                        </RadioGroup>
-                                                    </Td>
-                                                    {/* Map through the timeTableItems in the selected timetable and display their start and end weekdays */}
-                                                    <Td>{timeTable.id}</Td>
-                                                    {/* The weekdays and delete button for each time table item */}
-                                                    <Td>{timeTable.timeTableItems.map((item, i) => { return <Text>{(timeTable.timeTableItems.length > 1) ? (i + 1) + ". " : ""} {item.startWeekday + " - " + item.endWeekday} {(timeTable.timeTableItems.length > 1) ? <Button colorScheme="gray" variant="ghost" onClick={() => deleteItem(timeTable.id, i)}><DeleteIcon color="gray" /></Button> : ""}  </Text>  })} </Td>
-                                                    <Td>{timeTable.timeTableItems.map((item) => { return <Text>{item.startTime + " - " + item.endTime} </Text> })}</Td>
-                                                    <Td> 
-                                                        {/* A delete button for the entire timetable */}
-                                                        <Button colorScheme="gray" variant="ghost" onClick={() => deleteTimetable(timeTable.id)}><DeleteIcon color="gray" /></Button>
-                                                    </Td>
-                                                </Tr>
-                                            })
-                                        : ""}
-                                    </Tbody>
-                                </Table>
-                            </TableContainer>
+                    <Card bg="white" w="100%" overflowX="auto">
+                        <Tabs index={selectedTimeTable} onChange={(index) => setSelectedTimeTable(index)}>
+                            <TabList alignItems='center'>
+                                {getData().getCurrentScenario().resourceParameters.timeTables.map((timetable, index) => {
+                                    return <Tab aria-selected={selectedTimeTable === index}>
+                                        {timetable.id}
+                                        <IconButton
+                                        aria-label={'Edit timetable name'}
+                                        variant='ghost'
+                                        onClick={() => {
+                                            const newName = window.prompt('New timetable name?', timetable.id);
+                                            if (newName) {
+                                                timetable.id = newName;
+                                                getData().saveCurrentScenario();
+                                            }
+                                        }}
+                                        icon={<EditIcon />}/>
+                                        <IconButton
+                                        aria-label={'Delete timetable'}
+                                        variant='ghost'
+                                        onClick={() => {
+                                            if (window.confirm(`Delete timetable ${timetable.id} ?`)) {deleteTimetable(timetable.id)}
+                                        }}
+                                        icon={<DeleteIcon />}/>
+                                    </Tab>
+                                })}
+                                <IconButton
+                                    aria-label={'Add new timetable'}
+                                    variant="ghost"
+                                    onClick={addTimetable}
+                                    icon={<PlusSquareIcon />}
+                                />
+                            </TabList>
+                        </Tabs>
+                        <CardBody>
+                            {currentTimetable ?
+                                <TimeTable {...{currentTimetable, setCurrentRightSideBar, getData}}/>
+                                : ""}
                         </CardBody>
                     </Card>
-                    {/* If a timetable is selected, render a TimeTable component */}
-                     {getData().getCurrentScenario().resourceParameters.timeTables[selectedTimeTable]?                        
-                        <TimeTable timetableItems={getData().getCurrentScenario().resourceParameters.timeTables[selectedTimeTable].timeTableItems} />
-                    : ""}
                 </Stack>
             </Box>
-            </>
-        );
-    }
+        </>
+    );
+}
 
 
 export default TimetableOverview;

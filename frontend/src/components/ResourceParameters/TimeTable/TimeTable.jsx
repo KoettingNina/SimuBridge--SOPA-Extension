@@ -1,18 +1,65 @@
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Box, Heading, Text, Grid, Card, CardBody } from "@chakra-ui/react";
+import { EditorSidebarAlternate } from '../../EditorSidebar/EditorSidebar';
+import EditTimetableItem from '../../EditorSidebar/Timetable/EditTimetableItem';
 
-function TimeTable({timetableItems}) {
-    // Create an array of days of the week and an array of hours in a day
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const hours = Array.from({ length: 24 }, (_, i) => i);
+const { compare } = require('js-deep-equals')
+
+// Create an array of days of the week and an array of hours in a day
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const hours = Array.from({ length: 24 }, (_, i) => i);
+
+function TimeTable({currentTimetable, setCurrentRightSideBar, getData}) {
+
+  const [currentTimetableItem, setCurrentTimetableItem] = useState(undefined)
+
+  useEffect(() => { // Stay stable on reloads
+    const successor = currentTimetable.timeTableItems.find(otherItem =>  compare(currentTimetableItem, otherItem))
+    setCurrentTimetableItem(successor);
+  }, [currentTimetable])
+
+  useEffect(() => { 
+    if (currentTimetableItem) {
+      setCurrentRightSideBar(<EditorSidebarAlternate title='Edit Timetable Item' content={<EditTimetableItem {...{getData, currentTimetable, currentTimetableItem, setCurrentTimetableItem}} />}/>)
+    } else {
+      setCurrentRightSideBar(undefined);
+    }
+  }, [currentTimetableItem, currentTimetable, getData().getCurrentScenario()]);
 
 
+  function isInsideTimetableItem(day, hour, timetableItem) {
+    const { startWeekday, startTime, endWeekday, endTime } = timetableItem;
+
+    function dayTimeToHourOfWeek(day, hour) {
+      const dayIndex = days.indexOf(day);
+      return dayIndex * hours.length + hour;
+    }
+
+    const startHourOfWeek = dayTimeToHourOfWeek(startWeekday, Number(startTime));
+    const endHourOfWeek = dayTimeToHourOfWeek(endWeekday, Number(endTime));
+    const currentHourOfWeek = dayTimeToHourOfWeek(day, hour);
+    const itemIsOverflow = days.indexOf(endWeekday) < days.indexOf(startWeekday); // The item start is before Sunday 12pm and the end is after, then the check must be flipped
+
+    return (itemIsOverflow && currentHourOfWeek >= startHourOfWeek)
+      || (itemIsOverflow && currentHourOfWeek < endHourOfWeek)
+      || (currentHourOfWeek >= startHourOfWeek && currentHourOfWeek < endHourOfWeek);
+  }
+
+  function addTimeTableItem(startDay, startHour) {
+    const newItem = {
+      "startWeekday": startDay,
+      "startTime": startHour,
+      "endWeekday": startDay,
+      "endTime": startHour+1
+    }
+    currentTimetable.timeTableItems.push(newItem);
+    setCurrentTimetableItem(newItem);
+    getData().saveCurrentScenario();
+  }
 
   return (
-    <Card bg="white" w="100%" overflowX="auto">
-    <CardBody>
     <Grid templateColumns="repeat(8, 1fr)" gap={2}>
 
       <Box>
@@ -35,31 +82,28 @@ function TimeTable({timetableItems}) {
               <Text textAlign="center">{hour + ":00"}</Text>
             </Box>
             {days.map((day, i) => {
-              // Initialize a variable to keep track of whether the current time slot is highlighted or not
-              let isHighlighted = false;
-                // Loop through the "data" prop to check if there are events during the current time slot on the current day
-              timetableItems.forEach(({ startWeekday, startTime, endWeekday, endTime }) => {
-                const startDayIndex = days.indexOf(startWeekday);
-                const endDayIndex = days.indexOf(endWeekday);
-                const currentDayIndex = days.indexOf(day);
-                 startTime = Number(startTime);
-                 endTime = Number(endTime);
-                if((currentDayIndex >= startDayIndex) && (currentDayIndex <= endDayIndex) && 
-                (hour >= startTime) && (hour < endTime)){
-                  isHighlighted = true;
-              }
-              
-              });
+              const existingItem = currentTimetable.timeTableItems.find(timetableItem => isInsideTimetableItem(day, hour, timetableItem)); 
               return (
-                <Box key={i} bg={isHighlighted ? "green.200" : "blackAlpha.100"} borderRadius="4"></Box>
+                <Box key={i} color='transparent' {...existingItem ? {
+                  background : existingItem === currentTimetableItem ? "blue.500" : "green.200",
+                  cursor: 'pointer',
+                  onClick : () => setCurrentTimetableItem(existingItem)
+                }
+              : {
+                background : "blackAlpha.100",
+                _hover : {
+                  background : "blackAlpha.400",
+                  color : 'white',
+                  textAlign: 'center'
+                },
+                onClick : () => addTimeTableItem(day, hour)
+              }} borderRadius="4"><b>+</b></Box>
               );
             })}
           </React.Fragment>
         );
       })}
     </Grid>
-    </CardBody>
-    </Card>
   );
 }
 
