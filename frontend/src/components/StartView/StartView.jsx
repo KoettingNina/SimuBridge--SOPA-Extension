@@ -8,7 +8,6 @@ import { FiChevronDown } from 'react-icons/fi';
 import FileUpload from './FileUpload';
 import axios from 'axios';
 import { getProjectData, getProjects } from '../../util/Storage';
-import startData from '../../example_data/simulation_input/pizza1.json'
 
 function StartView(props) {
   const [addExistingBPMN, setExistingBPMN] = useState(false);
