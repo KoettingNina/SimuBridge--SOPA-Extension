@@ -43,10 +43,7 @@ function OverviewTableCompare(props) {
                     <Th>Scenario</Th>
                     <Th>Starting date</Th>
                     <Th>Starting time</Th>
-                    <Th>Replications</Th>
-                    <Th>Inter-arrival Time:Distribution</Th>
-                    <Th>Distribution Data</Th>
-                    <Th>Time unit</Th>
+                    <Th>No. instances</Th>
                 </Tr>
             </Thead>
             <Tbody>
@@ -165,97 +162,6 @@ function OverviewTableCompare(props) {
                                                 {
                                                     x = null
                                                     props.scenariosCompare.includes(element.scenarioName) === true ? x = element.scenarioName + ":" + " " + element.numberOfInstances :
-                                                        x = null
-                                                }
-                                                return <div>{x}</div>
-                                            })
-                                            }
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Portal>
-                            </Popover>
-                        }
-                    </Td>
-                    <Td>
-                        {isPopover("distributionType") === false ?
-                            <Text>{props.getData().getCurrentScenario().interArrivalTime.distributionType}</Text>
-                            :
-                            <Popover>
-                                <PopoverTrigger>
-                                    <Button>{props.getData().getCurrentScenario().interArrivalTime.distributionType}</Button>
-                                </PopoverTrigger>
-                                <Portal>
-                                    <PopoverContent bg='#dce5e6'>
-                                        <PopoverArrow/>
-                                        <PopoverCloseButton/>
-                                        <PopoverBody>
-                                            {props.getData().getAllScenarios().map((element) => {
-                                                {
-                                                    x = null
-                                                    props.scenariosCompare.includes(element.scenarioName) === true ? x = element.scenarioName + ":" + " " + element.interArrivalTime.distributionType :
-                                                        x = null
-                                                }
-                                                return <div>{x}</div>
-                                            })
-                                            }
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Portal>
-                            </Popover>
-                        }
-                    </Td>
-                    <Td>
-                        {isPopover("distribution") === false ?
-                            props.getData().getCurrentScenario().interArrivalTime.values.map((el) => {
-                                return <Text>{el.id} : {el.value}</Text>
-                            })
-                            :
-                            <Popover>
-                                <PopoverTrigger>
-                                    <Button> {props.getData().getCurrentScenario().interArrivalTime.values.map((elem) => {
-                                        return <Text> {elem.id} : {elem.value} ⠀</Text>
-                                    })}</Button>
-                                </PopoverTrigger>
-                                <Portal>
-                                    <PopoverContent bg='#dce5e6'>
-                                        <PopoverArrow/>
-                                        <PopoverCloseButton/>
-                                        <PopoverBody>
-                                            {props.getData().getAllScenarios().map((element) => {
-                                                {
-                                                    props.scenariosCompare.includes(element.scenarioName) === true ? element.interArrivalTime.values.map((distribution) => {
-                                                            distr_data.push(element.scenarioName + ":" + " " + distribution.id + ":" + " " + distribution.value)
-                                                        })
-                                                        : x = null
-                                                }
-                                            })}
-                                            {distr_data.map(item => (
-                                                <div>{item}</div>
-                                            ))}
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Portal>
-                            </Popover>
-
-                        }
-                    </Td>
-                    <Td>
-                        {isPopover("timeUnit") === false ?
-                            <Text>{props.getData().getCurrentScenario().timeUnit}</Text>
-                            :
-                            <Popover>
-                                <PopoverTrigger>
-                                    <Button>{props.getData().getCurrentScenario().timeUnit}</Button>
-                                </PopoverTrigger>
-                                <Portal>
-                                    <PopoverContent bg='#dce5e6'>
-                                        <PopoverArrow/>
-                                        <PopoverCloseButton/>
-                                        <PopoverBody>
-                                            {props.getData().getAllScenarios().map((element) => {
-                                                {
-                                                    x = null
-                                                    props.scenariosCompare.includes(element.scenarioName) === true ? x = element.scenarioName + ":" + " " + element.timeUnit :
                                                         x = null
                                                 }
                                                 return <div>{x}</div>

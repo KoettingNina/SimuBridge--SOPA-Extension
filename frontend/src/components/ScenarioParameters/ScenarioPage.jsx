@@ -57,10 +57,7 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                                             <Th>Name</Th>
                                             <Th>Starting date</Th>
                                             <Th>Starting time</Th>
-                                            <Th>Replications</Th>
-                                            <Th>Interarrival time distribution</Th>
-                                            <Th>Distribution data</Th>
-                                            <Th>Time Unit</Th>
+                                            <Th>No. instances</Th>
                                             <Th>Currency</Th>
                                             <Th></Th>
                                         </Tr>
@@ -78,10 +75,6 @@ const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {
                                                     <Td>{scenario.startingDate}</Td>
                                                     <Td>{scenario.startingTime}</Td>
                                                     <Td>{scenario.numberOfInstances}</Td>
-                                                    <Td>{scenario.interArrivalTime.distributionType}</Td>
-            
-                                                    <Td>{scenario.interArrivalTime.values.map((value) => {return <Text>{value.id + ": " + value.value}</Text>})}</Td>
-                                                    <Td>{scenario.timeUnit}</Td>
                                                     <Td>{scenario.currency}</Td>
                                                     
                                                     <Td> 

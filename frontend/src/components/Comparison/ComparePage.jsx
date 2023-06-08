@@ -131,14 +131,8 @@ function ComparePage(props) {
             if (scenarioToCompare.numberOfInstances !== props.getData().getCurrentScenario().numberOfInstances) {
                 scenDiff[scenDiff.length] = "numberOfInstances";
             }
-            if (scenarioToCompare.interArrivalTime.distributionType !== props.getData().getCurrentScenario().interArrivalTime.distributionType) {
-                scenDiff[scenDiff.length] = "distributionType";
-            }
             if (scenarioToCompare.timeUnit !== props.getData().getCurrentScenario().timeUnit) {
                 scenDiff[scenDiff.length] = "timeUnit";
-            }
-            if (scenarioToCompare.interArrivalTime.values !== props.getData().getCurrentScenario().interArrivalTime.values) {
-                scenDiff[scenDiff.length] = "distribution";
             }
 
             if (scenarioToCompare.currency !== props.getData().getCurrentScenario().currency) {

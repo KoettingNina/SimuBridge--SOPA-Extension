@@ -6,8 +6,12 @@ import { Input, FormControl, FormLabel, Flex, Button, Stack, Select, Text, Butto
     AccordionIcon } from '@chakra-ui/react';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 import { deepCopy } from '../../../util/ObjectUtil';
+import TimeUnits from '../../../util/TimeUnits';
 
 //TODO remove this class, merge with EditScenario
+/**
+ * @deprecated
+ */
 class AddScenario extends React.Component {
     constructor(props) {
       super(props);
@@ -280,8 +284,7 @@ render() {
           <FormControl w="47%"> 
                 <FormLabel>Time Unit:</FormLabel>
             <Select name="timeUnit" value={this.state.timeUnit} onChange={(event) => this.handleInputChange(event)} bg="white">
-                  <option value='secs'>secs</option>
-                  <option value='mins'>mins</option>
+                    {Object.values(TimeUnits).map(timeUnit => <option key={timeUnit} value={timeUnit}>{timeUnit}</option>)}
               </Select>
             
             </FormControl>

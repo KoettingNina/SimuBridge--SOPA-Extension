@@ -28,10 +28,7 @@ function OnlyDifferencesPage(props) {
     const [tableNames] = useState([
         {id: "startingDate", value: 'Starting date'},
         {id: "startingTime", value: 'Starting time'},
-        {id: "numberOfInstances", value: 'Replications'},
-        {id: "distributionType", value: 'Inter-arrival time: distribution'},
-        {id: "distribution", value: 'Distribution data'},
-        {id: "timeUnit", value: 'Time Unit'},
+        {id: "numberOfInstances", value: 'No. instances'},
         {id: "currency", value: 'Currency'},
     ]);
 

@@ -1,4 +1,5 @@
 import { Button } from "@chakra-ui/react";
+import TimeUnits from "../util/TimeUnits";
 
 export default ({getData, toast, label='Add new empty scenario', ...props}) => {
     return (<Button {...props} onClick={() => {
@@ -10,11 +11,7 @@ export default ({getData, toast, label='Add new empty scenario', ...props}) => {
                     startingDate: "01-01-0000",
                     startingTime: "00:00",
                     numberOfInstances: 1,
-                    interArrivalTime: {
-                        distributionType: undefined,
-                        values: []
-                    },
-                    timeUnit: "mins",
+                    timeUnit: TimeUnits.MINUTES,
                     currency: "Money Unit", // TODO
                     resourceParameters : {
                         roles : [],

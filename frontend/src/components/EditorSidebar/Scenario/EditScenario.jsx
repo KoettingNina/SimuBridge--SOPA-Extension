@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { stateToDistribution } from '../../../util/Distributions';
 import DistributionEditor from '../../DistributionEditor';
+import TimeUnits from '../../../util/TimeUnits';
 
 const currencies = ['euro', 'dollar'];
 
@@ -19,12 +20,7 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
     startingDate: "",
     startingTime: "",
     currency: "",
-    numberOfInstances: "",
-    interArrivalTime: "",
-    values: "",
-    timeUnit: "",
-    distributionType: "",
-    distributionValues: []
+    numberOfInstances: ""
   });
 
   useEffect(() => {
@@ -35,11 +31,7 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
       startingDate: selectedScenarioData.startingDate,
       startingTime: selectedScenarioData.startingTime,
       currency: selectedScenarioData.currency,
-      numberOfInstances: selectedScenarioData.numberOfInstances,
-      interArrivalTime: selectedScenarioData.interArrivalTime,
-      timeUnit: selectedScenarioData.timeUnit,
-      distributionType: selectedScenarioData.interArrivalTime.distributionType,
-      distributionValues: selectedScenarioData.interArrivalTime.values.map(v => v.value)
+      numberOfInstances: selectedScenarioData.numberOfInstances
     })
     console.log(state)
     console.log(state.distributionValues)
@@ -62,8 +54,6 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
 
     let obj = getData().getCurrentScenario();
 
-    let interArrivalTime = stateToDistribution(state);
-
     if (obj.scenarioName !== state.scenarioName) {
       getData().renameScenario(obj, state.scenarioName);
     }
@@ -73,7 +63,6 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
     obj.startingTime = state.startingTime
     obj.currency = state.currency
     obj.numberOfInstances = state.numberOfInstances
-    obj.interArrivalTime = interArrivalTime
 
     getData().saveScenario(obj);
   }
@@ -94,18 +83,6 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
 
 
           <form onSubmit={onSubmit}>
-
-            <Accordion allowToggle>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <Box as="span" flex='1' textAlign='left'>
-                      General Parameters
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
 
 
                   <FormControl>
@@ -134,22 +111,6 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
                         {currencies.map((currency) => (<option key={currency} value={currency}>{currency}</option>))}
                     </Select>
                   </FormControl>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <Box as="span" flex='1' textAlign='left'>
-                      Interarrival time
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  <DistributionEditor {...{ state, setState}}/>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
 
 
             <Button

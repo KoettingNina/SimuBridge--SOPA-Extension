@@ -20,10 +20,7 @@ function OverviewTable({getData, toast}){
                         <Th>Simulation</Th>
                         <Th>Starting date</Th>
                         <Th>Starting time</Th>
-                        <Th>Replications</Th>
-                        <Th>Inter-arrival Time:Distribution</Th>
-                        <Th>Distribution Data</Th>
-                        <Th>Time unit</Th>
+                        <Th>No. instances</Th>
                     </Tr>
                 </Thead>
                 <Tbody>
@@ -34,11 +31,6 @@ function OverviewTable({getData, toast}){
                             <Td align="left" >{scenario.startingDate}</Td>
                             <Td align="left" >{scenario.startingTime}</Td>
                             <Td align="left">{scenario.numberOfInstances}</Td>
-                            <Td align="left">{scenario.interArrivalTime.distributionType}</Td>
-                            <Td align="left">{scenario.interArrivalTime.values.map((distribution) => {
-                                return <Text> {distribution.id} : {distribution.value} </Text>
-                            })} </Td>
-                            <Td>{scenario.timeUnit}</Td>
                         </Tr>
                     })}
                 </Tbody>
