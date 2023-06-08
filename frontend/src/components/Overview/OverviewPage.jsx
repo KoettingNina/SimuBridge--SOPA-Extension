@@ -31,6 +31,7 @@ import OverviewResourceTable from "../TablesOverviewComparison/OverviewResourceT
 import ModelBasedOverview from "../TablesOverviewComparison/ModelBasedOverview";
 import CreateEmptyScenarioButton from '../CreateEmptyScenarioButton';
 import { getFile, uploadFile } from '../../util/Storage';
+import { model } from '../../util/DataModel';
 
 
 function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
@@ -204,17 +205,7 @@ function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
                                                         const fileName = await uploadFile(getData().getProjectName()); //TODO potentially do not create an additional file for this?
                                                         if (fileName) {
                                                             const fileData = (await getFile(getData().getProjectName(), fileName)).data;
-                                                            scenario.models.push({
-                                                                BPMN : fileData,
-                                                                name : fileName,
-                                                                modelParameter : {
-                                                                    activities : [],
-                                                                    events : [],
-                                                                    gateways : [],
-                                                                    sequences : []
-                                                                }
-                                                            });
-                                                            getData().saveScenario(scenario);
+                                                            scenario.addModel(model(fileName, fileData));
                                                         }
                                                     }}> Upload one</Button>.
                                                 </CardBody>
