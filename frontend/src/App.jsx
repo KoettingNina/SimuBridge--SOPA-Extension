@@ -6,7 +6,6 @@ import {
 import Navigation from './components/Navigation/Navigation';
 import EditorSidebar from './components/EditorSidebar/EditorSidebar';
 import StartView from './components/StartView/StartView';
-import BpmnViewSelector from './components/ModelbasedParameters/BpmnViewSelector';
 import ScenarioPage from './components/ScenarioParameters/ScenarioPage';
 import OverviewPage from './components/Overview/OverviewPage';
 import OnlyDifferencesPage from './components/Comparison/OnlyDifferencesPage'
@@ -20,17 +19,21 @@ import ResourceOverview from './components/ResourceParameters/Resources/Resource
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
 import { deleteFile, getFiles, getProjectData, getProjects, getScenarioFileName, getScenarios, setFile, setProjectData } from './util/Storage';
+import BpmnView from './components/ModelbasedParameters/BpmnView';
+import { limitToDataScheme, model, scenario } from './util/DataModel';
+import BPMNModdle from 'bpmn-moddle';
 
 
 const { compare } = require('js-deep-equals')
 
 function App() {
+
+  const moddle = new BPMNModdle();
+
   const [projectStarted, setStarted] = useState(sessionStorage.getItem('st') || "false") // checks if the starting flaf is stet in the session storage to display the dashboard or otherwise the startpage
 
 
   const [parsed, setParsed] = useState(true) // TODO to be removed
-
-  const [currentProject, setCurrentProject] = useState(); //TODO, yes switching project would be nice
 
   // State is used for changing / adding a project projectName, it firest checks if project is already set as current in the session storage
   const [projectName, setProjectName] = useState(sessionStorage.getItem('currentProject') || "")
@@ -75,18 +78,17 @@ function App() {
 
   const {onClose } = useDisclosure()
 
-  let projectData;
-
-  
   const [dataLoaded, setDataLoaded] = useState(false);
 
+  let ProjectDataClass;
+
   {
+    const [data, setDataInternal] = useState(undefined);
     // store and set information which BPMN and scenario is currently selected
-    const [data, setDataInternal] = useState([]) // method is used to save data from the discoverytool
     const [currentBpmn, setBpmn] = useState(0)
     const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
 
-    function storeScenario(d) { //TODO
+    function storeProject(d) { //TODO
       setDataInternal(d)
 
       if(projectName){
@@ -110,23 +112,36 @@ function App() {
 
       constructor(projectName) {
         this.projectName = projectName;
+        if (data) {
+          data.forEach(scenario => scenario.parentProject = this);
+        }
+      }
+      
+      addClasses(scenario) {
+        scenario.__proto__ = new ScenarioData(this);
+        scenario.models.forEach(model => model.__proto__ = new ModelData(scenario));
       }
 
       getProjectName() {
         return this.projectName;
       }
 
-      initializeData() {
-        getScenarios(this.projectName).then(scenarioFiles => {
-          setDataInternal(scenarioFiles.map(scenarioFile => JSON.parse(scenarioFile.data))) //TODO remove scenario data inside array
-        });
-        setDataLoaded(true);
+      async initializeData() {
+        console.log(this.projectName)
+        const scenarioFiles = await getScenarios(this.projectName);
+        const scenarioData = scenarioFiles.map(scenarioFile => { 
+          if (!scenarioFile.data) {console.error(`Scenario file ${scenarioFile.path.split('/').pop()} is empty. Skip.`)}
+          return scenarioFile.data && JSON.parse(scenarioFile.data)
+        }).filter(x => x);
+        scenarioData.forEach(this.addClasses);
+        await Promise.all(scenarioData.flatMap(scenario => scenario.models.map(model => model.parseXML())));
+        setDataInternal(scenarioData);
       }
 
       getAllScenarios() { return data; }
-      getCurrentScenario() { return this.getAllScenarios()[currentScenarioIndex]; }
-      getAllModels() { return this.getCurrentScenario()?.models; }
-      getCurrentModel() { return this.getAllModels()?.[currentBpmn]; }
+      getCurrentScenario() { return this.getAllScenarios()?.[currentScenarioIndex]; }
+      getAllModels() { return this.getCurrentScenario()?.models; } //TODO should it be in scenario if its about the current one?
+      getCurrentModel() { return this.getAllModels()?.[currentBpmn]; } // TODO "
 
       getScenario(scenarioName) { return this.getAllScenarios().find(scenario => scenario.scenarioName === scenarioName) }
       getScenarioByIndex(index) { return data[index]; }//TODO remove
@@ -139,7 +154,8 @@ function App() {
       setCurrentBpmnByIndex(index) { setBpmn(index); }//TODO remove
 
       addScenario(scenario) {
-        this.saveScenario(scenario);
+        scenario.__proto__ = new ScenarioData(this);
+        scenario.save();
       }
 
       setCurrentScenario(scenario) {
@@ -153,13 +169,6 @@ function App() {
         this.addScenario(scenario);
       }
 
-      saveScenario(scenario) {
-        //TODO automatically detect renames
-        let scenarioFileName = getScenarioFileName(scenario.scenarioName);
-        setFile(this.projectName, scenarioFileName, JSON.stringify(scenario));
-        this.initializeData();
-      }
-
       deleteScenario(scenario) {
         const scenarioFileName = getScenarioFileName(scenario.scenarioName);
         deleteFile(this.projectName, scenarioFileName); 
@@ -168,20 +177,68 @@ function App() {
 
       // Call after some in-place operation has happened
       saveCurrentScenario() {
-        this.saveScenario(this.getCurrentScenario());
+        this.getCurrentScenario().save();
       }
     }
 
-    projectData = new ProjectData(projectName);
+    class ScenarioData {
+      constructor(parentProject) {
+        this.parentProject = parentProject;
+      }
 
-    window.projectData = projectData; //TODO for debugging purposes
+      save() {
+        console.log('save')
+        //TODO automatically detect renames
+        let scenarioFileName = getScenarioFileName(this.scenarioName);
+        setFile(this.parentProject.projectName, scenarioFileName, JSON.stringify(this));
+        this.parentProject.initializeData();
+      }
 
+      addModel(model) {
+        model.__proto__ = new ModelData(this);
+        this.models.push(model);
+        this.save();
+      }
 
+      toJSON() {
+        return limitToDataScheme(this, scenario);
+      }
+    }
+
+    class ModelData {
+      constructor(parentScenario) {
+        this.parentScenario = parentScenario;
+      }
+
+      async parseXML() {
+        console.log('parse for '+this.parentScenario.scenarioName)
+        const {
+          rootElement,
+          references,
+          warnings,
+          elementsById
+        } = await moddle.fromXML(this.BPMN, 'bpmn:Definitions');
+        this.elementsById = elementsById;
+        this.rootElement = rootElement;
+      }
+
+      toJSON() {
+        return limitToDataScheme(this, model);
+      }
+    }
+
+    ProjectDataClass = ProjectData;
+
+    useEffect(() => {
+      if(data && projectData) {
+        setDataLoaded(true);
+        console.log('sdlisuh')
+      }
+    }, [data])
   }
 
 
-// Function to make it easy to access only parts of the data
- function getData() {
+function getData() {
   return projectData;
 } 
 
@@ -200,7 +257,7 @@ const toasting = (type, title, text) =>{
 }
 
 
-useEffect(() => {
+useEffect(() => { //TODO obsolete?
   if(!sessionStorage.getItem('currentProject')){
     sessionStorage.setItem('st', false);
     setStarted("false")
@@ -209,13 +266,26 @@ useEffect(() => {
 } ,[])
 
 
+
+const oldProjectName = projectData?.projectName;
+let projectData = new ProjectDataClass(projectName);
+window.projectData = projectData; //TODO for debugging purposes
+
 // if a project is started and has a projectName (meaning it is started by selecting and existing project), the internal data is filled with data from the Storage
 useEffect(() => {
-  if(projectName){
-    projectData.initializeData();
+  if (projectName) {
+    if (oldProjectName === projectName) {
+      console.log('data set from existing')
+    } else {
+      projectData.initializeData().then(() => {
+        console.log('data set')
+      });
+    }
+  } else {
+    projectData = undefined;
+    console.log('reset project data')
   }
-
-}, [projectStarted]);
+}, [projectName]);
 
 
   // state to check if a project projectName already exists
@@ -263,8 +333,8 @@ useEffect(() => {
     return <Button {...(getSideBarContentId() === id && { background: "#AEC8CA!important" })} onClick={() => setSideBarContent(type, id)} {...props} >{id}</Button>;
   }
 
-  const atLeastOneScenario = getData().getCurrentScenario();
-  const atLeastOneModel = atLeastOneScenario && getData().getCurrentModel();
+  const atLeastOneScenario = dataLoaded && getData().getCurrentScenario();
+  const atLeastOneModel = dataLoaded && atLeastOneScenario && getData().getCurrentModel();
 
   return (
     <ChakraProvider theme={theme}>
@@ -334,7 +404,7 @@ useEffect(() => {
 
               <Route path="/scenario" element={atLeastOneScenario && <ScenarioPage {...{ getData, setCurrentRightSideBar }} />} />
               
-              <Route path="/modelbased" element={atLeastOneModel && <BpmnViewSelector zIndex={-5} projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} />} />
+              <Route path="/modelbased" element={atLeastOneModel && <BpmnView {...{ getData, setCurrentRightSideBar }} />} />
               <Route path="/modelbased/tableview" element={atLeastOneModel && <ModelbasedParametersTable parsed={parsed} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
 
 
@@ -351,7 +421,6 @@ useEffect(() => {
               <Route path="/resource"           element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole}/>} />
               <Route path="/resource/overview"  element={<EditorSidebar  setCurrent={setCurrent} getData={getData} current={current} currentResource={currentResource} setResource={setResource} selectedObject={currentObject}   currentRole={currentRole} setRole={setRole}/>} />
               
-              <Route path="/modelbased"         element={atLeastOneModel && <EditorSidebar  getData={getData} current={current} selectedObject={currentObject}   setObject={setObject} />} />
               <Route path='*'                   element={currentRightSideBar} />
             </Routes>
           </Box>
