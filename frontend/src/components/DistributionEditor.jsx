@@ -1,6 +1,7 @@
 import { ButtonGroup, Flex, FormControl, FormLabel, IconButton, Input, Select } from "@chakra-ui/react"
 import { distributionTypes, getParamsForDistribution } from "../util/Distributions"
 import { AddIcon, MinusIcon } from "@chakra-ui/icons"
+import TimeUnits from "../util/TimeUnits"
 
 export default function DistributionEditor({ state, setState }) {
 
@@ -30,9 +31,9 @@ export default function DistributionEditor({ state, setState }) {
         <Flex justifyContent="space-between">
             <FormControl w="47%">
                 <FormLabel>Distribution:</FormLabel>
-                <Select value={state.distributionType} bg="white" name="distributionType" onChange={(event) => setDistributionType(event.target.value)} >
+                <Select value={state.distributionType} {...(!state.distributionType && {placeholder : 'Select distribution type', color : 'red'})} bg="white" name="distributionType" onChange={(event) => setDistributionType(event.target.value)} >
                     {Object.keys(distributionTypes).map((distributionType, index) => {
-                        return <option key={index} value={distributionType}>{distributionType}</option>
+                        return <option style={{ color: 'black' }} key={index} value={distributionType}>{distributionType}</option>
                     })}
                 </Select>
             </FormControl>
@@ -41,8 +42,7 @@ export default function DistributionEditor({ state, setState }) {
             <FormControl w="47%">
                 <FormLabel>Time Unit:</FormLabel>
                 <Select name="timeUnit" value={state.timeUnit} onChange={(event) => setTimeUnit(event.target.value)} bg="white">
-                    <option value='secs'>secs</option>
-                    <option value='mins'>mins</option>
+                    {Object.values(TimeUnits).map(timeUnit => <option key={timeUnit} value={timeUnit}>{timeUnit}</option>)}
                 </Select>
 
             </FormControl>
@@ -58,12 +58,12 @@ export default function DistributionEditor({ state, setState }) {
         {getParamsForDistribution(state.distributionType, state.distributionValues)?.map((key, index) => {
             return <>
 
-                <FormControl>
+                <FormControl key={index}>
                     <FormLabel>{key}:</FormLabel>
                     <Input value={state.distributionValues[index]} bg="white" name="distributionValues" onChange={(event) => {
                         let newArr = [...state.distributionValues];
                         newArr[index] = event.target.value;
-                        setDistributionValues(index, newArr);
+                        setDistributionValues(newArr);
                     }} />
                 </FormControl></>
 

@@ -81,9 +81,9 @@ const EditRole = ({getData, currentRole, setCurrent}) => {
 
           <FormControl >
               <FormLabel> Default Timetable:</FormLabel>
-              <Select value={schedule} bg="white" name="schedule" onChange={(event) => handleInputChange(event)} >
+              <Select value={schedule} {...(!schedule && {placeholder : 'Select Timetable', color : 'red'})} bg="white" name="schedule" onChange={(event) => handleInputChange(event)} >
                 {timeTables.map((id, index) => {
-                    return <option value={id} key={index}>{id}</option>
+                    return <option style={{ color: 'black' }} value={id} key={index}>{id}</option>
                 })}
             </Select>
           </FormControl>

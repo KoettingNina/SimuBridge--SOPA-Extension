@@ -46,7 +46,7 @@ const EditTimetableItem = ({ currentTimetable, getData, currentTimetableItem, se
 
           <FormControl >
             <FormLabel>Starttime:</FormLabel>
-            <Select placeholder={currentTimetableItem.startTime + ":00"} bg="white" name="startTime" onChange={(event) => handleInputChange(event)} >
+            <Select value={currentTimetableItem.startTime} bg="white" name="startTime" onChange={(event) => handleInputChange(event)} >
               {hours.map((hour, index) => {
                 return <option value={hour}>{hour}:00</option>
               })}
@@ -55,7 +55,7 @@ const EditTimetableItem = ({ currentTimetable, getData, currentTimetableItem, se
 
           <FormControl >
             <FormLabel>Endtime:</FormLabel>
-            <Select placeholder={currentTimetableItem.endTime + ":00"} bg="white" name="endTime" onChange={(event) => handleInputChange(event)} >
+            <Select value={currentTimetableItem.endTime} bg="white" name="endTime" onChange={(event) => handleInputChange(event)} >
               {hours.map((hour, index) => {
                 return <option value={hour}>{hour}:00</option>
               })}

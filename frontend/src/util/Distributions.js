@@ -22,3 +22,11 @@ export function stateToDistribution(state) {
         timeUnit : state.timeUnit
     }
 }
+
+export function distributionToState(element) {
+    return {
+        distributionType : element.distributionType,
+        timeUnit: element.timeUnit,
+        distributionValues: element.values.map(v => v.value)
+    }
+}

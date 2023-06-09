@@ -1,3 +1,5 @@
+import TimeUnits from './TimeUnits';
+
 let xml2js = require('browser-xml2js');
 
 export function convertSimodOutput(jsonOutput, bpmnOutput) {
@@ -23,12 +25,9 @@ export function convertSimodOutput(jsonOutput, bpmnOutput) {
     Scenario.startingDate = getStartingDate(jsonObj);
     Scenario.startingTime = getstartingTime(jsonObj);
     Scenario.numberOfInstances = 100 //TODO doesn't work //getNumberOfInstances(jsonObj);
-    Scenario.interArrivalTime = getInterArrivalTime(jsonObj);
-    Scenario.timeUnit = getTimeUnit(jsonObj);
     Scenario.currency = getCurrency(jsonObj);
     Scenario.resourceParameters = getResourceParameters(jsonObj);
     Scenario.models = getModel(bpmnParsed, jsonObj, bpmnOutput);
-    Scenario.modelJSON = [bpmnParsed] //TODO remove this as soon as not needed anymore
 
     return Scenario;
 }
@@ -48,7 +47,7 @@ function getstartingTime(jsonObj){
     return jsonObj.arrival_time_calendar[0].beginTime.substring(0,5)
 }
 
-function getNumberOfInstances(jsonObj){
+function getNumberOfInstances(jsonObj){  //TODO unused
     //get the Number of instances startet in inter arrival time calendar
     let NumberofSeconds = 0;
     jsonObj.arrival_time_calendar.forEach(element => {
@@ -97,9 +96,9 @@ function getDayAsNumber(Day){
     }
 }
 
-function getTimeUnit(jsonObj){
-    //this converter provides the disributions in minutes
-    return "mins"
+function getTimeUnit(){
+    //Simod always returns values in seconds (see https://github.com/AutomatedProcessImprovement/Prosimos/blob/main/README.md)
+    return TimeUnits.SECONDS
 }
 
 function getCurrency(jsonObj){
@@ -112,6 +111,7 @@ function getInterArrivalTime(jsonObj){
     let interArrivalTime = new Object;
     interArrivalTime.distributionType = getDistributionName(jsonObj.arrival_time_distribution)
     interArrivalTime.values = getValues(jsonObj.arrival_time_distribution)
+    interArrivalTime.timeUnit = getTimeUnit()
     return interArrivalTime
 }
 
@@ -209,7 +209,8 @@ function getTaskDuration(jsonObj, Taskid){
         if(element.task_id == Taskid){
             duration = {
                 distributionType: getDistributionName(element.resources[0]),
-                values: getValues(element.resources[0])
+                values: getValues(element.resources[0]),
+                timeUnit : getTimeUnit()
             }
         }
 
@@ -267,9 +268,8 @@ function getModel(bpmnObj, jsonObj, bpmnXml){
     let models = new Array;
     let modelParameter = new Object;
     modelParameter.activities = getActivities(bpmnObj, jsonObj);
-    modelParameter.gateways = getGateway(bpmnObj, jsonObj);
+    modelParameter.gateways = getGateways(jsonObj);
     modelParameter.events = getEvents(bpmnObj, jsonObj);
-    modelParameter.sequences = getSequences(bpmnObj, jsonObj);
     
     models.push({
         BPMN: bpmnXml,
@@ -290,7 +290,6 @@ function getEvents(bpmnObj, jsonObj){
             Events.push({
                 id: b.ATTR.id,
                 type: "bpmn:StartEvent",
-                unit: getTimeUnit(),
                 interArrivalTime: getInterArrivalTime(jsonObj),
                 incoming: emptyArray,
                 outgoing: getOutgoingSequences(b.ATTR.id, bpmnObj)
@@ -304,7 +303,6 @@ function getEvents(bpmnObj, jsonObj){
             Events.push({
                 id: b.ATTR.id,
                 type: "bpmn:EndEvent",
-                unit: getTimeUnit(),
                 incoming: getIncomingSequences(b.ATTR.id, bpmnObj),
                 outgoing: emptyArray
             })
@@ -317,7 +315,6 @@ function getEvents(bpmnObj, jsonObj){
                 Events.push({
                     id: b.ATTR.id,
                     type: "bpmn:intermediateCatchEvent",
-                    unit: getTimeUnit(),
                     interArrivalTime: "", //TODO this will not work; however, at least simod seems to not give any additional information to intermediate events
                     incoming: getIncomingSequences(b.ATTR.id, bpmnObj),
                     outgoing: getOutgoingSequences(b.ATTR.id, bpmnObj)
@@ -330,43 +327,11 @@ function getEvents(bpmnObj, jsonObj){
 
 
 
-function getGateway(bpmnObj, jsonObj){
-    //returns the gateways with id, type, incoming sequences, outgoing sequences
-    let gateways = new Array
-    //exclusiveGateways
-    if(bpmnObj.definitions.process[0].exclusiveGateway != null){
-        bpmnObj.definitions.process[0].exclusiveGateway.forEach(element => {
-            gateways.push({
-                id: element.ATTR.id,
-                type: "bpmn:exclusiveGateway",
-                incoming: getIncomingSequences(element.ATTR.id, bpmnObj),
-                outgoing: getOutgoingSequences(element.ATTR.id, bpmnObj)
-            })
-        })
-    }
-    //inclusiveGateways
-    else if(bpmnObj.definitions.process[0].inclusiveGateway != null){
-        bpmnObj.definitions.process[0].inclusiveGateway.forEach(element => {
-            gateways.push({
-                id: element.ATTR.id,
-                type: "bpmn:inclusiveGateway",
-                incoming: getIncomingSequences(element.ATTR.id, bpmnObj),
-                outgoing: getOutgoingSequences(element.ATTR.id, bpmnObj)
-            })
-        })
-    }
-    //parallelGateways
-    else if(bpmnObj.definitions.process[0].parallelGateway != null){
-        bpmnObj.definitions.process[0].parallelGateway.forEach(element => {
-            gateways.push({
-                id: element.ATTR.id,
-                type: "bpmn:parallelGateway",
-                incoming: getIncomingSequences(element.ATTR.id, bpmnObj),
-                outgoing: getOutgoingSequences(element.ATTR.id, bpmnObj)
-            })
-        })
-    }     
-    return gateways
+function getGateways(jsonObj){
+    return jsonObj.gateway_branching_probabilities.map(({gateway_id, probabilities}) => ({
+        id : gateway_id,
+        probabilities : Object.fromEntries(probabilities.map(({path_id, value}) => [path_id, value]))
+    }));
 }
 
 function getIncomingSequences(currrentNodeId, bpmnObj){
@@ -414,176 +379,9 @@ function getActivities(bpmnObj, jsonObj){
                 resources: assignedRoles,
                 unit: getTimeUnit(),
                 cost: 0,
-                currency: getCurrency(),
                 duration: getTaskDuration(jsonObj, b.ATTR.id),
-                incoming: getIncomingSequences(b.ATTR.id, bpmnObj),
-                outgoing: getOutgoingSequences(b.ATTR.id, bpmnObj)
             })
         })
     })
     return activities;
-}
-
-function getSequences(bpmnObj, jsonObj){
-    //returns the sequences wich id, type and probability
-    let sequences = new Array;
-    bpmnObj.definitions.process.forEach(element => {
-        element.sequenceFlow.forEach(b => {
-            sequences.push({
-                id: b.ATTR.id,
-                type: "bpmn:SqequenceFlow", 
-                probability: getSequenceProbability(b, bpmnObj, jsonObj)
-            })
-        })
-    })
-    return sequences;
-}
-
-function getSourceNode(bpmnObj, Sequence){
-    //returns the source of a current sequence
-    let SequenceSourceRef = Sequence.ATTR.sourceRef;
-    let sourceNode = bpmnObj.definitions.process
-        .flatMap(process => [
-            ...(process.startEvent || []), 
-            ...(process.task || []), 
-            ...(process.exclusiveGateway || []), 
-            ...(process.inclusiveGateway || []), 
-            ...(process.parallelGateway || []), 
-            ...(process.intermediateCatchEvent || [])
-        ])
-        .find(element => element.ATTR.id == SequenceSourceRef);
-
-    if (!sourceNode) throw 'Couldn\'t find source node for sequence ' + Sequence.ATTR.id;
-    return sourceNode;
-}
-
-function getNodeType(bpmnObj, NodeId){
-    //returns the type of a node
-    let NodeTyp = "";
-    bpmnObj.definitions.process.forEach(element => {
-        if(element.startEvent != null){
-            element.startEvent.forEach(b =>{
-                if (b.ATTR.id == NodeId){NodeTyp = "startEvent";}
-        })}
-        if(element.task != null){
-            element.task.forEach(b =>{
-                if (b.ATTR.id == NodeId){NodeTyp = "task";}
-        })}
-        if(element.exclusiveGateway != null){
-            element.exclusiveGateway.forEach(b =>{
-                if (b.ATTR.id == NodeId){NodeTyp = "exclusiveGateway";}
-        })}
-        if(element.inclusiveGateway != null){
-            element.inclusiveGateway.forEach(b =>{
-                if (b.ATTR.id == NodeId){NodeTyp = "inclusiveGateway";}
-        })}
-        if(element.parallelGateway != null){
-        element.parallelGateway.forEach(b =>{
-            if (b.ATTR.id == NodeId){NodeTyp = "parallelGateway";}
-        })}
-        if(element.intermediateCatchevent != null){
-        element.intermediateCatchevent.forEach(b =>{
-            if (b.ATTR.id == NodeId){NodeTyp = "intermediateCatchevent";}
-        })}
-    })
-    return NodeTyp;
-}
-
-function getSequenceObject(bpmnObj, sequenceID){
-    //returns the whole object of the id of a sequence
-    let sequenceObject =  bpmnObj.definitions.process
-        .flatMap(process => process.sequenceFlow)
-        .find(sequence => sequence.ATTR.id == sequenceID);
-    if (!sequenceObject) throw 'Couldn\'t find object for sequence id '+sequenceID;
-    return sequenceObject; 
-}
-
-function getSequenceProbability(Sequence, bpmnObj, jsonObj){
-    //returns the distribution probability of a sequence
-    let probability = 1.0;
-    let PreviousNodeObject = getSourceNode(bpmnObj, Sequence);
-    let PreviousNodeType = getNodeType(bpmnObj, PreviousNodeObject.ATTR.id)
-
-    if (PreviousNodeType === "exclusiveGateway" && PreviousNodeObject.ATTR.gatewayDirection === "Diverging") {
-        return getGatewaySequenceProbability(Sequence, jsonObj) 
-    } else {
-        return 1.0;
-    }
-        
-    //TODO reconsider commented out code
-
-    // //If the Source of the current Sequence ain't a start event get the previous sequence; //TODO why would I?
-    // let previousSequences = new Array;
-    // if(PreviousNodeType != "startEvent"){
-    //     previousSequences = getIncomingSequences(PreviousNodeObject.ATTR.id, bpmnObj).map(sequenceId => getSequenceObject(bpmnObj, sequenceId));
-    // }
-    
-    // //handle privious Nodes start recursion
-    // switch(PreviousNodeType){
-    //     case "startEvent": probability = 1.0; break;
-    //     case "Task": { previousSequences.forEach(s => {
-    //             probability = getSequenceProbability(s, bpmnObj, jsonObj);
-    //         }); break;
-    //     }
-    //     case "intermediateCatchevent": { previousSequences.forEach(s => {
-    //         probability = getSequenceProbability(s, bpmnObj, jsonObj);
-    //     }); break;
-    //     }
-    //     case "exclusiveGateway": {
-    //         let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
-    //         if(GatewayType == "Converging"){
-    //             previousSequences.forEach(s => {
-    //                 probability = probability + getSequenceProbability(s, bpmnObj, jsonObj);
-    //             });
-    //         }
-    //         else {
-    //             previousSequences.forEach(s => {
-    //                 probability = getGatewaySequenceProbability(Sequence, jsonObj) * getSequenceProbability(s, bpmnObj, jsonObj);
-    //             });
-    //         }
-    //         break;
-    //     }
-    //     case "parallelGateway": {
-    //         let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
-    //         if(GatewayType == "Converging"){
-    //             previousSequences.forEach(s => {
-    //                 if(probability = 1.0){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-    //                 else if(getSequenceProbability(s, bpmnObj, jsonObj) > probability){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-    //             });
-    //         }
-    //         else {
-    //             previousSequences.forEach(s => {
-    //                 probability = getSequenceProbability(s, bpmnObj, jsonObj);
-    //             });
-    //         }
-    //         break;
-    //     }
-    //     case "inclusiveGateway" :{
-    //         let GatewayType = PreviousNodeObject.ATTR.gatewayDirection;
-    //         if(GatewayType == "Converging"){
-    //             previousSequences.forEach(s => {
-    //                 if(probability = 1.0){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-    //                 else if(getSequenceProbability(s, bpmnObj, jsonObj) > probability){probability = getSequenceProbability(s, bpmnObj, jsonObj);}
-    //             });
-    //         }
-    //         else {
-    //             previousSequences.forEach(s => {
-    //                 probability = getGatewaySequenceProbability(Sequence, jsonObj) * getSequenceProbability(s, bpmnObj, jsonObj);
-    //             });
-    //         }
-    //         break;
-    //     }
-    // }
-    // return probability;
-}
-
-function getGatewaySequenceProbability(Sequence, jsonObj){
-    //returns the probability of a sequence if the source is a gateway
-    let probability = 1.0;
-    probability = jsonObj.gateway_branching_probabilities
-        .find(element => element.gateway_id == Sequence.ATTR.sourceRef)
-        .probabilities
-        .find(b => b.path_id == Sequence.ATTR.id)
-        .value;
-    return probability;
 }

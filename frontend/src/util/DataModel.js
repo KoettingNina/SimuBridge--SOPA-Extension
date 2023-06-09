@@ -17,6 +17,10 @@ export function scenario(scenarioName) {
     }
 }
 
+//TODO role
+//TODO resource
+//TODO timetables
+
 export function model(modelName, bpmnXml) {
     return {
         BPMN : bpmnXml,
@@ -25,8 +29,38 @@ export function model(modelName, bpmnXml) {
             activities : [],
             events : [],
             gateways : [],
-            sequences : []
         }
+    }
+}
+
+export function activity(elementId) {
+    return {
+        id : elementId,
+        resources: [],
+        cost: 0,
+        duration: distribution()
+      }
+}
+
+export function event(elementId) {
+    return {
+        id : elementId,
+        interArrivalTime: distribution()
+    }
+}
+
+export function gateway(elementId) {
+    return {
+        id : elementId,
+        probabilities : {}
+    }
+}
+
+export function distribution() {
+    return {
+        distributionType: undefined,
+        timeUnit : TimeUnits.MINUTES,
+        values: []
     }
 }
 

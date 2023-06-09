@@ -1,69 +1,70 @@
-import { Input, FormControl, FormLabel, Box, Stack } from "@chakra-ui/react";
-import {React, useState, useEffect} from "react";
+import { Input, FormControl, FormLabel, Text } from "@chakra-ui/react";
+import { React, useState } from "react";
+import { getElementLabel } from "../../../util/BpmnUtil";
+import { gateway } from "../../../util/DataModel";
+import AbstractModelElementEditor from "./AbstractModelElementEditor";
 
-const Gateway = ({ selectedObject, getData }) => {
-  const [probabilities, setProbabilities] = useState([]);
-  const [outgoing, setOutgoing] = useState([]);
 
-  useEffect(() => {
-    const selectedGateway = getData().getCurrentModel().modelParameter.gateways.find((value) => value.id === selectedObject.id);
-    if (selectedGateway) {
-      setProbabilities(
-        selectedGateway.outgoing.map(
-          (element) =>
-            getData().getCurrentModel().modelParameter.sequences.find(
-              (value) => value.id === element
-            ).probability
-        )
-      );
-      setOutgoing(selectedGateway.outgoing);
-    }
-  }, [selectedObject, getData]);
+const Gateway = ({ currentElement, getData}) => {
 
-  const handleprobability = (event, index, seq) => {
+  const [gatewayConfiguration, setGatewayConfiguration] = useState(undefined);
+
+  let save = () => { throw 'Not set yet' };
+  function setSave(saveFunc) {
+    save = saveFunc;
+  }
+
+  function setProbabilities(probabilities) {
+    gatewayConfiguration.probabilities = probabilities;
+    save();
+  }
+
+  function withDefaultProbabilities(gatewayConfiguration) {
+    gatewayConfiguration.probabilities = Object.fromEntries(currentElement.outgoing.map(flow => [flow.id, 1 / currentElement.outgoing.length]));
+    return gatewayConfiguration;
+  }
+
+  const handleprobability = (event, outgoingFlow) => {
     const value = event.target.value;
-    const newProbabilities = [...probabilities];
-    newProbabilities[index] = value;
-    setProbabilities(newProbabilities);
-    getData().getCurrentModel().modelParameter.sequences.find(
-      (seqq) => seqq.id === seq
-    ).probability = newProbabilities[index];
+    gatewayConfiguration.probabilities[outgoingFlow.id] = value;
+    setProbabilities(gatewayConfiguration.probabilities);
   };
 
 
-  
-  
+
+
 
   return (
-    <Box w="100%">
-          <Stack gap="2">        
-            <FormControl>
-              <FormLabel>Selected Gateway:</FormLabel>
+    <AbstractModelElementEditor {...{
+      type: 'gateways',
+      typeName: 'Gateway',
+      state: gatewayConfiguration,
+      setState: setGatewayConfiguration,
+      currentElement,
+      getData,
+      emptyConfig: withDefaultProbabilities(gateway(currentElement.id)),
+      setSave
+    }}>
+
+      {gatewayConfiguration && (currentElement && !currentElement.$type.includes('Parallel') && currentElement.outgoing.length > 1 ?
+        <FormControl>
+          <Text fontWeight="bold" fontSize="md">Branching Probabilities:</Text>
+          {currentElement.outgoing.map((outgoingFlow, index) => (
+            <FormControl key={index}>
+              <FormLabel>to <i>{getElementLabel(outgoingFlow.targetRef)}:</i></FormLabel>
               <Input
-                title="Test date"
-                value={selectedObject.id ? selectedObject.id : ""}
-                type="inputRead"
+                onChange={(event) => handleprobability(event, outgoingFlow)}
+                value={gatewayConfiguration.probabilities?.[outgoingFlow.id]}
+                bg="white"
+                w="50%"
+                marginLeft="4%"
+                marginBottom="10px"
               />
             </FormControl>
-
-            <FormControl>
-              <FormLabel>Probability:</FormLabel>
-              {outgoing.map((element, index) => (
-                <>
-                  <Input type="inputRead" value={element} w="65%" />
-                  <Input
-                    onChange={(event) => handleprobability(event, index, element)}
-                    value={probabilities[index]}
-                    bg="white"
-                    w="30%"
-                    marginLeft="4%"
-                    marginBottom="10px"
-                  />
-                </>
-              ))}
-            </FormControl>
-        </Stack>
-        </Box>
+          ))}
+        </FormControl>
+        : <>Nothing to configure</>)}
+    </AbstractModelElementEditor>
   );
 };
 

@@ -5,35 +5,44 @@ import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
 import ViewButtons from "./ViewButtons";
 import axios from "axios";
 import { ButtonGroup, IconButton, Flex, Box } from '@chakra-ui/react'
-import { MinusIcon, AddIcon } from '@chakra-ui/icons'
-import { getFile } from "../../util/Storage";
+import { MinusIcon, AddIcon } from '@chakra-ui/icons';
+import TypeSelector from "../EditorSidebar/Modelbased/TypeSelector";
+import { EditorSidebarAlternate } from "../EditorSidebar/EditorSidebar";
 
-function BpmnView({getData, projectName, setObject}) {
+function BpmnView({getData, setCurrentRightSideBar}) {
 
-  // State storing the bpmn diagram
-  const [diagram, setDiagram] = useState("");
+  // State storing the current model
+  const [currentModel, setCurrentModel] = useState("");
   //state to sore the refrence of the container that caintins the modeler
   const [containerRef, setContainerRef] = useState(null);
-  // state to store the current clicked elementid of an activity, event or gateway
-  const [clickedElement, setClickedElement] = useState({});
   //state storing the reference of the bpmn modeler
   const [modeler, setModeler] = useState(null);
+  
+  const [currentElement, setCurrentElement] = useState(null);
+
+
 
   // set the container reference wehen component is mounted
   useEffect(() => {
     setContainerRef(document.getElementById("container"));
   }, []);
 
-  // acces bpmn diagram and set bpmn diagram
   useEffect(() => {
-    let bpmnData = getData().getCurrentScenario().models[0].BPMN; //TODO magic access
-    setDiagram(bpmnData);
+    if (currentElement) {
+      setCurrentRightSideBar(<EditorSidebarAlternate title={`Edit ${currentElement?.$type.split(':').pop()} Configuration`} content={<TypeSelector {...{currentElement, getData, currentModel}} />}/>)
+    } else {
+      setCurrentRightSideBar(undefined);
+    }
+  }, [currentElement, getData().getCurrentScenario()]);
+
+  useEffect(() => {
+    setCurrentModel(getData().getCurrentModel());
   }, [getData]);
 
 
 
   useEffect(() => {
-    if (!containerRef || !diagram) return;
+    if (!containerRef || !currentModel) return;
 
     containerRef.innerHTML = "";
     setModeler(
@@ -57,24 +66,25 @@ function BpmnView({getData, projectName, setObject}) {
         ],
       })
     );
-  }, [containerRef, diagram]);
+  }, [containerRef]);
 
 
   // Initialize the BPMN modeler when the container reference and diagram are available
   useEffect(() => {
-    if (!modeler || !diagram) return;
-
-    modeler
-      .importXML(diagram)
-      .then(({ warnings }) => {
-        if (warnings.length) {
-          console.log("Warnings", warnings);
-        }
-        modeler.get("canvas").zoom("fit-viewport", "auto");
-        modeler.get("zoomScroll").stepZoom(-2);
-      })
-      .catch(console.error);
-  }, [modeler, diagram]);
+    if (!modeler || !currentModel) return;
+    if (modeler.getDefinitions() !== currentModel.rootElement) {
+      modeler.importDefinitions(currentModel.rootElement)
+        .then(({warnings}) => {
+          
+          if (warnings.length) {
+            console.log("BPMN Import Warnings", warnings);
+          }
+          modeler.get("canvas").zoom("fit-viewport", "auto");
+          modeler.get("zoomScroll").stepZoom(-2);
+        })
+        .catch(console.error);
+    }
+  }, [modeler, currentModel]);
 
   // zoom into diagram after it is initialized
   useEffect(() => {
@@ -82,19 +92,14 @@ function BpmnView({getData, projectName, setObject}) {
 
     modeler.get("zoomScroll").stepZoom(-1);
     const eventBus = modeler.get("eventBus");
-    eventBus.on("element.click", (event) => {
-      setClickedElement(event.element.businessObject);
+    eventBus.on("element.click", ({element}) => {
+      if (element?.businessObject.$type !== 'bpmn:Process') {
+        setCurrentElement(element.businessObject);
+      } else {
+        setCurrentElement(null);
+      }
     });
-  }, [modeler]);
-
-
-      // set clicked element and pass to App component => selected element is displayed in editorsidebar      
-        useEffect(() => {
-            if(Object.keys(clickedElement).length !== 0){
-              setObject(clickedElement)
-            }
-        }, [clickedElement, setObject]);
-      
+  }, [modeler]);      
       
         // ensures that diagram is centered if window is resized
         useEffect(() => {
@@ -112,7 +117,7 @@ function BpmnView({getData, projectName, setObject}) {
           return () => {
             window.removeEventListener('resize', resizeListener);
           }
-        }, [diagram, modeler])
+        }, [currentModel, modeler])
 
         function zoomIn(){
           modeler.get('zoomScroll').stepZoom(1)

@@ -1,6 +1,7 @@
 import { Input, Select, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Card, CardHeader, CardBody, Heading, Text, VStack, Button, Box, Spacer } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import ViewButtons from './ViewButtons';
+import { getElementLabel } from '../../util/BpmnUtil';
 
 const ModelbasedParametersTable = ({ getData }) => {
   const [editable, setEditable] = useState(false); // whether the table is in edit mode
@@ -9,13 +10,11 @@ const ModelbasedParametersTable = ({ getData }) => {
   const [activities, setActivities] = useState([]);
   const [gateways, setGateways] = useState([]);
   const [events, setEvents] = useState([]);
-  const [sequences, setSequences] = useState([]);
 
   useEffect(() => {
     setActivities(getData().getCurrentModel().modelParameter.activities);
     setGateways(getData().getCurrentModel().modelParameter.gateways);
     setEvents(getData().getCurrentModel().modelParameter.events);
-    setSequences(getData().getCurrentModel().modelParameter.sequences);
   }, [getData().getCurrentScenario(), getData().getCurrentModel(), getData]); //TODO, potentially getData isn't correct here //TODO currentScenario might be needed
 
 
@@ -32,7 +31,6 @@ const ModelbasedParametersTable = ({ getData }) => {
   
     setGateways(group === 'gateways' ? copy : getData().getCurrentModel().modelParameter.gateways);
     setEvents(group === 'events' ? copy : getData().getCurrentModel().modelParameter.events);
-    setSequences(getData().getCurrentModel().modelParameter.sequences);
 
     getData().getCurrentModel().modelParameter[group] = copy;
   };
@@ -119,38 +117,26 @@ const ModelbasedParametersTable = ({ getData }) => {
 
                             { gateways.map((element) => {
                                 return <Tr>
-                                            <Td>{element.id}</Td>
-
+                                            <Td>{element.id}</Td>   
+                                            <Td>{Object.entries(element.probabilities).map(([sequenceId, probability]) => {
+                                                return <Text>{getElementLabel(getData().getCurrentModel().elementsById[sequenceId].targetRef)}</Text>
+                                            })}</Td>
 
                                             {editable?
-                                            <>
-                                            <Td><VStack spacing={8} alignItems="left">{element.outgoing.map((out) => {
-                                                return <Text>{[...activities, ...gateways, ...events].find(x => x.incoming.includes(out)).id}</Text>
-                                            })}</VStack></Td>
-                                            
                                             <Td>
                                                 <VStack spacing={3} alignItems="left">
-                                                {element.outgoing.map((prob) => {
-                                                    return  <Input w="25%" value={sequences.find((seqq) => seqq.id === prob).probability} onChange={(event) => handleChange(event, sequences.findIndex((seqq) => seqq.id === prob), "sequences", "probability")}/>
+                                                {Object.entries(element.probabilities).map(([sequenceId, probability]) => {
+                                                    return  <Input w="25%" value={probability}  onChange={(event) => handleChange(event, sequenceId, "sequences", "probability")}/> //TODO make work
                                                 })}
                                                 </VStack>
                                             </Td>
-                                            </>
-                                            : 
-
-                                            <>   
-                                            <Td>{element.outgoing.map((out) => {
-                                                return <Text>{[...activities, ...gateways, ...events].find(x => x.incoming.includes(out)).id}</Text>
-                                            })}</Td>
-                                            
-                                            <Td>
-                                                
-                                                {element.outgoing.map((prob) => {
-                                                     return <Text>{sequences.find((seqq) => seqq.id === prob).probability}</Text>
-                                                 })}
-                                               
+                                            : <Td>
+                                                <VStack spacing={3} alignItems="left">
+                                                {Object.entries(element.probabilities).map(([sequenceId, probability]) => {
+                                                    return  <Input w="25%" value={probability}/>
+                                                })}
+                                                </VStack>
                                             </Td>
-                                            </>
                                             }
                                         </Tr>
 

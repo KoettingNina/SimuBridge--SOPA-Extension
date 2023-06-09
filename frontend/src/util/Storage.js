@@ -60,7 +60,7 @@ async function getDatabase() {
 
 async function getFileObjectStorage(mode='readonly') {
     const database = await getDatabase();
-    console.log(database.objectStoreNames)
+    //console.log(database.objectStoreNames)
     const transaction = database.transaction(FILE_PREFIX, mode);
     const filesStore = transaction.objectStore(FILE_PREFIX);
     return {transaction, filesStore}

@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
-  Input, FormControl, FormLabel, Button, Stack, Select, Accordion, Box,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon
-} from '@chakra-ui/react';
-import { stateToDistribution } from '../../../util/Distributions';
-import DistributionEditor from '../../DistributionEditor';
-import TimeUnits from '../../../util/TimeUnits';
+  Input, FormControl, FormLabel, Button, Stack, Select, Box} from '@chakra-ui/react';
 
 const currencies = ['euro', 'dollar'];
 
@@ -64,7 +56,7 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
     obj.currency = state.currency
     obj.numberOfInstances = state.numberOfInstances
 
-    getData().saveScenario(obj);
+    getData().saveCurrentScenario();
   }
 
   return (

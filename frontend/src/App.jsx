@@ -127,7 +127,6 @@ function App() {
       }
 
       async initializeData() {
-        console.log(this.projectName)
         const scenarioFiles = await getScenarios(this.projectName);
         const scenarioData = scenarioFiles.map(scenarioFile => { 
           if (!scenarioFile.data) {console.error(`Scenario file ${scenarioFile.path.split('/').pop()} is empty. Skip.`)}
@@ -211,7 +210,6 @@ function App() {
       }
 
       async parseXML() {
-        console.log('parse for '+this.parentScenario.scenarioName)
         const {
           rootElement,
           references,
@@ -220,6 +218,23 @@ function App() {
         } = await moddle.fromXML(this.BPMN, 'bpmn:Definitions');
         this.elementsById = elementsById;
         this.rootElement = rootElement;
+        this.references = references;
+
+        function fixGatewayIncomingAndOutgoing() {
+          const gateways = Object.values(elementsById).filter(element => element.$type.includes('Gateway'));
+          const sequences = Object.values(elementsById).filter(element => element.$type.includes('SequenceFlow'));
+          gateways.forEach(gateway => {
+            sequences.forEach(sequence => {
+              if (sequence.targetRef === gateway && !gateway.incoming.includes(sequence)) {
+                gateway.incoming.push(sequence);
+              } 
+              if (sequence.sourceRef === gateway && !gateway.outgoing.includes(sequence)) {
+                gateway.outgoing.push(sequence);
+              } 
+            });
+          });
+        }
+        fixGatewayIncomingAndOutgoing();
       }
 
       toJSON() {
@@ -232,7 +247,6 @@ function App() {
     useEffect(() => {
       if(data && projectData) {
         setDataLoaded(true);
-        console.log('sdlisuh')
       }
     }, [data])
   }

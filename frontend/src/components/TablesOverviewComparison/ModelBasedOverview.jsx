@@ -9,6 +9,7 @@ import {
     TableContainer,
 } from '@chakra-ui/react'
 import React from "react";
+import { getElementLabel, getElementTypeName } from '../../util/BpmnUtil';
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -21,21 +22,6 @@ class ModelBasedOverview extends React.Component {
         this.state = {
             parsed: false
         };
-        // text to display gateway types
-        this.gatewayNames = [
-            {id: "bpmn:InclusiveGateway", value: 'Inclusive Gateway'},
-            {id: "bpmn:ParallelGateway", value: 'Parallel Gateway'},
-            {id: "bpmn:ExclusiveGateway", value: 'Exclusive Gateway'},
-        ]
-
-        // text to display event types
-        this.eventTypes = [
-            {id: "bpmn:StartEvent", value: 'Start Event'},
-            {id: "bpmn:EndEvent", value: 'End Event'},
-            {id: "bpmn:IntermediateEvent", value: 'Intermediate Event'},
-        ]
-
-
     }
 
     // check if data is available
@@ -60,87 +46,15 @@ class ModelBasedOverview extends React.Component {
         }
     }
 
-    // this method find probabilities for the gateway
-    getProbabilities(gateway) {
-        if (gateway !== undefined) {
-            return gateway.outgoing.map((out) => {
-                let sequence = this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.sequences.find(item => item.id === out)
-                if (sequence !== undefined) {
-                    return <Text>{sequence.probability}</Text>
-                } else {
-                }
-            })
-        } else {
-        }
-    }
-
-    // this method is used to define gateway type for displaying
-    getGatewayType(type) {
-        let typeName = this.gatewayNames.find(item => item.id === type)
-        if (typeName !== undefined) {
-            return <Text>{typeName.value}</Text>
-        }
-    }
-
-    // this method is used to define event type for displaying
-    getEventType(event) {
-        let typeName = this.eventTypes.find(item => item.id === event)
-        if (typeName !== undefined) {
-            return <Text>{typeName.value}</Text>
-        }
-    }
-// method to find incoming activities/events for gateway
-    getIncoming(gateway) {
-        let incoming
-        this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.activities.map((element) => {
-            element.outgoing.map((out) => {
-                if (out === gateway) {
-                    incoming = element.name
-                }
-            })
-        })
-        if (incoming === undefined) {
-            this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.events.map((element) => {
-                element.outgoing.map((out) => {
-                    if (out === gateway) {
-                        incoming = element.name
-                    }
-                })
-            })
-        }
-        return incoming
-    }
-
-    // method to find outgoing activities/events for gateway
-    getOutgoing(gateway) {
-        let outgoing
-        this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.activities.map((element) => {
-            element.incoming.map((inc) => {
-                if (inc === gateway) {
-                    outgoing = element.name
-                }
-            })
-        })
-        if (outgoing === undefined) {
-            this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.events.map((element) => {
-                element.incoming.map((inc) => {
-                    if (inc === gateway) {
-                        outgoing = element.name
-                    }
-                })
-            })
-        }
-        return outgoing
-    }
-
     render() {
+        const currentModel = this.props.getData().getAllScenarios()[this.props.scenarioId].models[this.props.bpmn_id]
         return (
             <>
                 {/*check if data is available*/}
                 {this.state.parsed ?
                     <>
                         {/*Representation of Model-based Parameters - Activities */}
-                        <Card bg="white" mt="25px">
+                        <Card bg="white" mt="25px" overflowX="scroll">
                             <CardHeader>
                                 <Heading size='md'>Model-based Parameters - Activities</Heading>
                             </CardHeader>
@@ -154,14 +68,13 @@ class ModelBasedOverview extends React.Component {
                                             <Th>Duration Data</Th>
                                             <Th>TimeUnit</Th>
                                             <Th>Cost</Th>
-                                            <Th>Currency</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {this.props.getData().getAllScenarios()[this.props.scenarioId].models[this.props.bpmn_id].modelParameter.activities.map((element) => {
+                                        {currentModel.modelParameter.activities.map((element) => {
                                             return <>
                                                 <Tr>
-                                                    <Td>{element.name}</Td>
+                                                    <Td>{currentModel.elementsById[element.id]?.name}</Td>
                                                     <Td>
                                                         {element.resources.map((resource) => {
                                                             return <Text> {resource} </Text>
@@ -173,7 +86,6 @@ class ModelBasedOverview extends React.Component {
                                                     })}</Td>
                                                     <Td>{element.unit}</Td>
                                                     <Td>{element.cost}</Td>
-                                                    <Td>{element.currency}</Td>
                                                 </Tr>
                                             </>
 
@@ -192,25 +104,24 @@ class ModelBasedOverview extends React.Component {
                                     <Thead w="100%">
                                         <Tr>
                                             <Th>ID</Th>
-                                            <Th>Incoming activity</Th>
-                                            <Th>Outgoing activity</Th>
-                                            <Th>Probabilities</Th>
+                                            <Th>Incoming element</Th>
+                                            <Th>Outgoing element</Th>
                                             <Th>Type</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.gateways.map((element) => {
+                                        {currentModel.modelParameter.gateways.map((element) => {
+                                            const modelElement = currentModel.elementsById[element.id];
                                             return <>
                                                 <Tr>
                                                     <Td>{element.id}</Td>
-                                                    <Td>{element.incoming.map((inc) => {
-                                                        return <Text>{this.getIncoming(inc)}</Text>
+                                                    <Td>{modelElement?.incoming.map((inc) => {
+                                                        return <Text>{getElementLabel(inc.sourceRef)}</Text>
                                                     })}</Td>
-                                                    <Td>{element.outgoing.map((out) => {
-                                                        return <Text>{this.getOutgoing(out)}</Text>
+                                                    <Td>{modelElement?.outgoing.map((out) => {
+                                                        return <Text>{getElementLabel(out.targetRef)} ({element.probabilities?.[out.id] * 100}%)</Text>
                                                     })}</Td>
-                                                    <Td>{this.getProbabilities(element)}</Td>
-                                                    <Td>{this.getGatewayType(element.type)}</Td>
+                                                    <Td>{getElementTypeName(modelElement)}</Td>
                                                 </Tr>
                                             </>
                                         })}
@@ -236,11 +147,11 @@ class ModelBasedOverview extends React.Component {
                                                 </Tr>
                                             </Thead>
                                             <Tbody>
-                                                {this.props.getData().getAllModels()[this.props.bpmn_id].modelParameter.events.map((element) => {
-                                                    
+                                                {currentModel.modelParameter.events.map((element) => {
+                                                    const modelElement = currentModel.elementsById[element.id];
                                                     return <Tr>
-                                                        <Td>{element.name}</Td>
-                                                        <Td>{this.getEventType(element.type)}</Td>
+                                                        <Td>{modelElement?.name || element.id}</Td>
+                                                        <Td>{getElementTypeName(modelElement)}</Td>
                                                         {element.interArrivalTime && <Td>{element.interArrivalTime.distributionType}</Td>}
                                                         {element.interArrivalTime && <Td>{(element.interArrivalTime.values).map((value) => {
                                                             return <Text>{value.id + ": " + value.value}</Text>
