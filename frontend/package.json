@@ -1,9 +1,12 @@
 {
-    "name": "petri-sim-tool",
+    "name": "simulation-bridge",
     "version": "0.0.1",
     "main": "./public/electron.js",
-    "author": "Furat Hamdan",
-    "description": "PetriSim",
+    "contributors": [
+        "Tutku Alpsar, Alexander Gottwald, Furat Hamdan, Sviatlana Nepeina, Andre Schleypen",
+        "Leon Bein"
+    ],
+    "description": "SimuBridge",
     "homepage": "./",
     "private": true,
     "dependencies": {

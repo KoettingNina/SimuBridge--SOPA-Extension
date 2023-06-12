@@ -1,16 +1,16 @@
 # SimulationPortal--Main
-<h2 align="center">:tada: PetriSim [Parametrization of Business Process Simulation] :tada:</h2>
+<h2 align="center">:tada: SimuBridge [A Bridging Platform between Process Mining and Business Process Simulation] :tada:</h2>
 
 ![image](doc/screenshot.png)
 
-![CI](https://github.com/PetriSim/petri-sim-tool/actions/workflows/CI.yml/badge.svg)
+![CI](https://github.com/INSM-TUM/SimulationPortal/actions/workflows/CI.yml/badge.svg)
 
 
 
 ## :rocket: Introduction
 
 
-PetriSim is a parametrization and scenario definition tool for Business Process Simulations.
+SimuBridge is a parametrization and scenario definition tool for Business Process Simulations.
 It can be used as an intermediary between a process discovery tool and a business process simulator.
 The user interface allows manual parameter editing and an integrated API provides smooth use experience between process discovery and simulation.
 
@@ -33,9 +33,9 @@ The user interface is represented by:
 
 ### 📦️ Discovery Tool (Simod) 
 
-Simod integration into PetriSim is still under work and dockerfile needs to be created.
-Nevertheless a dataconverter has already been created. Please refer for the repository: https://github.com/PetriSim/Simod_converter
-The data converter takes as an input an .json file and .bpmn file. The dataconverter - which has been written in javaScript - will then translate these two files into a single .json file which will later be used as an input to the PetriSim tool.
+Simod integration into SimuBridge is still under work and dockerfile needs to be created.
+Nevertheless a dataconverter has already been created. Please refer for the repository: TODO
+The data converter takes as an input an .json file and .bpmn file. The dataconverter - which has been written in javaScript - will then translate these two files into a single .json file which will later be used as an input to the SimuBridge tool.
 
 The Simod repository (https://github.com/AutomatedProcessImprovement/Simod) contains two projects, Simod and Simod HTTP, which is created by the University of Tartu, Estonia. Simod HTTP is a lightweight web service wrapper around Simod that supports queued job execution. 
 
@@ -46,11 +46,11 @@ Simod HTTP source code is located here, https://github.com/AutomatedProcessImpro
 Docker images are available there, https://hub.docker.com/r/nokal/simod-http/tags or https://hub.docker.com/layers/nokal/simod-http/tu-berlin/images/sha256-2cc67052c748a78c610f619778b119af455d7c5027a983295254f6b7c8d574f6?context=explore
 
 ### 📦️ Simulator (Scylla) 
-Scylla is an extensible BPMN process simulator which relies on the building blocks of discrete event simulation. For its repo please refer: https://github.com/PetriSim/Scylla-container/edit/main/README.md
+Scylla is an extensible BPMN process simulator which relies on the building blocks of discrete event simulation. For its repo please refer: https://github.com/INSM-TUM/SimulationPortal--Scylla-Container/blob/main/README.md
 
-Also, please refer the following link for the details of Scylla simulator, API which provides an endpoint to the functionality of this container and a data converter from PetriSim parameters to Scylla global and simulation configuration:  https://github.com/PetriSim/Scylla-container
+Also, please refer the following link for the details of Scylla simulator, API which provides an endpoint to the functionality of this container and a data converter from SimuBridge parameters to Scylla global and simulation configuration:  https://github.com/INSM-TUM/SimulationPortal--Scylla-Container
 
-### 📦️ PetriSim frontend 
+### 📦️ SimuBridge frontend 
 The frontend of our web application has been built using the Javascript library React. 
 We have also utilized the Chakra-UI design framework to ensure a modern look for our website. 
 To facilitate deployment and portability, the frontend has been containerized using Docker. 
@@ -86,12 +86,12 @@ In order to run out tool with all related components, we recommend to run it by 
 
 2. Clone the repository
 ```console
-git clone https://github.com/PetriSim/petri-sim-tool.git
+git clone https://github.com/INSM-TUM/SimulationPortal.git
 ```
 
 3. Navigate into the project directory
 ```console
-cd petri-sim-tool 
+cd SimulationPortal
 ```
 
 3. Start the docker containers by using docker compose
@@ -118,13 +118,13 @@ Simply click on "start new project" and then "start parameterization" to begin.
 3. Clone git repository
 
 ```console
-git clone https://github.com/PetriSim/petri-sim-tool.git
+git clone https://github.com/INSM-TUM/SimulationPortal.git
 ```
 
 4. Go to the project directory
 
 ```console
-cd petri-sim-tool 
+cd SimulationPortal
 ```
 
 5. run: 
@@ -156,23 +156,23 @@ npm start
 1. Download the frontend:
 
 ```console
-docker pull ghcr.io/petrisim/frontend:latest
+docker pull ghcr.io/todo/frontend:latest
 ```
 
 2. Download the other tools / backend:
 
 ```console
-docker pull ghcr.io/petrisim/backend:latest
+docker pull ghcr.io/todo/backend:latest
 ```
 
 3. Start the frontend:
 ```console
-docker run -dp 3000:3000 ghcr.io/petrisim/frontend:latest
+docker run -dp 3000:3000 ghcr.io/todo/frontend:latest
 ```
 
 4. Start the backend: 
 ```console
-docker run -dp 8000:8000 ghcr.io/petrisim/backend:latest
+docker run -dp 8000:8000 ghcr.io/todo/backend:latest
 ```
 
 #### Problems related to running the program from the source

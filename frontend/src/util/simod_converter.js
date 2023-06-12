@@ -20,7 +20,7 @@ export function convertSimodOutput(jsonOutput, bpmnOutput) {
     //create Array which contains Scenario Objects
     let Scenario = new Object;
 
-    //Get Scenario parameters which are needed in the internal Representation of PetriSim
+    //Get Scenario parameters which are needed in the internal Representation of SimuBridge
     Scenario.scenarioName = getScenarioName(jsonObj);
     Scenario.startingDate = getStartingDate(jsonObj);
     Scenario.startingTime = getstartingTime(jsonObj);

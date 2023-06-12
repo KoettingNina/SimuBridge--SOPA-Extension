@@ -21,7 +21,7 @@ function ProgressPage() {
       p = "6"
     >
     
-      <Text fontSize="3xl" textAlign="left" color="H5C5C5C" fontWeight="bold" >PetriSim</Text>
+      <Text fontSize="3xl" textAlign="left" color="H5C5C5C" fontWeight="bold" >SimuBridge</Text>
       <Divider />
       
 
