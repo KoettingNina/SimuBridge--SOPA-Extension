@@ -5,6 +5,8 @@ import {
     Text,
     Divider,
     Spacer,
+    Flex,
+    Select,
   } from '@chakra-ui/react'
 import NavigationItem from './NavigationItem';
 
@@ -20,8 +22,7 @@ import {
   } from 'react-icons/fi';
 
   import saveAs from 'file-saver';
-  import BPMNSwitcher from './BPMNSwitcher';
-  import ScenarioSwitcher from './ScenarioSwitcher';
+import { scenario } from '../../util/DataModel';
 
   function Navigation({setCurrent, getData, current, setStarted}) {
 
@@ -29,29 +30,34 @@ import {
     // Define Navigation items that will be displayed at the top of the navigation
 
     let LinkItems = [
-        { name: 'Overview', icon: FiEye, path: '/overview', event: () =>  setCurrent("Overview") },
-        { name: 'Scenario Parameters', icon: FiSettings, path: '/scenario', event: () =>  setCurrent("Scenario Parameters") },
-        { name: 'Resource Parameters', icon: FiUser, path: '/resource', event: () =>  setCurrent("Resource Parameters")},
-        { name: 'Modelbased Parameters', icon: FiStar, path: '/modelbased', event: () =>  setCurrent("Modelbased Parameters") },
-        { name: 'Run Simulation', icon: FiPlay, path: '/simulation', event: () =>  setCurrent("Run Simulation") },
-        { name: 'Run Process Miner', icon: FiPlay, path: '/processminer', event: () =>  setCurrent("Run Process Miner") },
-        { name: 'Debugging View', icon: FiPlay, path: '/debug', event: () =>  setCurrent("Debug View") }
+        { name: 'Project Overview', icon: FiEye, path: '/overview', event: () =>  setCurrent("Overview") },
       ];
 
+    let scenarioSpecificLinkItems = [
+      { name: 'Scenario Overview', icon: FiSettings, path: '/scenario', event: () =>  setCurrent("Scenario Parameters") },
+      { name: 'Resource Parameters', icon: FiUser, path: '/resource', event: () =>  setCurrent("Resource Parameters")},
+      { name: 'Model-based Parameters', icon: FiStar, path: '/modelbased', event: () =>  setCurrent("Modelbased Parameters") },
+    ]
+
+    
+    let LinkItems2 = [
+      { name: 'Run Simulation', icon: FiPlay, path: '/simulation', event: () =>  setCurrent("Run Simulation") },
+      { name: 'Run Process Miner', icon: FiPlay, path: '/processminer', event: () =>  setCurrent("Run Process Miner") },
+      // { name: 'Debugging View', icon: FiPlay, path: '/debug', event: () =>  setCurrent("Debug View") }
+    ];
+
       if (!getData().getCurrentScenario()) {
-        LinkItems = LinkItems.filter(item => !['/scenario', '/resource', '/modelbased'].includes(item.path))
+        scenarioSpecificLinkItems = [];
       }
 
       if (!getData().getCurrentModel()) {
-        LinkItems = LinkItems.filter(item => !['/modelbased'].includes(item.path))
+        scenarioSpecificLinkItems = scenarioSpecificLinkItems.filter(item => !['/modelbased'].includes(item.path))
       }
 
       // Define Navigation items that will be displayed at the bottom of the navigation
      
-      const LinkItems2 = [
-        { name: 'Add BPMN', icon: FiFileText, path: '#', event: () => {} },
-        { name: 'Reset parameters', icon: FiTrash2, path: '#', event: () => {} },
-        { name: 'Download parameters', icon: FiDownload, path: '/#', event: () => save() },
+      const LinkItems3 = [
+        { name: 'Download project', icon: FiDownload, path: '/#', event: () => save() },
       ];
 
       
@@ -64,22 +70,36 @@ import {
       const save = () =>{
         const jsonData = JSON.stringify(getData().getAllScenarios());
         const blob = new Blob([jsonData], { type: "application/json" });
-        saveAs(blob, "data.json");
+        saveAs(blob, `${getData().projectName}.json`);
       }
       
   return (
         <>
-          <Sidebar side="left" backgroundColor="white" title={<Nav/>} 
+          <Sidebar side="left" backgroundColor="white" title={<Nav/>}
             content={
                   <>
+                  <Flex fontWeight="bold"> Project: {getData().projectName}</Flex>
                   <NavigationItem current={current}  items={LinkItems} clickedcolor="#AEC8CA" color="#FFFF" exitButton={false} setCurrent={setCurrent}  />
+
+                  <Flex flexDir='row-reverse'>
+                    <Flex w="80%"  flexDir='column'>
+                      <Flex fontWeight="bold" alignItems='center'>
+                        Scenario:
+                        <Select value={getData().getCurrentScenario()?.scenarioName} bg="white">
+                            {getData().getAllScenarios().map((scenario, index) => {
+                                return <option value={scenario.scenarioName} key={scenario.scenarioName} onClick={() => getData().setCurrentScenarioByIndex(index)}>{scenario.scenarioName}</option> //TODO should be onchange
+                            })}
+                        </Select>
+                      </Flex>
+                      <NavigationItem current={current}  items={scenarioSpecificLinkItems} clickedcolor="#AEC8CA" color="#FFFF" exitButton={false} setCurrent={setCurrent}  />
+                    </Flex>
+                  </Flex>
+
+                  <NavigationItem current={current}  items={LinkItems2} clickedcolor="#AEC8CA" color="#FFFF" exitButton={false} setCurrent={setCurrent}  />
                   
                   <Divider/>
-                      <BPMNSwitcher getData={getData}/>
-                      <ScenarioSwitcher getData={getData}  />
-                  <Divider/>
                   <Spacer/>
-                  <NavigationItem items={LinkItems2} clickedColor="blackAlpha.400" color="blackAlpha.00" bottom="0" setStarted={setStarted} exitButton={true} />                    
+                  <NavigationItem items={LinkItems3} clickedColor="blackAlpha.400" color="blackAlpha.00" bottom="0" setStarted={setStarted} exitButton={true} />                    
                   </>
               } 
           />

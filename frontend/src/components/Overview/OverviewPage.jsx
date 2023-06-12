@@ -20,18 +20,13 @@ import React from "react";
 import {Switch} from '@chakra-ui/react'
 
 import OverviewTable from '../TablesOverviewComparison/ScenarioOverviewTable';
-import TabBar from "../TabBar";
 
 import {useDisclosure} from '@chakra-ui/react'
 import {Link} from "react-router-dom";
 
-import OverviewResourceTable from "../TablesOverviewComparison/OverviewResourceTable";
 
 
-import ModelBasedOverview from "../TablesOverviewComparison/ModelBasedOverview";
 import CreateEmptyScenarioButton from '../CreateEmptyScenarioButton';
-import { getFile, uploadFile } from '../../util/Storage';
-import { model } from '../../util/DataModel';
 
 
 function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
@@ -94,18 +89,26 @@ function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
                                 _hover={{bg: '#B4C7C9'}}>
                             Compare scenarios
                         </Button>
-                        <Spacer/>
-                        <Spacer/>
                         {/*Button Add new scenario*/}
-                        <Button as={Link} to="/scenario"
+                        <CreateEmptyScenarioButton {...{getData, toast}}
                                 colorScheme='white'
                                 variant='outline'
                                 border='1px'
                                 borderColor='#B4C7C9'
                                 color='#6E6E6F'
-                                onClick={() => '/scenario'}
                                 _hover={{bg: '#B4C7C9'}}>
-                            Add new scenario
+                            Add new empty scenario
+                        </CreateEmptyScenarioButton>
+                        
+                        {/*Button New From Process Mining*/}
+                        <Button as={Link} to="/processminer"
+                                colorScheme='white'
+                                variant='outline'
+                                border='1px'
+                                borderColor='#B4C7C9'
+                                color='#6E6E6F'
+                                _hover={{bg: '#B4C7C9'}}>
+                            Add Scenario from Process Mining
                         </Button>
                         {/*Modal window(Window which opens on top of the page content to choose
                          which scenarios are we comparing) and its functionlaity*/}
@@ -137,22 +140,12 @@ function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
                                 </ModalFooter>
                             </ModalContent>
                         </Modal>
-                        {/*Button Edit*/}
-                        <Button as={Link} to="/scenario"
-                                colorScheme='white'
-                                variant='outline'
-                                border='1px'
-                                borderColor='#B4C7C9'
-                                color='#6E6E6F'
-                                _hover={{bg: '#B4C7C9'}}>
-                            Edit
-                        </Button>
                     </Stack>
                     {/*Scenario Overview respresentation*/}
                     {/*Card is used to display tables on white background*/}
                     <Card bg="white" mt="25px">
                         <CardHeader>
-                            <Heading size='md'>Simulation Scenarios Overview</Heading>
+                            <Heading size='md'>Project Scenarios Overview</Heading>
                         </CardHeader>
                         <CardBody>
                             {/*Call of Scenario Overview Table*/}
@@ -163,57 +156,6 @@ function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
                                 </CardBody>}
                         </CardBody>
                     </Card>
-                    {/*Tabbar to switch between different scenarios*/}
-                    <TabBar
-                        //onClick={(index) => setTabIndex(index)}
-                        setCurrent={() => {/* TODO */}}
-                        items={getData().getAllScenarios().map((scenario, index) => {
-                            return {
-                                tabname: scenario.scenarioName,
-                                content:
-                                    <>
-                                        <Card bg="white" mt="25px">
-                                            <CardHeader>
-                                                <Heading size='md'>Resource Overview</Heading>
-                                            </CardHeader>
-                                            <CardBody>
-                                                {/*Call of ResourceParameter Table*/}
-                                                < OverviewResourceTable getData={getData}
-                                                                        scenario_id={index}/>
-                                            </CardBody>
-                                        </Card>
-                                        {/*Tabbar to switch between different bpmns within one scenario*/}
-                                        {(scenario.models?.length)
-                                            ? <TabBar
-                                            setCurrent={() => {/* TODO */}}
-                                            items={scenario.models.map((model, index_bpmn) => {
-                                                return {
-                                                    tabname: model.name,
-                                                    content:
-                                                    // Call of Model-based Table
-                                                        < ModelBasedOverview getData={getData}
-                                                                             scenarioId={index} bpmn_id={index_bpmn}
-                                                                             parsed={parsed}/>
-                                                }
-                                            })}/>
-                                            : <Card bg="white" mt="25px">
-                                                <CardHeader>
-                                                    <Heading size='md'>Models Overview</Heading>
-                                                </CardHeader>
-                                                <CardBody>
-                                                    This scenario currently does not have any models. <Button variant='link' onClick={async () => {
-                                                        const fileName = await uploadFile(getData().getProjectName()); //TODO potentially do not create an additional file for this?
-                                                        if (fileName) {
-                                                            const fileData = (await getFile(getData().getProjectName(), fileName)).data;
-                                                            scenario.addModel(model(fileName, fileData));
-                                                        }
-                                                    }}> Upload one</Button>.
-                                                </CardBody>
-                                            </Card>}
-                                    </>
-
-                            }
-                        })}/>
                 </Stack>
             </Box>
         </>

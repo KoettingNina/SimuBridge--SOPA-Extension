@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 
 
-function OverviewResourceTable({getData, scenario_id, setResource}) {
+function OverviewResourceTable({scenario, setResource}) {
 
     return (
         // Represenation of Resource Parameters for the chosen in the tabbar scenario
@@ -25,15 +25,15 @@ function OverviewResourceTable({getData, scenario_id, setResource}) {
             </Thead>
             <Tbody>
                 {/*Filling in the table*/}
-                {getData().getScenarioByIndex(scenario_id).resourceParameters.roles.map((role) => {
+                {scenario.resourceParameters.roles.map((role) => {
                     return <Tr>
                         <Td>{role.id}</Td>
                         <Td> {role.resources.map((resource) => {
                             return <Text onClick={() => setResource(resource.id)}> {resource.id} </Text>
                         })} </Td>
                         <Td>{role.resources.map((res) => {
-                            let resource = getData().getScenarioByIndex(scenario_id).resourceParameters.resources.find(item => item.id === res.id)
-                            return <Text>{resource.costHour || role.costHour} {getData().getScenarioByIndex(scenario_id).currency + ' / h'}</Text>
+                            let resource = scenario.resourceParameters.resources.find(item => item.id === res.id)
+                            return <Text>{resource.costHour || role.costHour} {scenario.currency + ' / h'}</Text>
                         })}</Td>
                         <Td>{role.schedule}</Td>
                     </Tr>

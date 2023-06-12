@@ -40,7 +40,7 @@ function App() {
   const [projectNameHelper, setProjectNameHelper] = useState(sessionStorage.getItem('currentProject') || "")
 
 
-  //TODO to be renamed to currentPage or similar
+  //TODO to be deleted on side bar rework completion
   const [current, setCurrent] = useState("Scenario Parameters")  // Current Page => Imoprtant for the navigation to highlight the current page 
 
 
@@ -144,39 +144,36 @@ function App() {
 
       getScenario(scenarioName) { return this.getAllScenarios().find(scenario => scenario.scenarioName === scenarioName) }
       getScenarioByIndex(index) { return data[index]; }//TODO remove
-      deleteScenarioByIndex(index) { 
-        const scenario = this.getScenarioByIndex(index);
-        this.deleteScenario(scenario);
-        setCurrentScenarioIndex(0);
-      }//TODO remove
       setCurrentScenarioByIndex(index) { setCurrentScenarioIndex(index); }//TODO remove
       setCurrentBpmnByIndex(index) { setBpmn(index); }//TODO remove
 
-      addScenario(scenario) {
+      async addScenario(scenario) {
         scenario.__proto__ = new ScenarioData(this);
-        scenario.save();
+        await scenario.save();
       }
 
       setCurrentScenario(scenario) {
         if(!this.getAllScenarios().includes(scenario)) throw 'Setting current scenario to unknown scenario';
-        setCurrentScenarioIndex(this.getAllScenarios().indexOf(scenario));
+        this.setCurrentScenarioByIndex(this.getAllScenarios().indexOf(scenario));
       }
 
-      renameScenario(scenario, newName) {
-        this.deleteScenario(scenario);
+      setCurrentScenarioByName(scenarioName) {
+        const scenarioToSet = this.getAllScenarios().find(scenario => scenario.scenarioName === scenarioName);
+        console.log(this.getAllScenarios().map(scenario => scenario.scenarioName))
+        console.log(scenarioToSet)
+        if(!scenarioToSet) throw 'Setting current scenario to unknown scenario';
+        this.setCurrentScenario(scenarioToSet);
+      } //TODO delete
+
+      async renameScenario(scenario, newName) {
+        scenario.delete()
         scenario.scenarioName = newName;
-        this.addScenario(scenario);
-      }
-
-      deleteScenario(scenario) {
-        const scenarioFileName = getScenarioFileName(scenario.scenarioName);
-        deleteFile(this.projectName, scenarioFileName); 
-        this.initializeData();
+        await this.addScenario(scenario);
       }
 
       // Call after some in-place operation has happened
-      saveCurrentScenario() {
-        this.getCurrentScenario().save();
+      async saveCurrentScenario() {
+        await this.getCurrentScenario().save();
       }
     }
 
@@ -185,22 +182,35 @@ function App() {
         this.parentProject = parentProject;
       }
 
-      save() {
+      async save() {
         console.log('save')
         //TODO automatically detect renames
         let scenarioFileName = getScenarioFileName(this.scenarioName);
-        setFile(this.parentProject.projectName, scenarioFileName, JSON.stringify(this));
-        this.parentProject.initializeData();
+        await setFile(this.parentProject.projectName, scenarioFileName, JSON.stringify(this));
+        await this.parentProject.initializeData();
       }
 
-      addModel(model) {
+      async addModel(model) {
         model.__proto__ = new ModelData(this);
         this.models.push(model);
-        this.save();
+        await this.save();
       }
 
       toJSON() {
         return limitToDataScheme(this, scenario);
+      }
+
+      async duplicate() {
+        const newScenario = {...this};
+        newScenario.scenarioName = this.scenarioName + '_copy'
+        await this.parentProject.addScenario(newScenario);
+        //this.parentProject.setCurrentScenarioByName(newScenario.scenarioName);
+      }
+
+      async delete() {
+        let scenarioFileName = getScenarioFileName(this.scenarioName);
+        await deleteFile(this.parentProject.projectName, scenarioFileName); 
+        await this.parentProject.initializeData();
       }
     }
 

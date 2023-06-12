@@ -47,11 +47,11 @@ class ModelBasedOverview extends React.Component {
     }
 
     render() {
-        const currentModel = this.props.getData().getAllScenarios()[this.props.scenarioId].models[this.props.bpmn_id]
+        const currentModel = this.props.currentModel;
         return (
             <>
                 {/*check if data is available*/}
-                {this.state.parsed ?
+                {currentModel && 
                     <>
                         {/*Representation of Model-based Parameters - Activities */}
                         <Card bg="white" mt="25px" overflowX="scroll">
@@ -164,8 +164,7 @@ class ModelBasedOverview extends React.Component {
                                 </CardBody>
                             </Card>
                         </Flex>
-                    </>
-                    : ""}
+                    </>}
             </>
         );
     }

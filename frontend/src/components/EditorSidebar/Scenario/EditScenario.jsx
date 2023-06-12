@@ -5,7 +5,7 @@ import {
 const currencies = ['euro', 'dollar'];
 
 
-const EditScenario = ({getData, setIsInDuplicateMode}) => {
+const EditScenario = ({getData, setShowSidebar}) => {
 
   const [state, setState] = useState({
     scenarioName: "",
@@ -57,13 +57,14 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
     obj.numberOfInstances = state.numberOfInstances
 
     getData().saveCurrentScenario();
+    setShowSidebar(false);
   }
 
   return (
     <>
       <Box w="100%">
         <Stack gap="3">
-          <Button onClick={() => setIsInDuplicateMode(true)}
+          <Button onClick={() => {getData().getCurrentScenario().duplicate()}}
             colorScheme='#ECF4F4'
             variant='outline'
             w="100%"
@@ -115,6 +116,18 @@ const EditScenario = ({getData, setIsInDuplicateMode}) => {
               color='#6E6E6F'
               mt="5"
               _hover={{ bg: '#B4C7C9' }}> Save changes </Button>
+
+              
+            <Button
+              colorScheme='#ECF4F4'
+              w="100%"
+              variant='outline'
+              border='1px'
+              borderColor='#B4C7C9'
+              color='#6E6E6F'
+              mt="5"
+              _hover={{ bg: '#B4C7C9' }}
+              onClick={() => setShowSidebar(false)}> Cancel </Button>
 
 
           </form>
