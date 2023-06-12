@@ -27,11 +27,17 @@ export default function DistributionEditor({ state, setState }) {
         });
     }
 
+    function camelCaseToSpaces(camelCaseString) {
+        return camelCaseString
+          .replace(/([a-z])([A-Z])/g, '$1 $2')
+          .toLowerCase();
+      }
+
     return <>
         <Flex justifyContent="space-between">
             <FormControl w="47%">
                 <FormLabel>Distribution:</FormLabel>
-                <Select value={state.distributionType} {...(!state.distributionType && {placeholder : 'Select distribution type', color : 'red'})} bg="white" name="distributionType" onChange={(event) => setDistributionType(event.target.value)} >
+                <Select name="distributionType" value={state.distributionType}  onChange={(event) => setDistributionType(event.target.value)}  bg="white" {...(!state.distributionType && {placeholder : 'Select distribution type', color : 'red'})} >
                     {Object.keys(distributionTypes).map((distributionType, index) => {
                         return <option style={{ color: 'black' }} key={index} value={distributionType}>{distributionType}</option>
                     })}
@@ -41,8 +47,8 @@ export default function DistributionEditor({ state, setState }) {
 
             <FormControl w="47%">
                 <FormLabel>Time Unit:</FormLabel>
-                <Select name="timeUnit" value={state.timeUnit} onChange={(event) => setTimeUnit(event.target.value)} bg="white">
-                    {Object.values(TimeUnits).map(timeUnit => <option key={timeUnit} value={timeUnit}>{timeUnit}</option>)}
+                <Select name="timeUnit" value={state.timeUnit} onChange={(event) => setTimeUnit(event.target.value)} bg="white" {...(!state.timeUnit && {placeholder : 'Select timeunit', color : 'red'})}>
+                    {Object.values(TimeUnits).map(timeUnit => <option style={{ color: 'black' }} key={timeUnit} value={timeUnit}>{timeUnit}</option>)}
                 </Select>
 
             </FormControl>
@@ -59,7 +65,7 @@ export default function DistributionEditor({ state, setState }) {
             return <>
 
                 <FormControl key={index}>
-                    <FormLabel>{key}:</FormLabel>
+                    <FormLabel>{camelCaseToSpaces(key)}:</FormLabel>
                     <Input value={state.distributionValues[index]} bg="white" name="distributionValues" onChange={(event) => {
                         let newArr = [...state.distributionValues];
                         newArr[index] = event.target.value;

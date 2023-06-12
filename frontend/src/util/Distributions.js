@@ -1,8 +1,8 @@
 export const distributionTypes = {
     exponential: { distribution_params: ["mean"] },
-    normal: { distribution_params: ["mean", "standard deviation"] },
-    uniform: { distribution_params: ["min", "max"] },
-    constant: { distribution_params: ["constant value"] },
+    normal: { distribution_params: ["mean", "standardDeviation"] },
+    uniform: { distribution_params: ["lower", "upper"] },
+    constant: { distribution_params: ["constantValue"] },
     erlang: { distribution_params: ["order", "mean"] },
     triangular: { distribution_params: ["lower", "peak", "upper"] },
     binomial: { distribution_params: ["probabiliy", "amount"] },
