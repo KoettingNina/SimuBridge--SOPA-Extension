@@ -6,30 +6,18 @@ const SCENARIO_PREFIX = 'scenarios'
 //TODO make even better interface, e.g., with class-like access
 //TODO mask project names to avoid issues with bad naming or introduce project ids
 
-
-//TODO project data storage to be changed from localstorage to database storage
-
-export function getProjects() {
-    return JSON.parse(localStorage.getItem(PROJECT_PREFIX)) || {};
+export async function getProjects() {
+    const {store} = await getStore(PROJECT_PREFIX, 'readwrite')
+    return store.getAll();
 }
 
-function setProjects(projects) {
-    localStorage.setItem(PROJECT_PREFIX, JSON.stringify(projects));
-}
-
-export function getProjectData(projectName) {
-    return JSON.parse(localStorage.getItem(PROJECT_PREFIX + '/' + projectName));
-}
-
-export function setProjectData(projectName, data) {
-    //TODO check for uniqueness of project
-    localStorage.setItem(PROJECT_PREFIX + '/' + projectName, JSON.stringify(data));
-
-    // Update last-changed-date
-    let projects = getProjects();
-    if (projects[projectName]) console.log(`Project named ${projectName} already exists. Will be overridden`);
-    projects[projectName] = {projectName: projectName, date: new Date()};
-    setProjects(projects); 
+export async function updateProject(projectName) {
+    const {transaction, store} = await getStore(PROJECT_PREFIX, 'readwrite');
+    store.put({
+        projectName,
+        date : new Date().getTime()
+    });
+    await transaction.complete;
 }
 
 function projectFilesPrefix(projectName) {
@@ -46,29 +34,32 @@ function filePath(projectName, fileName) {
 }
 
 async function getDatabase() {
-    return await openDB('default', 3, {
+    return await openDB('default', 5, {
         upgrade(database) {
             if (!database.objectStoreNames.contains(FILE_PREFIX)) {
                 database.createObjectStore(FILE_PREFIX, {keyPath : 'path'});
             }
             if (!database.objectStoreNames.contains(PROJECT_PREFIX)) {
-                database.createObjectStore(PROJECT_PREFIX, {keyPath: 'id', autoIncrement: true});
+                database.createObjectStore(PROJECT_PREFIX, {keyPath: 'projectName'});
             }
         }
     });
 }
 
-async function getFileObjectStorage(mode='readonly') {
+async function getStore(storeId, mode='readonly') {
     const database = await getDatabase();
-    //console.log(database.objectStoreNames)
-    const transaction = database.transaction(FILE_PREFIX, mode);
-    const filesStore = transaction.objectStore(FILE_PREFIX);
-    return {transaction, filesStore}
+    const transaction = database.transaction(storeId, mode);
+    const store = transaction.objectStore(storeId);
+    return {transaction, store}
+}
+
+async function getFileObjectStorage(mode='readonly') {
+    return getStore(FILE_PREFIX, mode);
 }
 
 export async function getFiles(projectName) {
     const folderPrefix = projectFilesPrefix(projectName);
-    return (await (await getFileObjectStorage('readwrite')).filesStore.getAllKeys())
+    return (await (await getFileObjectStorage('readwrite')).store.getAllKeys())
         .filter(key => key.startsWith(folderPrefix))
         .map(key => key.substring(key.indexOf(folderPrefix) + folderPrefix.length + 1))
 }
@@ -85,16 +76,16 @@ export async function getFile(projectName, fileName) {
     if(!projectName) throw 'No project name provided';
     if(!fileName) throw 'No file name provided';
 
-    const {transaction, filesStore} = await getFileObjectStorage('readonly')
-    return await filesStore.get(filePath(projectName, fileName));
+    const {transaction, store} = await getFileObjectStorage('readonly')
+    return await store.get(filePath(projectName, fileName));
 }
 
 export async function setFile(projectName, fileName, data) {
     if(!projectName) throw 'No project name provided';
     if(!fileName) throw 'No file name provided';
 
-    const {transaction, filesStore} = await getFileObjectStorage('readwrite');
-    filesStore.put({
+    const {transaction, store} = await getFileObjectStorage('readwrite');
+    store.put({
         path : filePath(projectName, fileName),
         data : data,
         lastChanged : new Date().getTime()
@@ -110,14 +101,14 @@ export async function deleteFile(projectName, fileName) {
     if(!projectName) throw 'No project name provided';
     if(!fileName) throw 'No file name provided';
 
-    const {transaction, filesStore} = await getFileObjectStorage('readwrite');
-    filesStore.delete(filePath(projectName, fileName));
+    const {transaction, store} = await getFileObjectStorage('readwrite');
+    store.delete(filePath(projectName, fileName));
     await transaction.complete;
 }
 
 export async function deleteAllFiles(projectName) {
-    const {transaction, filesStore} = await getFileObjectStorage('readwrite');
-    filesStore.clear(); //TODO projectname unused
+    const {transaction, store} = await getFileObjectStorage('readwrite');
+    store.clear(); //TODO projectname unused
     await transaction.complete;
 }
 
@@ -136,8 +127,7 @@ export async function downloadFile(projectName, fileName, encoding='charset=UTF-
     a.click();
 }
 
-export async function uploadFile(projectName, encoding='UTF-8') {
-    if(!projectName) throw 'No project name provided';
+export async function uploadFile(encoding='UTF-8') {
 
     let fileInput = document.createElement("input");
     document.body.appendChild(fileInput);
@@ -154,7 +144,7 @@ export async function uploadFile(projectName, encoding='UTF-8') {
                 }
                 reader.onload = function (evt) {
                     const fileContents = evt.target.result;
-                    setFile(projectName, file.name, fileContents).then(() => resolve(file.name));
+                    resolve({name : file.name, data : fileContents});
                 }
             } else {
                 reject();
@@ -164,4 +154,10 @@ export async function uploadFile(projectName, encoding='UTF-8') {
         document.body.removeChild(fileInput);
     });
     return await filePromise;
+}
+
+export async function uploadFileToProject(projectName, encoding='UTF-8') {
+    const {name, data} = uploadFile(encoding);
+    await setFile(projectName, name, data)
+    return name;
 }

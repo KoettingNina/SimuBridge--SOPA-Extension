@@ -29,7 +29,7 @@ import {Link} from "react-router-dom";
 import CreateEmptyScenarioButton from '../CreateEmptyScenarioButton';
 
 
-function OverviewPage({getData, toast, setScenariosCompare, parsed}) {
+function OverviewPage({getData, toast, setScenariosCompare}) {
 
     // declaration of variables
     const {isOpen, onOpen, onClose} = useDisclosure()

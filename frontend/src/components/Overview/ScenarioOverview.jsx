@@ -2,7 +2,7 @@ import { Button, Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import OverviewResourceTable from "../TablesOverviewComparison/OverviewResourceTable";
 import TabBar from "../TabBar";
 import ModelBasedOverview from "../TablesOverviewComparison/ModelBasedOverview";
-import { getFile, uploadFile } from "../../util/Storage";
+import { getFile, uploadFileToProject } from "../../util/Storage";
 import { model } from "../../util/DataModel";
 
 export default function ScenarioOverview({getData}) {
@@ -36,7 +36,7 @@ export default function ScenarioOverview({getData}) {
                 </CardHeader>
                 <CardBody>
                     This scenario currently does not have any models. <Button variant='link' onClick={async () => {
-                        const fileName = await uploadFile(getData().getProjectName()); //TODO potentially do not create an additional file for this?
+                        const fileName = await uploadFileToProject(getData().getProjectName()); //TODO potentially do not create an additional file for this?
                         if (fileName) {
                             const fileData = (await getFile(getData().getProjectName(), fileName)).data;
                             getData().getCurrentScenario().addModel(model(fileName, fileData));

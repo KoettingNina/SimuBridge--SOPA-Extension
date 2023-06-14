@@ -7,7 +7,7 @@ import {
     FiTrash2
 } from 'react-icons/fi';
 
-import { deleteAllFiles, deleteFile, downloadFile, getFile, getFiles, getScenarioFileName, setFile, uploadFile } from '../../util/Storage';
+import { deleteAllFiles, deleteFile, downloadFile, getFile, getFiles, getScenarioFileName, setFile, uploadFileToProject } from '../../util/Storage';
 import { convertSimodOutput } from '../../util/simod_converter';
 
 
@@ -55,7 +55,7 @@ function DebugPage({projectName, getData}) {
                     </CardHeader>
                     <CardBody>
                         <Button onClick={() => {
-                            uploadFile(projectName).then(updateFileList);
+                            uploadFileToProject(projectName).then(updateFileList);
                         }}>Upload File</Button> 
                         <Button onClick={() => {
                             deleteAllFiles(projectName).then(updateFileList);

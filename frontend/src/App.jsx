@@ -1,8 +1,7 @@
 import {React, useState, useEffect} from 'react';
 import './styles/globals.css'
 import {
-  ChakraProvider, Box, theme, Flex, Container, Text, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, FormControl, Button, Input, FormLabel, FormErrorMessage,  ModalCloseButton
-} from '@chakra-ui/react';
+  ChakraProvider, Box, theme, Flex, Container, useToast, Button} from '@chakra-ui/react';
 import Navigation from './components/Navigation/Navigation';
 import EditorSidebar from './components/EditorSidebar/EditorSidebar';
 import StartView from './components/StartView/StartView';
@@ -18,7 +17,7 @@ import TimetableOverview from './components/ResourceParameters/TimeTable/Timetab
 import ResourceOverview from './components/ResourceParameters/Resources/ResourceOverview';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
-import { deleteFile, getFiles, getProjectData, getProjects, getScenarioFileName, getScenarios, setFile, setProjectData } from './util/Storage';
+import { deleteFile, getScenarioFileName, getScenarios, setFile, updateProject } from './util/Storage';
 import BpmnView from './components/ModelbasedParameters/BpmnView';
 import { limitToDataScheme, model, scenario } from './util/DataModel';
 import BPMNModdle from 'bpmn-moddle';
@@ -30,15 +29,16 @@ function App() {
 
   const moddle = new BPMNModdle();
 
-  const [projectStarted, setStarted] = useState(sessionStorage.getItem('st') || "false") // checks if the starting flaf is stet in the session storage to display the dashboard or otherwise the startpage
-
-
-  const [parsed, setParsed] = useState(true) // TODO to be removed
-
   // State is used for changing / adding a project projectName, it firest checks if project is already set as current in the session storage
   const [projectName, setProjectName] = useState(sessionStorage.getItem('currentProject') || "")
-  const [projectNameHelper, setProjectNameHelper] = useState(sessionStorage.getItem('currentProject') || "")
-
+  function selectProject (project) {
+    if (project) {
+      sessionStorage.setItem('currentProject', project);
+    } else {
+      sessionStorage.removeItem('currentProject');
+    }
+    setProjectName(project);
+  }
 
   //TODO to be deleted on side bar rework completion
   const [current, setCurrent] = useState("Scenario Parameters")  // Current Page => Imoprtant for the navigation to highlight the current page 
@@ -74,10 +74,6 @@ function App() {
   const [notSameScenario, setNotSameScenario] = useState("")
   const [resourceCompared, setResourceCompared] = useState("")
 
-
-
-  const {onClose } = useDisclosure()
-
   const [dataLoaded, setDataLoaded] = useState(false);
 
   let ProjectDataClass;
@@ -87,26 +83,6 @@ function App() {
     // store and set information which BPMN and scenario is currently selected
     const [currentBpmn, setBpmn] = useState(0)
     const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
-
-    function storeProject(d) { //TODO
-      setDataInternal(d)
-
-      if(projectName){
-    
-        if(!compare(getProjectData(projectName), d)){
-          toasting("success", "Saved", "Saved data")
-    
-    
-          console.log(getProjectData(projectName))
-          console.log(d)
-    
-          setProjectData(projectName, d);
-        } else{
-          toasting("warning", "Changes", "No changes were detected")
-        }
-    
-      }
-    }
 
     class ProjectData {
 
@@ -187,6 +163,7 @@ function App() {
         //TODO automatically detect renames
         let scenarioFileName = getScenarioFileName(this.scenarioName);
         await setFile(this.parentProject.projectName, scenarioFileName, JSON.stringify(this));
+        updateProject(this.parentProject.projectName)
         await this.parentProject.initializeData();
       }
 
@@ -281,15 +258,6 @@ const toasting = (type, title, text) =>{
 }
 
 
-useEffect(() => { //TODO obsolete?
-  if(!sessionStorage.getItem('currentProject')){
-    sessionStorage.setItem('st', false);
-    setStarted("false")
-  }
-
-} ,[])
-
-
 
 const oldProjectName = projectData?.projectName;
 let projectData = new ProjectDataClass(projectName);
@@ -366,59 +334,24 @@ useEffect(() => {
 
       {/*If not session exists the start view is displayed */}
 
-        {projectStarted === "false"?
-          <StartView setStarted={setStarted} setProjectName={setProjectName}/>
+        {!projectName ?
+          <StartView {...{selectProject}}/>
         :
-        <>
+    <>
       {/*If a session and data exists the dashboard is displayed */}
       {dataLoaded ?
        <>
           <Box zIndex={2} paddingTop={{base: "0", md:"6"}} >
-            <Navigation 
-              setCurrent={setCurrent}  
-              current={current} 
-              setStarted={setStarted} 
-             
-              getData={getData} 
-
-              toasting={toasting}
-              />
+            <Navigation {...{setCurrent, current, getData, selectProject}}/>
           </Box>
 
         
           <Container maxWidth="100%" padding={{base: "0", md:"5"}} overflowX="scroll">
 
-            {/* Modal is a chakra UI component similar to a popup. Here it is used to save a project by its projectName and display an error if the projectName already existis  */}
-          <Modal
-            isOpen={projectName === ""}  //Modal is only shown as long as no projectName is set
-            onClose={onClose}
-          >
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Save project</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody pb={6}>
-                <Text>Provide a projectprojectName under which your data is stored</Text>
-                <FormControl isInvalid={invalidProjectName}>
-                  <FormLabel>ProjectprojectName: </FormLabel>
-                  <Input autoFocus={true}  value={projectNameHelper} onChange={(e) => setProjectNameHelper(e.target.value)} placeholder='ProjectprojectName' />
-                  {invalidProjectName?  <FormErrorMessage>Project with this projectName already exists</FormErrorMessage> : ""}
-
-                </FormControl>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button colorScheme='blue' mr={3} onClick={saveProject}>
-                  Save
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
 
             {/*  These routes define which components are loaded into the center of the page for each path and pass the needed props*/}
             <Routes>
-              <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} parsed={parsed} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
+              <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
               <Route path="/overview/compare" element={atLeastOneScenario && <ComparePage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
               <Route path="/overview/compare/differences" element={atLeastOneScenario && <OnlyDifferencesPage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
 
@@ -429,7 +362,7 @@ useEffect(() => {
               <Route path="/scenario" element={atLeastOneScenario && <ScenarioPage {...{ getData, setCurrentRightSideBar }} />} />
               
               <Route path="/modelbased" element={atLeastOneModel && <BpmnView {...{ getData, setCurrentRightSideBar }} />} />
-              <Route path="/modelbased/tableview" element={atLeastOneModel && <ModelbasedParametersTable parsed={parsed} getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
+              <Route path="/modelbased/tableview" element={atLeastOneModel && <ModelbasedParametersTable getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
 
 
               <Route path="/simulation" element={<SimulationPage path="/simulation"  {...{projectName, getData, toasting }} />} />
@@ -450,11 +383,9 @@ useEffect(() => {
           </Box>
         </>
         : <ProgressPage/> }  {/*  The progresspage is shown if a session is started but the data is still not there (waiting from the discovery tool) */}
-        </>
+    </>
         }
       </Flex>
-
-
     </ChakraProvider>
   );
 }

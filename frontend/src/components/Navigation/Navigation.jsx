@@ -18,13 +18,14 @@ import {
     FiDownload,
     FiPlay,
     FiEye,
-    FiUser
+    FiUser,
+    FiCornerLeftUp
   } from 'react-icons/fi';
 
   import saveAs from 'file-saver';
 import { scenario } from '../../util/DataModel';
 
-  function Navigation({setCurrent, getData, current, setStarted}) {
+  function Navigation({setCurrent, getData, current, selectProject}) {
 
 
     // Define Navigation items that will be displayed at the top of the navigation
@@ -57,7 +58,8 @@ import { scenario } from '../../util/DataModel';
       // Define Navigation items that will be displayed at the bottom of the navigation
      
       const LinkItems3 = [
-        { name: 'Download project', icon: FiDownload, path: '/#', event: () => save() },
+        { name: 'Download Project', icon: FiDownload, path: '/#', event: () => save() },
+        { name: 'Close Project', icon: FiCornerLeftUp, path: '/#', event: () => selectProject(null) },
       ];
 
       
@@ -99,7 +101,7 @@ import { scenario } from '../../util/DataModel';
                   
                   <Divider/>
                   <Spacer/>
-                  <NavigationItem items={LinkItems3} clickedColor="blackAlpha.400" color="blackAlpha.00" bottom="0" setStarted={setStarted} exitButton={true} />                    
+                  <NavigationItem items={LinkItems3} clickedColor="blackAlpha.400" color="blackAlpha.00" bottom="0" exitButton={true} />                    
                   </>
               } 
           />

@@ -6,7 +6,7 @@ import Zip from 'jszip';
 import untar from "js-untar";
 import Gzip from 'pako';
 import simodSampleConfiguration from '../../example_data/simod_input/config/sample.yml'
-import { getFile, getFiles, getScenarioFileName, setFile, uploadFile } from "../../util/Storage";
+import { getFile, getFiles, setFile, uploadFileToProject } from "../../util/Storage";
 import { convertSimodOutput } from "../../util/simod_converter";
 
 const ProcessMinerPage = ({projectName, getData, toasting }) => {
@@ -47,7 +47,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
         formData.append("configuration", new Blob([configurationFile], { type: 'application/yaml' }), configurationFile.name);
         formData.append("event_log", new Blob([eventlogFile], { type: 'application/xml' }), eventlogFile.name);
 
-        const DEBUG = false;
+        const DEBUG = true;
 
         let status;
         if (!DEBUG) {        
@@ -234,7 +234,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                             <Box>         
                                 {fileSelect('Select Event Log:', logFile, setLogFile, file => file.endsWith('.xes'))}
                                 <Button /*variant="link"*/ onClick={() => {
-                                    uploadFile(projectName).then(file => {
+                                    uploadFileToProject(projectName).then(file => {
                                         updateFileList();
                                         setLogFile(file);
                                     })
