@@ -1,4 +1,14 @@
-import TimeUnits from "../util/TimeUnits";
+export const TimeUnits = {
+    SECONDS : "secs",
+    MINUTES : "mins",
+    HOURS : "hours"
+}
+
+export const Currencies = {
+    EURO : "euro",
+    DOLLAR : "dollar",
+    UNSPECIFIED : 'Money Unit'
+}
 
 export function scenario(scenarioName) {
     return {
@@ -6,8 +16,7 @@ export function scenario(scenarioName) {
         startingDate: "01-01-0000",
         startingTime: "00:00",
         numberOfInstances: 1,
-        timeUnit: TimeUnits.MINUTES,
-        currency: "Money Unit", // TODO
+        currency: Currencies.EURO,
         resourceParameters: {
             roles: [],
             resources: [],

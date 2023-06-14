@@ -1,6 +1,7 @@
-import TimeUnits from './TimeUnits';
+import { Currencies, TimeUnits } from './DataModel.js';
 
-let xml2js = require('browser-xml2js');
+import xml2js from 'browser-xml2js'
+
 
 export function convertSimodOutput(jsonOutput, bpmnOutput) {
 
@@ -25,7 +26,7 @@ export function convertSimodOutput(jsonOutput, bpmnOutput) {
     Scenario.startingDate = getStartingDate(jsonObj);
     Scenario.startingTime = getstartingTime(jsonObj);
     Scenario.numberOfInstances = 100 //TODO doesn't work //getNumberOfInstances(jsonObj);
-    Scenario.currency = getCurrency(jsonObj);
+    Scenario.currency = getCurrency();
     Scenario.resourceParameters = getResourceParameters(jsonObj);
     Scenario.models = getModel(bpmnParsed, jsonObj, bpmnOutput);
 
@@ -101,9 +102,9 @@ function getTimeUnit(){
     return TimeUnits.SECONDS
 }
 
-function getCurrency(jsonObj){
+function getCurrency(){
     //no Currency in Simod, choose default currency
-    return "Money Unit"
+    return Currencies.UNSPECIFIED;
 }
 
 function getInterArrivalTime(jsonObj){
@@ -280,31 +281,15 @@ function getModel(bpmnObj, jsonObj, bpmnXml){
     return models;
 }
 
-function getEvents(bpmnObj, jsonObj){
-    //returns all events with id, type, time unit, interarrival time (if start event), incoming sequences and outgoing sequences
+function getEvents(bpmnObj, jsonObj) {
     let Events = new Array;
     //getStartEvents
     bpmnObj.definitions.process.forEach(element => {
         element.startEvent.forEach(b => {
-            let emptyArray = new Array;
             Events.push({
                 id: b.ATTR.id,
                 type: "bpmn:StartEvent",
                 interArrivalTime: getInterArrivalTime(jsonObj),
-                incoming: emptyArray,
-                outgoing: getOutgoingSequences(b.ATTR.id, bpmnObj)
-            })
-        })
-    })
-    //getEndEvents
-    bpmnObj.definitions.process.forEach(element => {
-        element.endEvent.forEach(b => {
-            let emptyArray = new Array;
-            Events.push({
-                id: b.ATTR.id,
-                type: "bpmn:EndEvent",
-                incoming: getIncomingSequences(b.ATTR.id, bpmnObj),
-                outgoing: emptyArray
             })
         })
     })
@@ -316,8 +301,6 @@ function getEvents(bpmnObj, jsonObj){
                     id: b.ATTR.id,
                     type: "bpmn:intermediateCatchEvent",
                     interArrivalTime: "", //TODO this will not work; however, at least simod seems to not give any additional information to intermediate events
-                    incoming: getIncomingSequences(b.ATTR.id, bpmnObj),
-                    outgoing: getOutgoingSequences(b.ATTR.id, bpmnObj)
                 })
             })
         }  
@@ -334,35 +317,7 @@ function getGateways(jsonObj){
     }));
 }
 
-function getIncomingSequences(currrentNodeId, bpmnObj){
-    //returns an array of the incoming sequence ids for the current node
-    let sequences = new Array;
-    bpmnObj.definitions.process.forEach(element => {
-        element.sequenceFlow.forEach(b => {
-            if(currrentNodeId == b.ATTR.targetRef){
-                sequences.push(b.ATTR.id)
-            }
-        })
-    })
-    return sequences
-}
-
-function getOutgoingSequences(currrentNodeId, bpmnObj){
-    //returns an array of the outgoing sequence ids for the current node
-    let sequences = new Array;
-    bpmnObj.definitions.process.forEach(element => {
-        element.sequenceFlow.forEach(b => {
-            if(currrentNodeId == b.ATTR.sourceRef){
-                sequences.push(b.ATTR.id)
-            }
-        })
-    })
-    return sequences
-}
-
-function getActivities(bpmnObj, jsonObj){
-    //returns an array of the activities, each activity contains the 
-    //id, name, tyoe, resources, timeunit, costs, currency, duration incoming sequences and ooutgoing sequences
+function getActivities(bpmnObj, jsonObj) {
     let activities = new Array;
     bpmnObj.definitions.process.forEach(element => {
         element.task.forEach(b => {

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {
   Input, FormControl, FormLabel, Button, Stack, Select, Box} from '@chakra-ui/react';
-
-const currencies = ['euro', 'dollar'];
+import { Currencies } from '../../../util/DataModel';
 
 
 const EditScenario = ({getData, setShowSidebar}) => {
@@ -101,7 +100,7 @@ const EditScenario = ({getData, setShowSidebar}) => {
                   <FormControl>
                     <FormLabel>Currency:</FormLabel>
                     <Select name="currency" value={state.currency} bg="white" onChange={(event) => handleInputChange(event)} >
-                        {currencies.map((currency) => (<option key={currency} value={currency}>{currency}</option>))}
+                        {Object.values(Currencies).map((currency) => (<option key={currency} value={currency}>{currency}</option>))}
                     </Select>
                   </FormControl>
 

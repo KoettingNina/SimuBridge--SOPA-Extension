@@ -47,7 +47,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
         formData.append("configuration", new Blob([configurationFile], { type: 'application/yaml' }), configurationFile.name);
         formData.append("event_log", new Blob([eventlogFile], { type: 'application/xml' }), eventlogFile.name);
 
-        const DEBUG = true;
+        const DEBUG = false;
 
         let status;
         if (!DEBUG) {        
@@ -66,7 +66,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             
             toasting("success", "Success", "Process Mining successfully started");
             
-            const maxWaitTimeMs = 180000;
+            const maxWaitTimeMs = 360000;
             const waitStartTime = new Date().getTime();
             function sleep(milliseconds) {
                 return new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -85,7 +85,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             }
         } else {
             //TODO dummy
-            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/b5488a21-4914-4a43-93c0-b148fb35a84a/b5488a21-4914-4a43-93c0-b148fb35a84a.tar.gz'}
+            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/06c39378-f5da-4d9e-98c2-8fda5c61142a/06c39378-f5da-4d9e-98c2-8fda5c61142a.tar.gz'}
         }
 
         
@@ -180,7 +180,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             fileList
                 .filter(filter)
                 .map((file, index) => {
-                    return  <option value= {file} color="black">{file}</option>
+                    return  <option key={index} value= {file} color="black">{file}</option>
                 })
                 .concat(moreOptions)
         }
@@ -274,6 +274,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                             <UnorderedList>
                             {response.files.map(x => (<ListItem><Button onClick={() => download(x.data, x.name)} variant="link">{x.name}</Button></ListItem>)) }
                             </UnorderedList>
+                        </>}
 
                             <Heading size='ms' mt='10'>Convert Miner Output to Scenario:</Heading>
                             <Flex
@@ -298,7 +299,6 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                                 </Button>
 
                             </Flex>
-                        </>}
                     </Flex>
                 </CardBody>
             </Card>

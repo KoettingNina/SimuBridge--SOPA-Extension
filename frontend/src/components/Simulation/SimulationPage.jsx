@@ -140,8 +140,8 @@ const SimulationPage = ({projectName, getData, toasting }) => {
                             </Box>
                             <Box>
                                 <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select simulator:</Text>
-                                <Select value={simulator} placeholder = 'choose simulator' width = '100%'  {...(!simulator && {color: "gray"})}  backgroundColor= 'white' icon={<FiChevronDown />}>
-                                    <option value='Scylla' color="black" onClick={evt => setSimulator(evt.target.value)}>Scylla</option>
+                                <Select value={simulator} placeholder = 'choose simulator' width = '100%'  {...(!simulator && {color: "gray"})}  backgroundColor= 'white' icon={<FiChevronDown />} onChange={evt => setSimulator(evt.target.value)}>
+                                    <option value='Scylla' color="black">Scylla</option>
                                 </Select>
                             </Box>
                             

@@ -3,8 +3,6 @@ import { useToast, Box, Heading, Text, Card, CardBody, Table, Thead, Tbody, Tr, 
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import { EditorSidebarAlternate } from '../EditorSidebar/EditorSidebar';
 import EditScenario from '../EditorSidebar/Scenario/EditScenario';
-import AddScenario from '../EditorSidebar/Scenario/DuplicateScenario';
-import CreateEmptyScenarioButton from '../CreateEmptyScenarioButton';
 import ScenarioOverview from '../Overview/ScenarioOverview';
 
 const ScenarioPage = ({ getData, setCurrentRightSideBar }) => {

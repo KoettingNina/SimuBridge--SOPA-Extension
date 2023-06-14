@@ -1,6 +1,6 @@
 export const distributionTypes = {
     exponential: { distribution_params: ["mean"] },
-    normal: { distribution_params: ["mean", "standardDeviation"] },
+    normal: { distribution_params: ["mean", "variance"] },
     uniform: { distribution_params: ["lower", "upper"] },
     constant: { distribution_params: ["constantValue"] },
     erlang: { distribution_params: ["order", "mean"] },
