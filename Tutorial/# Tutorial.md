@@ -121,7 +121,7 @@ To displayong the BPMN model of the business process we click on   _Modelbased P
 
 
 We can represent BPMN model as XML document or as a table for better overview, we can see all parameters in a table view. 
-<img align="right" src="./Screenshots/Screenshot_22.png" > 
+<img align="right" src="./screenshots/Screenshot_22.png" > 
 For that click on _View_ on the bottom left of the screen and then click _Table_. We represent Activities, Gateways and Events in three separated sections. _Edit mode_ can be activated by clicking on it.
 <br>
 <br>
