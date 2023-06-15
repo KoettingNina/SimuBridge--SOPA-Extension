@@ -1,7 +1,7 @@
 import { Input, FormControl, FormLabel, Text } from "@chakra-ui/react";
 import { React, useState } from "react";
 import { getElementLabel } from "../../../util/BpmnUtil";
-import { gateway } from "../../../util/DataModel";
+import { gateway } from "simulation-bridge-datamodel/DataModel";
 import AbstractModelElementEditor from "./AbstractModelElementEditor";
 
 

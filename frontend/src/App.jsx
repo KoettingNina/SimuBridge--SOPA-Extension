@@ -19,7 +19,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
 import { deleteFile, getScenarioFileName, getScenarios, setFile, updateProject } from './util/Storage';
 import BpmnView from './components/ModelbasedParameters/BpmnView';
-import { limitToDataScheme, model, scenario } from './util/DataModel';
+import { model, scenario, limitToDataScheme } from 'simulation-bridge-datamodel/DataModel';
 import BPMNModdle from 'bpmn-moddle';
 
 

@@ -1,8 +1,8 @@
 import conv_ele from './ConvertElements.js';
 
-export default function createNewJsonGlob (scenario, projectName, sceIndex) {
+export default function createNewJsonGlob (scenario) {
     var newJson = {"_declaration": {"_attributes": {"version": "1.0", "encoding": "UTF-8"}}};
-    newJson.globalConfiguration = createGlobConfig(scenario, projectName, sceIndex);
+    newJson.globalConfiguration = createGlobConfig(scenario);
     return newJson;
 }   
 
@@ -16,7 +16,7 @@ export default function createNewJsonGlob (scenario, projectName, sceIndex) {
  * timetables for resources,(<timetables>) parseable by java LocalTime.pars
  * resource definitions (<resourceData>)
  */
-function createGlobConfig(scenario, projectName, sceIndex) {
+function createGlobConfig(scenario) {
     var globConfig = new Object;
     var attributes = new Object;
     var resourceData = new Object;
@@ -43,7 +43,7 @@ function createGlobConfig(scenario, projectName, sceIndex) {
     //timetables:
     timetables.timetable = conv_ele.createTimeTables(scenario.resourceParameters.timeTables);
 
-    attributes.id = projectName + '_Sce' + sceIndex + '_Global'
+    attributes.id = scenario.scenarioName + '_Global'
     globConfig.resourceData = resourceData;
     globConfig.timetables = timetables;
     globConfig._attributes = attributes;

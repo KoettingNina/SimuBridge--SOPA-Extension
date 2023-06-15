@@ -23,7 +23,7 @@ import {
   } from 'react-icons/fi';
 
   import saveAs from 'file-saver';
-import { scenario } from '../../util/DataModel';
+import { scenario } from 'simulation-bridge-datamodel/DataModel';
 
   function Navigation({setCurrent, getData, current, selectProject}) {
 

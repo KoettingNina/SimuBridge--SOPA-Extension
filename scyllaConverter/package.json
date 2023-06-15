@@ -1,0 +1,10 @@
+{
+    "name" : "simulation-bridge-converter-scylla",
+    "type": "module",
+    "dependencies": {
+      "bpmn-moddle": "^8.0.1",
+      "xml-js": "^1.6.11",
+      "buffer": "^6.0.3",
+      "simulation-bridge-datamodel": "../dataModel"
+    }
+  }

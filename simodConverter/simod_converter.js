@@ -1,4 +1,4 @@
-import { Currencies, TimeUnits } from './DataModel.js';
+import { Currencies, TimeUnits } from 'simulation-bridge-datamodel/DataModel.js';
 
 import xml2js from 'browser-xml2js'
 

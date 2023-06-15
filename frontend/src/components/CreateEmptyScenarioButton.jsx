@@ -1,5 +1,5 @@
 import { Button } from "@chakra-ui/react";
-import { scenario } from "../util/DataModel";
+import { scenario } from "simulation-bridge-datamodel/DataModel";
 
 export default ({getData, toast, label='Add new empty scenario', ...props}) => {
     return (<Button {...props} onClick={() => {

@@ -1,5 +1,7 @@
-import * as path from 'path'
-import * as fs from 'fs';
+// Fix error "Buffer is not defined" from xml-js; https://ethereum.stackexchange.com/questions/140178/referenceerror-buffer-is-not-defined
+import { Buffer } from 'buffer';
+window.Buffer = window.Buffer || Buffer;
+
 import { json2xml } from 'xml-js';
 import createNewJsonGlob from './GlobConfig.js';
 import createNewJsonSim from './SimConfig.js';
@@ -16,34 +18,24 @@ var options = {
 };
 
 
-export async function convertScen(scenario, projectName, sceIndex, projectDir) {
+export async function convertScenario(scenario) {
 
-    // create output folder path
-    var folderPath = projectDir;
-    console.log('Into folder: ' + folderPath)
+    if (!scenario.models.length) throw 'No models to convert were provided';
 
     // create one global configuration:
-    const globalConfig_json = createNewJsonGlob(scenario, projectName, sceIndex);
-    var result = json2xml(globalConfig_json, options);
-    var outputFileName = globalConfig_json.globalConfiguration._attributes.id + '.xml'
-    console.log('Converting to global configuration file: ' + path.join(folderPath, outputFileName))
-    fs.writeFile(path.join(folderPath, outputFileName), result, (err) => {
-        if (err) throw err;
-    })
-
-    let simulationConfigurations = []
+    const globalConfig_json = createNewJsonGlob(scenario);
+    var globalConfig = json2xml(globalConfig_json, options);
     // create one simulation configuration for each model in a scenario:
-    for (let modelIndex in scenario.models) {
-        let currentModel = scenario.models[modelIndex];
-        const simConfig_json = await createNewJsonSim(scenario, sceIndex, projectName, modelIndex, currentModel);
-        var result = json2xml(simConfig_json, options);
-        var outputFileName = simConfig_json.definitions.simulationConfiguration._attributes.id + '.xml'
-        console.log('Converting to simulation configuration file: ' + path.join(folderPath, outputFileName))
-        fs.writeFile(path.join(folderPath, outputFileName), result, (err) => {
-            if (err) throw err;
-        });
-        simulationConfigurations.push(outputFileName)
+
+    const simConfigs = await Promise.all(scenario.models.map(async currentModel => {
+        const simConfig_json = await createNewJsonSim(scenario, currentModel);
+        var simConfig = json2xml(simConfig_json, options);
+        return simConfig;
+    }));
+
+    console.log('Converter is finished');
+    return {
+        globalConfig,
+        simConfigs
     }
-    if (simulationConfigurations.length === 0) throw 'No modelconfiguration converted!'
-    console.log('Converter is finished')
 }

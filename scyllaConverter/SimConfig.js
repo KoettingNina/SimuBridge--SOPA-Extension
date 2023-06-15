@@ -3,13 +3,13 @@ import conv_ele from './ConvertElements.js';
 
 const moddle = new BPMNModdle();
 
-export default async function createNewJsonSim(scenario, sceIndex, projectName, modIndex, processModel) {
+export default async function createNewJsonSim(scenario, processModel) {
     var newJson = {"_declaration": {"_attributes": {"version": "1.0", "encoding": "UTF-8"}}};
-    newJson.definitions = await createSimConfig(scenario, sceIndex, projectName, modIndex, processModel);
+    newJson.definitions = await createSimConfig(scenario, processModel);
     return newJson;
 }
 
-async function createSimConfig(scenario, sceIndex, projectName, modIndex, processModel) {
+async function createSimConfig(scenario, processModel) {
     var simConfig = new Object;
     var attributes = new Object;
 
@@ -37,7 +37,7 @@ async function createSimConfig(scenario, sceIndex, projectName, modIndex, proces
         scenario.startingDate.slice(0, 2)
     const time = scenario.startingTime + '+00:00'
 
-    attributes.id = projectName + '_Sce' + sceIndex + '_Mod' + modIndex + '_Sim'
+    attributes.id = scenario.scenarioName + '_Mod' + processModel.name + '_Sim'
     attributes.startDateTime = date + 'T' + time
 
     attributes.processRef = rootElement.rootElements[0].id;

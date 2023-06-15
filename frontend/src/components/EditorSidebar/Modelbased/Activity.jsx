@@ -9,7 +9,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import DistributionEditor from '../../DistributionEditor';
 import { distributionToState, stateToDistribution } from '../../../util/Distributions';
 import AbstractModelElementEditor from './AbstractModelElementEditor';
-import { activity } from '../../../util/DataModel';
+import { activity } from 'simulation-bridge-datamodel/DataModel';
 
 const Activity = ({ getData, currentElement }) => {
 

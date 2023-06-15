@@ -6,7 +6,7 @@
  *
  */
 
-import { TimeUnits } from "../../SimulationPortal--Main/frontend/src/util/DataModel.js";
+import { TimeUnits } from "../dataModel/DataModel.js";
 
 export default {
 

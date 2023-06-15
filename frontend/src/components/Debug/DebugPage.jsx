@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fi';
 
 import { deleteAllFiles, deleteFile, downloadFile, getFile, getFiles, getScenarioFileName, setFile, uploadFileToProject } from '../../util/Storage';
-import { convertSimodOutput } from '../../util/simod_converter';
+import { convertSimodOutput } from 'simulation-bridge-converter-simod/simod_converter';
 
 
 function DebugPage({projectName, getData}) {

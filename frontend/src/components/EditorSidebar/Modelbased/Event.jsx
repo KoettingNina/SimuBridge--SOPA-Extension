@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DistributionEditor from '../../DistributionEditor';
 import { distributionToState, stateToDistribution } from '../../../util/Distributions';
 import AbstractModelElementEditor from './AbstractModelElementEditor';
-import { event } from '../../../util/DataModel';
+import { event } from 'simulation-bridge-datamodel/DataModel';
 
 const Event = ({ getData, currentElement }) => {
 

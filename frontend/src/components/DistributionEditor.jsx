@@ -1,7 +1,7 @@
 import { ButtonGroup, Flex, FormControl, FormLabel, IconButton, Input, Select } from "@chakra-ui/react"
 import { distributionTypes, getParamsForDistribution } from "../util/Distributions"
 import { AddIcon, MinusIcon } from "@chakra-ui/icons"
-import { TimeUnits } from "../util/DataModel"
+import { TimeUnits } from "simulation-bridge-datamodel/DataModel"
 
 export default function DistributionEditor({ state, setState }) {
 

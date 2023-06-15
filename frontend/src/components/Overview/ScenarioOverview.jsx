@@ -3,7 +3,7 @@ import OverviewResourceTable from "../TablesOverviewComparison/OverviewResourceT
 import TabBar from "../TabBar";
 import ModelBasedOverview from "../TablesOverviewComparison/ModelBasedOverview";
 import { getFile, uploadFileToProject } from "../../util/Storage";
-import { model } from "../../util/DataModel";
+import { model } from "simulation-bridge-datamodel/DataModel";
 
 export default function ScenarioOverview({getData}) {
     return <>

@@ -7,7 +7,7 @@ import untar from "js-untar";
 import Gzip from 'pako';
 import simodSampleConfiguration from '../../example_data/simod_input/config/sample.yml'
 import { getFile, getFiles, setFile, uploadFileToProject } from "../../util/Storage";
-import { convertSimodOutput } from "../../util/simod_converter";
+import { convertSimodOutput } from "simulation-bridge-converter-simod/simod_converter";
 
 const ProcessMinerPage = ({projectName, getData, toasting }) => {
 

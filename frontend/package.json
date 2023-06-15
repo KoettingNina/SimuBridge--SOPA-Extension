@@ -46,7 +46,10 @@
         "react-icons": "^3.11.0",
         "react-scripts": "5.0.1",
         "wait-on": "^6.0.1",
-        "web-vitals": "^2.1.4"
+        "web-vitals": "^2.1.4",
+        "simulation-bridge-datamodel": "../dataModel",
+        "simulation-bridge-converter-scylla": "../scyllaConverter",
+        "simulation-bridge-converter-simod": "../simodConverter"
     },
     "scripts": {
         "start": "react-scripts start",

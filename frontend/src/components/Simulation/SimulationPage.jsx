@@ -4,6 +4,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import axios from 'axios';
 
 import { getFile, getScenarioFileName, setFile } from "../../util/Storage";
+import { convertScenario } from "simulation-bridge-converter-scylla/ConvertScenario";
 
 const SimulationPage = ({projectName, getData, toasting }) => {
 
@@ -31,29 +32,32 @@ const SimulationPage = ({projectName, getData, toasting }) => {
 
     try {
 
-      var projectid = 'helloworld' + Math.random(); //TODO helloworld
-      var formData = new FormData();
-      //var bpmnFile = new File([ await (await fetch(processModel)).text()], 'pizza_1.bpmn'); 
-      //var paramFile = new File([JSON.stringify(simulationConfiguration)], 'pizza1.json'); // Attention: json file is directly imported
-      var scenarioFileName = getScenarioFileName(scenarioName);
-      let scenarioData = getData().getScenario(scenarioName);
-      var paramFile = new File([JSON.stringify(scenarioData)], scenarioFileName.split('/').pop());
-      let bpmnFileName = scenarioData.models[0].name + '.bpmn' //TODO magic index access
-      let bpmnFileData = scenarioData.models[0].BPMN
-      var bpmnFile = new File([bpmnFileData], bpmnFileName.split('/').pop())
-      formData.append("bpmn", bpmnFile, bpmnFile.name); //TODO bpmn file is unnecessary as source is already part of scenario file
-      formData.append("param", paramFile, paramFile.name);
+      const requestId = 'request' + Math.random();
+      const formData = new FormData();
+      const scenarioData = getData().getScenario(scenarioName);
+      
+
+      const {globalConfig, simConfigs} = await convertScenario(scenarioData);
+      const simConfig = simConfigs[0]; //TODO magic index access
+      const processModel = scenarioData.models[0]; //TODO magic index access
+
+      const bpmnFile = new File([processModel.BPMN], processModel.name + '.bpmn')
+      formData.append("bpmn", bpmnFile, bpmnFile.name);
+      const globalConfigFile = new File([globalConfig], scenarioData.scenarioName + '_Global.xml')
+      formData.append("globalConfig", globalConfigFile, globalConfigFile.name);
+      const simConfigFile = new File([simConfig], scenarioData.scenarioName + '_' + bpmnFile.name + '_Sim.xml')
+      formData.append("simConfig", simConfigFile, simConfigFile.name); 
 
       // Sending a POST request to apiTool.py in the Scylla-Container subproject, with the cancel token attached
       const r = await axios.post("http://127.0.0.1:8080/scyllaapi", formData, {
         headers: {
-          'projectid' : projectid,
+          'requestId' : requestId,
           'Content-Type': 'multipart/form-data'
         },
         cancelToken: source.current.token
       });
       r.data.files.forEach(file => {
-        setFile(projectName, projectid + '/' + file.name, file.data);
+        setFile(projectName, requestId + '/' + file.name, file.data);
       })
 
       // Setting the response state and updating the finished and started states
