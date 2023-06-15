@@ -4,13 +4,13 @@ This tutorial document demonstrates the usage of SumuBridge as an example. A vid
  ## Start the project
 When you open the tool you have two possibilities to start: create a new project or open the project from files(e.g., existing project).  
 <p align="center">
-   <img src="./Screenshot_1.png" width=250>
+   <img src="./screenshots/Screenshot_1.png" width=250>
 </p>
 
  In this use case, we start from scratch, so  create an empty new project by clicking the _Start New Project_ button.
 
  <p align="center">
-   <img src="./Screenshot_6.png" >
+   <img src="./screenshots/Screenshot_6.png" >
 
  It is possible either create an empty simulation scenario and fill all parameters manually or use an integrated process mining tool to automatically extract the simulation scenario and BPMN model from the event log. We will demonstrate the second option.
  ## Process Mining & Simulation Scenario creating
@@ -20,12 +20,12 @@ When you open the tool you have two possibilities to start: create a new project
  After settings are specified, we ran Process Miner by clicking _Start Miner_.
 
  <p align="center">
-   <img src="./Screenshot_2.png" >
+   <img src="./screenshots/Screenshot_2.png" >
 </p>
 
 After sucessful finising you are notified by pop-up window. 
  <p align="center">
-   <img src="./Screenshot_3.png" width=250>
+   <img src="./screenshots/Screenshot_3.png" width=250>
 </p>
 
 and as a result multiple files in .json and .bpmn format are produced. These files represent BPMN model and simulation parameters mined from event log. You can download each of them by clicking on it. 
@@ -34,7 +34,7 @@ To convert the output to the simulation scenario we choose simulation parameters
 
 
  <p align="center">
-   <img src="./Screenshot_5.png">
+   <img src="./screenshots/Screenshot_5.png">
 </p>
 
 ## Scenario Overview
@@ -42,14 +42,14 @@ To convert the output to the simulation scenario we choose simulation parameters
 On the Scenario Overview page, we can see the parameters of the scenario we created. These include general parameters, resource parameters and model-based parameters. To access this page, we need to click on _Scenario Overview_ on the navigation sidebar. If we want to change the general parameters or make a copy of the scenario with some modifications, we can click on _Edit_ and do so. 
 
  <p align="center">
-   <img src="./Screenshot_7.png">
+   <img src="./screenshots/Screenshot_7.png">
 </p>
 <br>
-   <img align="right" src="./Screenshot_9.png" height=400>
+   <img align="right" src="./screenshots/Screenshot_9.png" height=400>
 
 
 <br>
-<img align="left" src="./Screenshot_10.png" height=200>
+<img align="left" src="./screenshots/Screenshot_10.png" height=200>
 
 Let us duplicate the scenario and make some changes afterwards. 
 After clicking _Duplicate Scenario_  Scenario1_copy is immediately created. But initial scenario is still dispayed. We can display newly created scenario by using a scenario switcher on the left sidebar. Let us just simpy choose Scenario1_copy. Now at 
@@ -73,39 +73,39 @@ _Scenario Overview_ page we can see Scenario1_copy. Let us make some changes: re
 Each resource is assigned to the specific role. Resources here are individual employees and roles could be considered as job positions.
 
  <p align="center">
-   <img src="./Screenshot_12.png">
+   <img src="./screenshots/Screenshot_12.png">
 </p>
 
 We can get detailed information about specific role or resource by clicking on it. 
 
  <p align="center">
-   <img src="./Screenshot_13.png">
+   <img src="./screenshots/Screenshot_13.png">
 </p>
  <p align="center">
-   <img src="./Screenshot_14.png">
+   <img src="./screenshots/Screenshot_14.png">
 </p>
 
 The resources that belong to a role inherit the same timetable and costs as the role. However, we can customize these parameters for each resource. To do this, we click on the resource we want to edit, enter the new values and click _Save Changes_.
 
 <p align="center">
-   <img src="./Screenshot_15.png">
+   <img src="./screenshots/Screenshot_15.png">
 </p>
 We can assign a resource to more than one role or leave it unassigned.To unassign a resource from a role, we just need to uncheck the checkboxes of the role(s) that the resource belongs to. If a resource has no role, it will show up in the unassigned resource section. 
 <p align="center">
-   <img src="./Screenshot_17.png">
+   <img src="./screenshots/Screenshot_17.png">
 </p>
 
 
 We can see the timetable of each role by clicking on the _Timetable_ tab on the tabbar.
-<img align="right" src="./Screenshot_18.png" >
+<img align="right" src="./screenshots/Screenshot_18.png" >
 <br>
 <br>
 <br>
 
 We can visualize the timetable by clicking on its name(usually is the same as the role name) and we can edit it by clicking on the day of the week and delete it or change the working hours.
-<img align="right" src="./Screenshot_19.png" >   
+<img align="right" src="./screenshots/Screenshot_19.png" >   
 
-We can add new timetable by clicking on "plus" sign.  <img align="right" src="./Screenshot_20.png" >
+We can add new timetable by clicking on "plus" sign.  <img align="right" src="./screenshots/Screenshot_20.png" >
 <br>
 <br>
 <br>
@@ -116,7 +116,7 @@ We can add new timetable by clicking on "plus" sign.  <img align="right" src="./
 To displayong the BPMN model of the business process we click on   _Modelbased Parameters_ on the navigation sidebar. We can zoom in or zoom out the model by clicking on the "plus" or "minus" at the bottom of the screen. Every element of BPMN model is clickable. After clicking, the sidebar with parameters of the chosen element will be displayed. It is possible to make changes. Let us add one more role to the first activity. To do this, expand the "Resources" section, press "plus" and select the name of the role. The changes will be saved automatically.
 
 <p align="center">
-   <img src="./Screenshot_21.png" width=500>
+   <img src="./screenshots/Screenshot_21.png" width=500>
 </p>
 
 
@@ -128,7 +128,7 @@ For that click on _View_ on the bottom left of the screen and then click _Table_
 <br>
 <br>
 <p align="center">
-   <img src="./Screenshot_24.png">
+   <img src="./screenshots/Screenshot_24.png">
 </p>
 
 
@@ -152,5 +152,5 @@ After specifying scenarios and reviewing all parameters we can run Simulation.Th
 ## Additionally 
 We can download project file in json format simply by clicking _Download Project_ on the sidebar navigation menu. The file will contain all created simulation scenarios and simulation parameters.
 
-<img align="right" src="./Screenshot_25.png">
+<img align="right" src="./screenshots/Screenshot_25.png">
 If you make changes to resource parameters or model parameters, the changes will only apply to the current scenario that you select in the left sidebar.
