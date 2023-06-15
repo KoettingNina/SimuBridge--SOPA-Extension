@@ -34,7 +34,7 @@ function filePath(projectName, fileName) {
 }
 
 async function getDatabase() {
-    return await openDB('default', 5, {
+    return await openDB('default', 6, {
         upgrade(database) {
             if (!database.objectStoreNames.contains(FILE_PREFIX)) {
                 database.createObjectStore(FILE_PREFIX, {keyPath : 'path'});
@@ -157,7 +157,7 @@ export async function uploadFile(encoding='UTF-8') {
 }
 
 export async function uploadFileToProject(projectName, encoding='UTF-8') {
-    const {name, data} = uploadFile(encoding);
+    const {name, data} = await uploadFile(encoding);
     await setFile(projectName, name, data)
     return name;
 }
