@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react'
 
 
+//TODO refactor to new popover and diff mechanics
 function ResourceTableCompare(props) {
     //**POPOVER is a little windows which opens on click of Parameters which are different for the scenario on COmparison page
 

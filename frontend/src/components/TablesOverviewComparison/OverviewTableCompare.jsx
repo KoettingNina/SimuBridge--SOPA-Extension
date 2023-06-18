@@ -19,6 +19,7 @@ import {
 } from '@chakra-ui/react'
 
 
+//TODO refactor to new popover and diff mechanics
 function OverviewTableCompare(props) {
 
     // declaration of variables

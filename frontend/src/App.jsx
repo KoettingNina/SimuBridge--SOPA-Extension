@@ -70,9 +70,9 @@ function App() {
 
 
 
-  const [scenariosCompare, setScenariosCompare] = useState("")
+  const [scenariosCompare, setScenariosCompare] = useState([])
   const [notSameScenario, setNotSameScenario] = useState("")
-  const [resourceCompared, setResourceCompared] = useState("")
+  const [resourceCompared, setResourceCompared] = useState([])
 
   const [dataLoaded, setDataLoaded] = useState(false);
 
@@ -351,9 +351,9 @@ useEffect(() => {
 
             {/*  These routes define which components are loaded into the center of the page for each path and pass the needed props*/}
             <Routes>
-              <Route path="/overview" element={<OverviewPage path="/overview" projectName={projectName} getData={getData} setCurrent={setCurrent} current={current} setObject={setObject}  scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare}/>} />
-              <Route path="/overview/compare" element={atLeastOneScenario && <ComparePage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
-              <Route path="/overview/compare/differences" element={atLeastOneScenario && <OnlyDifferencesPage path="/overview" getData={getData} setCurrent={setCurrent} current={current} setObject={setObject} notSameScenario={notSameScenario} setNotSameScenario={setNotSameScenario} scenariosCompare={scenariosCompare} setScenariosCompare={setScenariosCompare} resourceCompared={resourceCompared} setResourceCompared={setResourceCompared} />} />
+              <Route path="/overview" element={<OverviewPage path="/overview" {...{getData, toast, setScenariosCompare}}/>} />
+              <Route path="/overview/compare" element={atLeastOneScenario && <ComparePage path="/overview" {...{getData, scenariosCompare, setNotSameScenario, resourceCompared, setResourceCompared}} />} />
+              <Route path="/overview/compare/differences" element={atLeastOneScenario && <OnlyDifferencesPage path="/overview" {...{scenariosCompare, getData, notSameScenario, resourceCompared}} />} />
 
               <Route path="/resource" element={atLeastOneScenario && <ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />
               <Route path="/resource/overview" element={atLeastOneScenario && <ResourceOverview path="/resource" getData={getData} setCurrent={setCurrent} SideBarContentSetterButton={SideBarContentSetterButton} />} />

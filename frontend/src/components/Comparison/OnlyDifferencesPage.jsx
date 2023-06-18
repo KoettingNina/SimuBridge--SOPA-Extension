@@ -18,7 +18,7 @@ import {useDisclosure} from '@chakra-ui/react'
 import {Link} from "react-router-dom";
 
 
-function OnlyDifferencesPage(props) {
+function OnlyDifferencesPage({scenariosCompare, getData, notSameScenario, resourceCompared}) {
     // declaration of variables
     const {onOpen,} = useDisclosure()
     let  newRow = [], newRowRes = []
@@ -41,15 +41,15 @@ function OnlyDifferencesPage(props) {
     ]);
 
     // id of scenarios we are comparing
-    let array_dif = props.scenariosCompare.concat(props.getData().getCurrentScenario().scenarioName)
+    let array_dif = scenariosCompare.concat(getData().getCurrentScenario().scenarioName)
     // List of Simulation Scenario Parameters, valuer of which are different in compared scenarios
-    const distinctArray = [...new Set(props.notSameScenario)];
+    const distinctArray = [...new Set(notSameScenario)];
     // List of Resource Parameters, valuer of which are different in compared scenarios
-    const distinctResource = [...new Set(props.resourceCompared.map(JSON.stringify))].map(JSON.parse);
+    const distinctResource = [...new Set(resourceCompared.map(JSON.stringify))].map(JSON.parse);
     ;
 
     // filter allScenarios to have only scenarios which we are comparing
-    const different_array = props.getData().getAllScenarios().filter(item => array_dif.includes(item.scenarioName))
+    const different_array = getData().getAllScenarios().filter(item => array_dif.includes(item.scenarioName))
 
 //creating corresponding Scenario parameters name for displaying(Find names only for parameters which are
 // different in compared scenarios)

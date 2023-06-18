@@ -19,39 +19,66 @@ class ModelBasedOverview extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            parsed: false
-        };
     }
 
-    // check if data is available
-    componentDidMount() {
-        console.log(this.props.parsed)
-        if (this.props.parsed) {
-            this.setState({
-                parsed: true,
-            })
-        }
+    getCurrentModel() {
+        return this.props.currentModel;
     }
 
-    componentDidUpdate(prevProps) {
-        console.log(this.props.parsed)
+    makeRow(values) {
+        return <Tr>
+            {values.map((value, index) => <Td key={index}>{value}</Td>)}
+        </Tr>
+    }
 
-        if (prevProps.parsed !== this.props.parsed) {
-            sleep(500).then(() => {
-                this.setState({
-                    parsed: true
-                })
-            });
-        }
+    createActivityRow(element) {
+        const modelElement = this.getCurrentModel().elementsById[element.id];
+        return [
+            modelElement?.name,
+            element.resources.map((resource) => {
+                return <Text> {resource} </Text>
+            }),
+            element.duration.distributionType,
+            element.duration.values.map((value) => {
+                return <Text>{value.id + ": " + value.value}</Text>
+            }),
+            element.unit,
+            element.cost
+        ]
+    }
+
+    createGatewayRow(element) {
+        const modelElement = this.getCurrentModel().elementsById[element.id];
+        return [
+            element.id,
+            modelElement?.incoming.map((inc) => {
+                return <Text>{getElementLabel(inc.sourceRef)}</Text>
+            }),
+            modelElement?.outgoing.map((out) => {
+                return <Text>{getElementLabel(out.targetRef)} ({element.probabilities?.[out.id] * 100}%)</Text>
+            }),
+            getElementTypeName(modelElement),
+        ]
+    }
+
+    createEventRow(element) {
+        const modelElement = this.getCurrentModel().elementsById[element.id];
+        return [
+            modelElement?.name || element.id,
+            getElementTypeName(modelElement),
+            element.interArrivalTime && element.interArrivalTime.distributionType,
+            element.interArrivalTime && (element.interArrivalTime.values).map((value) => {
+                return <Text>{value.id + ": " + value.value}</Text>
+            }),
+            element.interArrivalTime.timeUnit
+        ]
     }
 
     render() {
-        const currentModel = this.props.currentModel;
         return (
             <>
                 {/*check if data is available*/}
-                {currentModel && 
+                {this.getCurrentModel() && 
                     <>
                         {/*Representation of Model-based Parameters - Activities */}
                         <Card bg="white" mt="25px" overflowX="scroll">
@@ -71,25 +98,7 @@ class ModelBasedOverview extends React.Component {
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {currentModel.modelParameter.activities.map((element) => {
-                                            return <>
-                                                <Tr>
-                                                    <Td>{currentModel.elementsById[element.id]?.name}</Td>
-                                                    <Td>
-                                                        {element.resources.map((resource) => {
-                                                            return <Text> {resource} </Text>
-                                                        })}
-                                                    </Td>
-                                                    <Td>{element.duration.distributionType}</Td>
-                                                    <Td>{element.duration.values.map((value) => {
-                                                        return <Text>{value.id + ": " + value.value}</Text>
-                                                    })}</Td>
-                                                    <Td>{element.unit}</Td>
-                                                    <Td>{element.cost}</Td>
-                                                </Tr>
-                                            </>
-
-                                        })}
+                                        {this.getCurrentModel().modelParameter.activities.map((element) => this.makeRow(this.createActivityRow(element)))}
                                     </Tbody>
                                 </Table>
                             </CardBody>
@@ -110,21 +119,7 @@ class ModelBasedOverview extends React.Component {
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {currentModel.modelParameter.gateways.map((element) => {
-                                            const modelElement = currentModel.elementsById[element.id];
-                                            return <>
-                                                <Tr>
-                                                    <Td>{element.id}</Td>
-                                                    <Td>{modelElement?.incoming.map((inc) => {
-                                                        return <Text>{getElementLabel(inc.sourceRef)}</Text>
-                                                    })}</Td>
-                                                    <Td>{modelElement?.outgoing.map((out) => {
-                                                        return <Text>{getElementLabel(out.targetRef)} ({element.probabilities?.[out.id] * 100}%)</Text>
-                                                    })}</Td>
-                                                    <Td>{getElementTypeName(modelElement)}</Td>
-                                                </Tr>
-                                            </>
-                                        })}
+                                        {this.getCurrentModel().modelParameter.gateways.map((element) => this.makeRow(this.createGatewayRow(element)))}
                                     </Tbody>
                                 </Table>
                             </CardBody>
@@ -144,20 +139,11 @@ class ModelBasedOverview extends React.Component {
                                                     <Th>Event type</Th>
                                                     <Th>Inter-arrival time</Th>
                                                     <Th>Distribution data</Th>
+                                                    <Th>TimeUnit</Th>
                                                 </Tr>
                                             </Thead>
                                             <Tbody>
-                                                {currentModel.modelParameter.events.map((element) => {
-                                                    const modelElement = currentModel.elementsById[element.id];
-                                                    return <Tr>
-                                                        <Td>{modelElement?.name || element.id}</Td>
-                                                        <Td>{getElementTypeName(modelElement)}</Td>
-                                                        {element.interArrivalTime && <Td>{element.interArrivalTime.distributionType}</Td>}
-                                                        {element.interArrivalTime && <Td>{(element.interArrivalTime.values).map((value) => {
-                                                            return <Text>{value.id + ": " + value.value}</Text>
-                                                        })}</Td>}
-                                                    </Tr>
-                                                })}
+                                                {this.getCurrentModel().modelParameter.events.map((element) => this.makeRow(this.createEventRow(element)))}
                                             </Tbody>
                                         </Table>
                                     </TableContainer>
