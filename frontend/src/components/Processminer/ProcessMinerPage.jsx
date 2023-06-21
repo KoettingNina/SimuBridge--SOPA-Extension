@@ -106,7 +106,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                 .filter(file => file.name.endsWith('.json') || file.name.endsWith('.bpmn'));
             relevant_files
                 .forEach(file => {
-                   //TODO simplify name
+                   file.name = file.name.replace(/\/.*\/(.*trial).*\//, '/$1/')
                    file.data = file.readAsString(); 
                 });
 
@@ -123,6 +123,9 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                 message : 'Miner output currently not captured',
                 files : relevant_files
             });
+            console.log('simod_results/' + relevant_files.find(file => /.*best_result.*simulation_parameters\.json/.test(file.name))?.name)
+            setConfigFile('simod_results/' + relevant_files.find(file => /.*best_result.*simulation_parameters\.json/.test(file.name))?.name)
+            setBpmnFile('simod_results/' + relevant_files.find(file => /.*structure_trial.*\.bpmn/.test(file.name))?.name)
             setFinished(true);
             setStarted(false);
             // Toasting a success message
