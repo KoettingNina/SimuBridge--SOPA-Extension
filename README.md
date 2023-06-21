@@ -1,9 +1,9 @@
-# SimulationPortal--Main
+# SimuBridge--Main
 <h2 align="center">:tada: SimuBridge [A Bridging Platform between Process Mining and Business Process Simulation] :tada:</h2>
 
 ![image](doc/screenshot.png)
 
-![CI](https://github.com/INSM-TUM/SimulationPortal/actions/workflows/CI.yml/badge.svg)
+![CI](https://github.com/INSM-TUM/SimuBridge/actions/workflows/CI.yml/badge.svg)
 
 
 
@@ -86,12 +86,12 @@ In order to run out tool with all related components, we recommend to run it by 
 
 2. Clone the repository
 ```console
-git clone https://github.com/INSM-TUM/SimulationPortal.git
+git clone https://github.com/INSM-TUM/SimuBridge.git
 ```
 
 3. Navigate into the project directory
 ```console
-cd SimulationPortal
+cd SimuBridge
 ```
 
 3. Start the docker containers by using docker compose
@@ -118,13 +118,13 @@ Simply click on "start new project" and then "start parameterization" to begin.
 3. Clone git repository
 
 ```console
-git clone https://github.com/INSM-TUM/SimulationPortal.git
+git clone https://github.com/INSM-TUM/SimuBridge.git
 ```
 
 4. Go to the project directory
 
 ```console
-cd SimulationPortal
+cd SimuBridge
 ```
 
 5. run: 
