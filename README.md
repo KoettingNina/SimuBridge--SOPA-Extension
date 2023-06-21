@@ -46,9 +46,9 @@ Simod HTTP source code is located here, https://github.com/AutomatedProcessImpro
 Docker images are available there, https://hub.docker.com/r/nokal/simod-http/tags or https://hub.docker.com/layers/nokal/simod-http/tu-berlin/images/sha256-2cc67052c748a78c610f619778b119af455d7c5027a983295254f6b7c8d574f6?context=explore
 
 ### 📦️ Simulator (Scylla) 
-Scylla is an extensible BPMN process simulator which relies on the building blocks of discrete event simulation. For its repo please refer: https://github.com/INSM-TUM/SimulationPortal--Scylla-Container/blob/main/README.md
+Scylla is an extensible BPMN process simulator which relies on the building blocks of discrete event simulation. For its repo please refer: https://github.com/INSM-TUM/Scylla-Container/blob/main/README.md
 
-Also, please refer the following link for the details of Scylla simulator, API which provides an endpoint to the functionality of this container and a data converter from SimuBridge parameters to Scylla global and simulation configuration:  https://github.com/INSM-TUM/SimulationPortal--Scylla-Container
+Also, please refer the following link for the details of Scylla simulator, API which provides an endpoint to the functionality of this container and a data converter from SimuBridge parameters to Scylla global and simulation configuration:  https://github.com/INSM-TUM/Scylla-Container
 
 ### 📦️ SimuBridge frontend 
 The frontend of our web application has been built using the Javascript library React. 
