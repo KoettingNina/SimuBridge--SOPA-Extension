@@ -73,16 +73,16 @@ export async function getScenarios(projectName) {
 }
 
 export async function getFile(projectName, fileName) {
-    if(!projectName) throw 'No project name provided';
-    if(!fileName) throw 'No file name provided';
+    if(!projectName) throw new Error('No project name provided');
+    if(!fileName) throw new Error('No file name provided');
 
     const {transaction, store} = await getFileObjectStorage('readonly')
     return await store.get(filePath(projectName, fileName));
 }
 
 export async function setFile(projectName, fileName, data) {
-    if(!projectName) throw 'No project name provided';
-    if(!fileName) throw 'No file name provided';
+    if(!projectName) throw new Error('No project name provided');
+    if(!fileName) throw new Error('No file name provided');
 
     const {transaction, store} = await getFileObjectStorage('readwrite');
     store.put({
@@ -98,8 +98,8 @@ export function getScenarioFileName(scenarioName) {
 }
 
 export async function deleteFile(projectName, fileName) {
-    if(!projectName) throw 'No project name provided';
-    if(!fileName) throw 'No file name provided';
+    if(!projectName) throw new Error('No project name provided');
+    if(!fileName) throw new Error('No file name provided');
 
     const {transaction, store} = await getFileObjectStorage('readwrite');
     store.delete(filePath(projectName, fileName));
@@ -113,8 +113,8 @@ export async function deleteAllFiles(projectName) {
 }
 
 export async function downloadFile(projectName, fileName, encoding='charset=UTF-8') {
-    if(!projectName) throw 'No project name provided';
-    if(!fileName) throw 'No file name provided';
+    if(!projectName) throw new Error('No project name provided');
+    if(!fileName) throw new Error('No file name provided');
 
     const data = (await getFile(projectName, fileName)).data;
     const encodedData = encodeURIComponent(data);

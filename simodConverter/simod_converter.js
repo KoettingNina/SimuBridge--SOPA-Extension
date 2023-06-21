@@ -1,15 +1,14 @@
-import { Currencies, TimeUnits } from 'simulation-bridge-datamodel/DataModel.js';
+import { Currencies, TimeUnits, activity, distribution, event, scenario, distributionTypes } from 'simulation-bridge-datamodel/DataModel.js';
 
 import xml2js from 'browser-xml2js'
+
 
 
 export function convertSimodOutput(jsonOutput, bpmnOutput) {
 
     const jsonObj = JSON.parse(jsonOutput);
     
-    //TODO replace xml2js
-    // const parser = new DOMParser();
-    // const bpmnParsed = parser.parseFromString(bpmnOutput, "text/xml");
+    //TODO replace xml2js with bpmn-moddle
     
     let bpmnParsed;
     const parser = new xml2js.Parser({attrkey: "ATTR"})
@@ -18,29 +17,15 @@ export function convertSimodOutput(jsonOutput, bpmnOutput) {
         else{console.log(error)}
     });
 
-    //create Array which contains Scenario Objects
-    let Scenario = new Object;
+    //create Scenario Object, use default for name, starting date, no. process instances, and currency
+    let Scenario = scenario("Scenario 1");
 
     //Get Scenario parameters which are needed in the internal Representation of SimuBridge
-    Scenario.scenarioName = getScenarioName(jsonObj);
-    Scenario.startingDate = getStartingDate(jsonObj);
     Scenario.startingTime = getstartingTime(jsonObj);
-    Scenario.numberOfInstances = 100 //TODO doesn't work //getNumberOfInstances(jsonObj);
-    Scenario.currency = getCurrency();
-    Scenario.resourceParameters = getResourceParameters(jsonObj);
-    Scenario.models = getModel(bpmnParsed, jsonObj, bpmnOutput);
+    Object.assign(Scenario.resourceParameters, getResourceParameters(jsonObj));
+    Object.assign(Scenario.models, getModel(bpmnParsed, jsonObj, bpmnOutput));
 
     return Scenario;
-}
-
-function getScenarioName(jsonObj){
-    //No Scenario name in Simod, choose default name
-    return "Scenario 1"
-}
-
-function getStartingDate(jsonObj){
-    //No Scenario name in Simod, choose default date
-    return "01-01-0000"
 }
 
 function getstartingTime(jsonObj){
@@ -48,145 +33,71 @@ function getstartingTime(jsonObj){
     return jsonObj.arrival_time_calendar[0].beginTime.substring(0,5)
 }
 
-function getNumberOfInstances(jsonObj){  //TODO unused
-    //get the Number of instances startet in inter arrival time calendar
-    let NumberofSeconds = 0;
-    jsonObj.arrival_time_calendar.forEach(element => {
-        let StartingDay = getDayAsNumber(element.from);
-        let StartingTime = getTimeInSeconds(element.beginTime);
-        let EndDay = getDayAsNumber(element.to);
-        let EndTime = getTimeInSeconds(element.endTime);
-        let secondsPerDay = 86400;
-        
-        let Seconds = EndTime - StartingTime; 
-        Seconds += secondsPerDay * (EndDay - StartingDay);
-        NumberofSeconds += Seconds
-    })
-    //multiply seconds with mean per seconds of distribution
-    let numberOfInstances = 0;
-    switch(getDistributionName(jsonObj.arrival_time_distribution)){ //TODO these might all be wrong
-        case "constant": numberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[0].value; break;
-        case "uniform": numberOfInstances = (NumberofSeconds/60) * (getValues(jsonObj.arrival_time_distribution)[1].value - getValues(jsonObj.arrival_time_distribution)[0].value); break;
-        case "expon": numberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[1].value; break;
-        case "norm": numberOfInstances = (NumberofSeconds/60) * getValues(jsonObj.arrival_time_distribution)[0].value; break;
-    }
-
-    return Math.ceil(numberOfInstances);
-}
-
-function getTimeInSeconds(timeString){
-    //provides the number of seconds for a time input String: "hh:mm:ss"
-    let hours = parseInt(timeString);
-    timeString = timeString.substring(3);
-    var min = parseInt(timeString);
-    timeString = timeString.substring(3);
-    let seconds = parseInt(timeString);
-    return seconds + (60*min) + (60*60*hours)
-}
-
-function getDayAsNumber(Day){
-    // returns the number of the day (monday = 0; tuesday = 1;..)
-    switch(Day.toLocaleLowerCase()){
-        case "monday": return 0;
-        case "tuesday": return 1;
-        case "wednesday": return 2;
-        case "thursday": return 3;
-        case "friday": return 4;
-        case "saturday": return 5;
-        case "sunday": return 6;
-    }
-}
-
 function getTimeUnit(){
     //Simod always returns values in seconds (see https://github.com/AutomatedProcessImprovement/Prosimos/blob/main/README.md)
     return TimeUnits.SECONDS
 }
 
-function getCurrency(){
-    //no Currency in Simod, choose default currency
-    return Currencies.UNSPECIFIED;
+function getCaseArrivalRate(jsonObj) {
+    return makeDistribution(jsonObj.arrival_time_distribution);
 }
 
-function getInterArrivalTime(jsonObj){
-    //provides the interarrivalTime which contains a distribution Name and values
-    let interArrivalTime = new Object;
-    interArrivalTime.distributionType = getDistributionName(jsonObj.arrival_time_distribution)
-    interArrivalTime.values = getValues(jsonObj.arrival_time_distribution)
-    interArrivalTime.timeUnit = getTimeUnit()
-    return interArrivalTime
-}
+function makeDistribution(simodDistribution){
 
-function getDistributionName(distribution){
-    // returns the name of distribution, gamme and lognorm approximated with a constant value
-    let distributionName = distribution.distribution_name;
-    switch(distributionName.toLocaleLowerCase()){
-        case 'gamma':  return 'constant' //Not in Scylla
-        case 'fix': return'constant'
-        case 'uniform': return 'uniform'
-        case 'expon': return 'exponential'
-        case 'lognorm': return 'constant'; //Not in scylla
-        case 'norm': return 'normal';
-        case 'default': return 'uniform'; //NOT in scylla!
+    function createDistributionConfig (distributionType, ...values) {
+        return Object.assign(distribution(), {
+            distributionType, 
+            values : distributionTypes[distributionType].distribution_params.map((id, index) => ({id, value : values[index] })),
+            timeUnit : getTimeUnit()
+        })
     }
-}
 
-function getValues(distribution){
-    // returns the values of distribution, gamme and lognorm approximated with a constant value
-    let values = new Array
-    let mean = 0.0;
-    let variance = 0.0;
-    switch(distribution.distribution_name.toLocaleLowerCase()){
-        case 'gamma':  {
-            mean = distribution.distribution_params[0].value * distribution.distribution_params[2].value; 
-            //variance = mean * distribution.distribution_params[2].value; 
-            //values.push({id: "mean", value: mean})
-            //values.push({id: "variance", value: variance})
-            values.push({id: "constantValue", value: /*60/*/mean})
-            break;
-        }; //Not in Scylla //Using mean for fix distribution
+    switch(simodDistribution.distribution_name.toLocaleLowerCase()) {
+        case 'gamma':  { // Gamma distribution not supported by SimuBridge, approximate with normal distribution of same mean and variance
+            // Param documentation: https://github.com/AutomatedProcessImprovement/Prosimos/blob/34bf0e2367428cc4b87d626dde9161d82c89efb4/prosimos/probability_distributions.py#L165
+            const param1 = simodDistribution.distribution_params[0].value;
+            const param2 = simodDistribution.distribution_params[2].value
+            const mean = param1 * param2; // pow(mean, 2) / variance * variance / mean = pow(mean, 2) / mean = mean
+            const variance = param2 * mean; // variance / mean * mean = variance
+            return createDistributionConfig('normal', mean, variance);
+        }; 
         case 'fix': {
-            let constantValue = distribution.distribution_params[0].value;
-            values.push({id: "constantValue", value: /*60/*/constantValue});
-            break;
+            const constantValue = simodDistribution.distribution_params[0].value;
+            return createDistributionConfig('constant', constantValue);
         };
-        case 'uniform': case 'default':{
-            let lower = distribution.distribution_params[0].value;
-            let upper = distribution.distribution_params[1].value + lower;
-            values.push({id: "lower", value: /*60/*/lower});
-            values.push({id: "upper", value: /*60/*/upper});
-            break;
+        case 'uniform': case 'default':{ //TODO confirm that default distribution is indeed a uniform distribution
+            const lower = simodDistribution.distribution_params[0].value;
+            const upper = simodDistribution.distribution_params[1].value + lower;
+            return createDistributionConfig('uniform', lower, upper);
         };
         case 'expon': {
-            mean = distribution.distribution_params[1].value; 
-            values.push({id: "mean", value: /*60/*/mean})
-            break;
+            const mean = simodDistribution.distribution_params[1].value; 
+            return createDistributionConfig('exponential', mean)
         };
-        case 'lognorm': {
-            mean = distribution.distribution_params[2].value;
-            values.push({
-                id: "constantValue", value: /*60/*/mean
-            })
-            break;
-        }; //Not in Scylla //Using math.exp(mu) for fix duration
         case 'norm': {
-            mean = distribution.distribution_params[0].value; 
-            let variance = distribution.distribution_params[1].value;
-            values.push({id: 'mean', value: /*60/*/mean})
-            values.push({id: 'variance', value: variance})
-            break;
+            const mean = simodDistribution.distribution_params[0].value; 
+            const variance = simodDistribution.distribution_params[1].value;
+            return createDistributionConfig('normal', mean, variance);
         };
-        case 'default': return values;
+        case 'lognorm': { //TODO translation semantic to be counterchecked
+            const logMean = simodDistribution.distribution_params[0].value;
+            const logVariance = simodDistribution.distribution_params[1].value;
+
+            const mean = Math.log(logMean ** 2 / Math.sqrt(logMean ** 2 + logVariance));
+            const variance = Math.sqrt(Math.log(1 + logVariance / logMean ** 2));
+            return createDistributionConfig('normal', mean, variance);
+        }; 
+        default: throw new Error(`Distributiontype "${simodDistribution.distribution_name}" not supported`)
     }
-    return values
 }
 
 function getResourceParameters(jsonObj){
     //returns the resource Parameters, which contains Resources, Roles and Timetables
-    let ResourceParameters = new Object;
-    ResourceParameters.roles = getRoles(jsonObj);
-    ResourceParameters.resources = getResources(jsonObj);
-    ResourceParameters.timeTables = getTimeTables(jsonObj);
-    return ResourceParameters
+    return {
+        roles : getRoles(jsonObj),
+        resources : getResources(jsonObj),
+        timeTables : getTimeTables(jsonObj)
+    }
 }
 
 function getResources(jsonObj){
@@ -203,20 +114,9 @@ function getResources(jsonObj){
     });
 }
 
-function getTaskDuration(jsonObj, Taskid){
-    //returns the duraration for a taks, contains the ditribution Name and the values
-    let duration = new Object;
-    jsonObj.task_resource_distribution.forEach(element =>{
-        if(element.task_id == Taskid){
-            duration = {
-                distributionType: getDistributionName(element.resources[0]),
-                values: getValues(element.resources[0]),
-                timeUnit : getTimeUnit()
-            }
-        }
-
-    })
-    return duration
+function getTaskDuration(jsonObj, taskid){
+    const durationPerResourceInstance = jsonObj.task_resource_distribution.find(element => element.task_id == taskid).resources;
+    return makeDistribution(durationPerResourceInstance[0])  //Assume that each resource takes the same time
 }
 
 function getRoles(jsonObj){
@@ -256,10 +156,10 @@ function firstLetterUpperCaseElseLowerCase(word){
 }
 
 function timeToNumber(time){
+    //TODO do we really only want to support full hours?
     // returns a from a time (hh:mm:ss) the rounded hour
     var hour = parseInt(time)
-    var time = time.substring(3)
-    var min = parseInt(time)
+    var min = parseInt(time.substring(3))
     if(min > 30){ hour = hour + 1;}
     return hour
 }
@@ -282,30 +182,14 @@ function getModel(bpmnObj, jsonObj, bpmnXml){
 }
 
 function getEvents(bpmnObj, jsonObj) {
-    let Events = new Array;
-    //getStartEvents
-    bpmnObj.definitions.process.forEach(element => {
-        element.startEvent.forEach(b => {
-            Events.push({
-                id: b.ATTR.id,
-                type: "bpmn:StartEvent",
-                interArrivalTime: getInterArrivalTime(jsonObj),
-            })
-        })
-    })
-    //getintermediateCatchEvents
-    bpmnObj.definitions.process.forEach(element => {
-        if(element.intermediateCatchEvent != null){
-            element.intermediateCatchEvent.forEach(b => {
-                Events.push({
-                    id: b.ATTR.id,
-                    type: "bpmn:intermediateCatchEvent",
-                    interArrivalTime: "", //TODO this will not work; however, at least simod seems to not give any additional information to intermediate events
-                })
-            })
-        }  
-    })
-    return Events
+    return bpmnObj.definitions.process.flatMap(element => 
+        [... element.startEvent.map(b => Object.assign(event(b.ATTR.id), {
+            interArrivalTime: getCaseArrivalRate(jsonObj),
+        })),
+        ... (element.intermediateCatchEvent || []).map(b => Object.assign(event(b.ATTR.id), {
+            interArrivalTime: makeDistribution(jsonObj.event_distribution.find(evtDist => evtDist.event_id === b.ATTR.id))
+        }))]
+    );
 }
 
 
@@ -318,25 +202,17 @@ function getGateways(jsonObj){
 }
 
 function getActivities(bpmnObj, jsonObj) {
-    let activities = new Array;
-    bpmnObj.definitions.process.forEach(element => {
-        element.task.forEach(b => {
-
-            let roles = jsonObj.resource_profiles;
-            let assignedRoles = roles
-                .filter(role => role.resource_list.some(instance => instance.assignedTasks.includes(b.ATTR.id)))
+    return bpmnObj.definitions.process.flatMap(process => {
+        return process.task.map(simodActivity => {
+            const roles = jsonObj.resource_profiles;
+            const assignedRoles = roles
+                .filter(role => role.resource_list.some(instance => instance.assignedTasks.includes(simodActivity.ATTR.id)))
                 .map(role => role.id);
 
-            activities.push({
-                id: b.ATTR.id,
-                name: b.ATTR.name,
-                type: "bpmn:Task",
-                resources: assignedRoles,
-                unit: getTimeUnit(),
-                cost: 0,
-                duration: getTaskDuration(jsonObj, b.ATTR.id),
-            })
+            return Object.assign(activity(simodActivity.ATTR.id), {
+                resources : assignedRoles,
+                duration : getTaskDuration(jsonObj, simodActivity.ATTR.id)
+            });
         })
     })
-    return activities;
 }

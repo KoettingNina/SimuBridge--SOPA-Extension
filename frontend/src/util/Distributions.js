@@ -1,13 +1,4 @@
-export const distributionTypes = {
-    exponential: { distribution_params: ["mean"] },
-    normal: { distribution_params: ["mean", "variance"] },
-    uniform: { distribution_params: ["lower", "upper"] },
-    constant: { distribution_params: ["constantValue"] },
-    erlang: { distribution_params: ["order", "mean"] },
-    triangular: { distribution_params: ["lower", "peak", "upper"] },
-    binomial: { distribution_params: ["probabiliy", "amount"] },
-    arbitraryFiniteProbabilityDistribution: { distribution_params: [] }
-}
+import { distributionTypes } from "simulation-bridge-datamodel/DataModel.js";
 
 export function getParamsForDistribution(distributionType, distributionValues) {
     return (distributionType === "arbitraryFiniteProbabilityDistribution"

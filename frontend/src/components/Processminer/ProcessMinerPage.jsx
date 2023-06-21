@@ -2,12 +2,16 @@ import React, { useState, useRef } from "react";
 import { Flex, Heading, Card, CardHeader, CardBody, Text, Select, Stack, Button, Progress, Box, Textarea, UnorderedList, ListItem } from '@chakra-ui/react';
 import { FiChevronDown } from 'react-icons/fi';
 import axios from 'axios';
-import Zip from 'jszip';
 import untar from "js-untar";
 import Gzip from 'pako';
-import simodSampleConfiguration from '../../example_data/simod_input/config/sample.yml'
+import simodConfiguration from './simod_config.yml'
 import { getFile, getFiles, setFile, uploadFileToProject } from "../../util/Storage";
 import { convertSimodOutput } from "simulation-bridge-converter-simod/simod_converter";
+
+
+function getNumberOfInstances(eventLog) {
+    return eventLog.match(/<trace>/g)?.length || 100;
+}
 
 const ProcessMinerPage = ({projectName, getData, toasting }) => {
 
@@ -29,7 +33,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
   // function to start the Miner
   const start = async () => {
     // Resetting response and finished states
-    setResponse({ message: "", files: [{ name: "", link: "" }] });
+    setResponse({ message: '', files: [] });
     setFinished(false);
     setErrored(false);
     // Updating the started state
@@ -39,17 +43,17 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
     source.current = axios.CancelToken.source();
 
     try {
-        const apiAddress = 'http://127.0.0.1:8880'
-        var projectid = 'helloworld' + Math.random();
-        var formData = new FormData();
-        var eventlogFile = new File([(await getFile(projectName, logFile)).data], logFile);
-        var configurationFile = new File([ await (await fetch(simodSampleConfiguration)).text()], "sample.yml");  //TODO placeholder
+        const apiAddress = 'http://127.0.0.1:8880';
+        const formData = new FormData();
+        const eventlogFile = new File([(await getFile(projectName, logFile)).data], logFile);
+        const configurationFile = new File([ await (await fetch(simodConfiguration)).text()], "sample.yml");
         formData.append("configuration", new Blob([configurationFile], { type: 'application/yaml' }), configurationFile.name);
         formData.append("event_log", new Blob([eventlogFile], { type: 'application/xml' }), eventlogFile.name);
 
-        const DEBUG = true;
+        const DEBUG = JSON.parse(sessionStorage.getItem('DEBUG'));
 
         let status;
+        const requestStartTime = new Date().getTime();
         if (!DEBUG) {        
             const r = await axios.post(apiAddress+"/discoveries", formData, {
                 headers: {
@@ -84,25 +88,18 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                 await sleep(5000);
             }
         } else {
-            //TODO dummy
-            status = {request_status : 'success', archive_url : 'http://0.0.0.0/discoveries/06c39378-f5da-4d9e-98c2-8fda5c61142a/06c39378-f5da-4d9e-98c2-8fda5c61142a.tar.gz'}
+            status = {request_status : 'success', archive_url : sessionStorage.getItem('lastSimodUrl')}
         }
 
         
         if(status.request_status === 'success') {
-            // console.log(`Request took ${ new Date().getTime() - r.config.meta.requestStartedAt} ms`)
-
+            console.log(`Request took ${(new Date().getTime() - requestStartTime) / 1000.0} s`)
+            sessionStorage.setItem('lastSimodUrl', status.archive_url); //DEBUG for debugging purposes
             const result = await fetch(status.archive_url.replace('http://0.0.0.0', apiAddress));
             const raw = await result.arrayBuffer();
             const raw_tar = Gzip.inflate(raw).buffer
             console.log('Files:')
             console.log(raw_tar)
-            // const foo = await (new Blob([files], {
-            //     type: 'application/gzip',
-            //   })).arrayBuffer();
-              
-            // console.log(typeof(foo));
-            //const foo = await untar(new ArrayBuffer(await result.arrayBuffer()));
             const files = await untar(raw_tar);
 
             const relevant_files = files
@@ -287,9 +284,11 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                                 
                                 <Button disabled={!configFile || !bpmnFile} onClick={async () => {
                                     console.log('Converting files ' + configFile + ' ' + bpmnFile)
-                                    let converted = convertSimodOutput((await getFile(projectName, configFile)).data, (await getFile(projectName, bpmnFile)).data);
+                                    const converted = convertSimodOutput((await getFile(projectName, configFile)).data, (await getFile(projectName, bpmnFile)).data);
+                                    const eventLog = (await getFile(projectName, logFile || fileList.filter(file => file.endsWith('.xes'))[0])).data; //TODO what if somebody selects another config?
+                                    converted.numberOfInstances = getNumberOfInstances(eventLog);
 
-                                    let scenarioName = window.prompt('Please enter scenario name');
+                                    const scenarioName = window.prompt('Please enter scenario name');
                                     if (scenarioName) {
                                         converted.scenarioName = scenarioName;
                                         getData().addScenario(converted);
