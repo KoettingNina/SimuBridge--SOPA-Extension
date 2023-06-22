@@ -1,4 +1,4 @@
-import { Currencies, TimeUnits, activity, distribution, event, scenario, distributionTypes } from 'simulation-bridge-datamodel/DataModel.js';
+import { Currencies, TimeUnits, activity, distribution, event, scenario, distributionTypes, model } from 'simulation-bridge-datamodel/DataModel.js';
 
 import xml2js from 'browser-xml2js'
 
@@ -7,15 +7,6 @@ import xml2js from 'browser-xml2js'
 export function convertSimodOutput(jsonOutput, bpmnOutput) {
 
     const jsonObj = JSON.parse(jsonOutput);
-    
-    //TODO replace xml2js with bpmn-moddle
-    
-    let bpmnParsed;
-    const parser = new xml2js.Parser({attrkey: "ATTR"})
-    parser.parseString(bpmnOutput, function(error, result){
-        if (error == null){console.log(result); bpmnParsed = result}
-        else{console.log(error)}
-    });
 
     //create Scenario Object, use default for name, starting date, no. process instances, and currency
     let Scenario = scenario("Scenario 1");
@@ -23,7 +14,7 @@ export function convertSimodOutput(jsonOutput, bpmnOutput) {
     //Get Scenario parameters which are needed in the internal Representation of SimuBridge
     Scenario.startingTime = getstartingTime(jsonObj);
     Object.assign(Scenario.resourceParameters, getResourceParameters(jsonObj));
-    Object.assign(Scenario.models, getModel(bpmnParsed, jsonObj, bpmnOutput));
+    Object.assign(Scenario.models, [getModel(jsonObj, bpmnOutput)]);
 
     return Scenario;
 }
@@ -131,22 +122,15 @@ function getRoles(jsonObj){
 
 function getTimeTables(jsonObj){
     //returns all timetables of the resources
-    let timeTables = new Array
-    jsonObj.resource_calendars.forEach(element =>{
-        let timeTableItems = new Array
-        element.time_periods.forEach(b => {timeTableItems.push({
+    return jsonObj.resource_calendars.map(element =>({
+        id: element.id,
+        timeTableItems: element.time_periods.map(b => ({
             startWeekday: firstLetterUpperCaseElseLowerCase(b.from),
             startTime: timeToNumber(b.beginTime),
             endWeekday: firstLetterUpperCaseElseLowerCase(b.to),
             endTime: timeToNumber(b.endTime)
-
-        })})
-        timeTables.push({
-            id: element.id,
-            timeTableItems: timeTableItems
-        })
-    });
-    return timeTables
+        }))
+    }));
 }
 
 function firstLetterUpperCaseElseLowerCase(word){
@@ -164,21 +148,23 @@ function timeToNumber(time){
     return hour
 }
 
-function getModel(bpmnObj, jsonObj, bpmnXml){
-    //returns the model parameters, contains the BPMN, BPMN-name, activities, gateways, events and sequences
-    let models = new Array;
-    let modelParameter = new Object;
-    modelParameter.activities = getActivities(bpmnObj, jsonObj);
-    modelParameter.gateways = getGateways(jsonObj);
-    modelParameter.events = getEvents(bpmnObj, jsonObj);
+function getModel(jsonObj, bpmnXml){  
     
-    models.push({
-        BPMN: bpmnXml,
-        name: "BPMN_1",
-        modelParameter: modelParameter
-
-    })
-    return models;
+    //TODO replace xml2js with bpmn-moddle
+    let bpmnObj;
+    const parser = new xml2js.Parser({attrkey: "ATTR"})
+    parser.parseString(bpmnXml, function(error, result){
+        if (error == null){console.log(result); bpmnObj = result}
+        else{ throw error }
+    });
+    
+    return Object.assign(model("BPMN_1", bpmnXml), {
+        modelParameter : {
+            activities : getActivities(bpmnObj, jsonObj),
+            gateways : getGateways(jsonObj),
+            events : getEvents(bpmnObj, jsonObj),
+        }
+    });
 }
 
 function getEvents(bpmnObj, jsonObj) {
