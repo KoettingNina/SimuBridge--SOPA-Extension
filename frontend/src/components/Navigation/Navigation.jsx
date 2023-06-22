@@ -87,9 +87,9 @@ import { scenario } from 'simulation-bridge-datamodel/DataModel';
                     <Flex w="80%"  flexDir='column'>
                       <Flex fontWeight="bold" alignItems='center'>
                         Scenario:
-                        <Select value={getData().getCurrentScenario()?.scenarioName} bg="white">
+                        <Select value={getData().getCurrentScenario()?.scenarioName} bg="white" onChange={evt => getData().setCurrentScenarioByName(evt.target.value)}>
                             {getData().getAllScenarios().map((scenario, index) => {
-                                return <option value={scenario.scenarioName} key={scenario.scenarioName} onClick={() => getData().setCurrentScenarioByIndex(index)}>{scenario.scenarioName}</option> //TODO should be onchange
+                                return <option value={scenario.scenarioName} key={scenario.scenarioName}>{scenario.scenarioName}</option>
                             })}
                         </Select>
                       </Flex>
