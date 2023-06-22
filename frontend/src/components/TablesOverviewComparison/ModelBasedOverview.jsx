@@ -42,7 +42,7 @@ class ModelBasedOverview extends React.Component {
             element.duration.values.map((value) => {
                 return <Text>{value.id + ": " + value.value}</Text>
             }),
-            element.unit,
+            element.duration.timeUnit,
             element.cost
         ]
     }
