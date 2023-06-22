@@ -21,6 +21,7 @@ import { deleteFile, getScenarioFileName, getScenarios, setFile, updateProject }
 import BpmnView from './components/ModelbasedParameters/BpmnView';
 import { model, scenario, limitToDataScheme } from 'simulation-bridge-datamodel/DataModel';
 import BPMNModdle from 'bpmn-moddle';
+import ModelBasedOverview from './components/TablesOverviewComparison/ModelBasedOverview';
 
 
 const { compare } = require('js-deep-equals')
@@ -362,7 +363,9 @@ useEffect(() => {
               <Route path="/scenario" element={atLeastOneScenario && <ScenarioPage {...{ getData, setCurrentRightSideBar }} />} />
               
               <Route path="/modelbased" element={atLeastOneModel && <BpmnView {...{ getData, setCurrentRightSideBar }} />} />
+              {/* <Route path="/modelbased/tableview" element={atLeastOneModel && <ModelBasedOverview currentModel={getData().getCurrentModel()}   />} /> */}
               <Route path="/modelbased/tableview" element={atLeastOneModel && <ModelbasedParametersTable getData={getData} current={current} setCurrent={setCurrent} setObject={setObject}   />} />
+
 
 
               <Route path="/simulation" element={<SimulationPage path="/simulation"  {...{projectName, getData, toasting }} />} />

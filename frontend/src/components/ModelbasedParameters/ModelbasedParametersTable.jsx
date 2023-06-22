@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import ViewButtons from './ViewButtons';
 import { getElementLabel } from '../../util/BpmnUtil';
 
+//TODO this is just another duplicate of ModelBasedOverview, also disabled due to incompatibility
 const ModelbasedParametersTable = ({ getData }) => {
   const [editable, setEditable] = useState(false); // whether the table is in edit mode
 

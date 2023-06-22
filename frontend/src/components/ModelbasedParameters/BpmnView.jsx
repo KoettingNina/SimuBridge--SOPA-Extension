@@ -162,7 +162,7 @@ function BpmnView({getData, setCurrentRightSideBar}) {
                 
             
             
-            <ViewButtons/>
+            {/* <ViewButtons/> */}
             </ButtonGroup>
           </Flex>
           
