@@ -35,6 +35,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
     // Resetting response and finished states
     setResponse({ message: '', files: [] });
     setFinished(false);
+    window.canceled = false;
     setErrored(false);
     // Updating the started state
     setStarted(true);
@@ -65,12 +66,17 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             console.log({request_id , request_status})
 
             if (request_status !== 'accepted') {
-                throw 'Process mining request rejected'
+                throw new Error('Process mining request rejected');
+            }
+            
+            if (window.canceled) {
+                throw new Error('Canceled');
             }
             
             toasting("success", "Success", "Process Mining successfully started");
             
-            const maxWaitTimeMs = 360000;
+            const msPerMinute = 60 * 1000;
+            const maxWaitTimeMs = 60 * msPerMinute;
             const waitStartTime = new Date().getTime();
             function sleep(milliseconds) {
                 return new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -83,11 +89,15 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                 if (status.request_status !== 'running') {
                     break;
                 } else if (new Date().getTime() - waitStartTime > maxWaitTimeMs) {
-                    throw "Process Mining timed out";
+                    throw new Error("Process Mining timed out");
                 }
-                await sleep(5000);
+                await sleep(10000);
+                if (window.canceled) {
+                    throw new Error('Canceled');
+                }
             }
         } else {
+            console.log('Using cached result for debugging purposes')
             status = {request_status : 'success', archive_url : sessionStorage.getItem('lastSimodUrl')}
         }
 
@@ -101,13 +111,58 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             console.log('Files:')
             console.log(raw_tar)
             const files = await untar(raw_tar);
+            console.log('Untar finished')
 
             const relevant_files = files
                 .filter(file => file.name.endsWith('.json') || file.name.endsWith('.bpmn'));
+
+            // Adapts https://github.com/InvokIT/js-untar/blob/49e639cf82e8d58dccb3458cbd08768afee8b41c/src/untar.js#L74
+            // Also includes proposal from https://github.com/InvokIT/js-untar/pull/27
+            function readAsString_safeForLargeFiles(encoding) {
+                var buffer = this.buffer;
+                var charCount = buffer.byteLength;
+                var charSize = 1;
+                var byteCount = charCount * charSize;
+                var bufferView = new DataView(buffer);
+    
+                var charCodes = [];
+
+                
+                encoding = encoding || 'utf-8';
+                if (global.TextDecoder) {				
+                    var decoder = new TextDecoder(encoding);
+                    return (this._string = decoder.decode(this.buffer));
+                } else {
+        
+                    for (var i = 0; i < charCount; ++i) {
+                        var charCode = bufferView.getUint8(i * charSize, true);
+                        charCodes.push(charCode);
+                    }
+        
+                    // Cut up long files into chunks to avoid running into the Javascript argument count. According to StackOverflow, 32k should be fine on most browsers https://stackoverflow.com/questions/22747068/is-there-a-max-number-of-arguments-javascript-functions-can-accept
+                    return (this._string = convertLongCharCodeArrayToString(charCodes, 32000));
+                }
+            }
+
+            function convertLongCharCodeArrayToString(charCodes, chunkSize) {
+                var result = '';
+                var index = 0;
+              
+                while (index < charCodes.length) {
+                  var chunk = charCodes.slice(index, index + chunkSize);
+                  result += String.fromCharCode.apply(null, chunk);
+                  index += chunkSize;
+                }
+              
+                return result;
+              }
+
             relevant_files
                 .forEach(file => {
-                   file.name = file.name.replace(/\/.*\/(.*trial).*\//, '/$1/')
-                   file.data = file.readAsString(); 
+                   file.name = file.name.replace(/\/.*\/(.*trial).*\//, '/$1/');
+                   console.log('Reading file '+file.name);
+                   file.readAsString_safeForLargeFiles = readAsString_safeForLargeFiles;
+                   file.data = file.readAsString_safeForLargeFiles(); 
                 });
 
             console.log(relevant_files)
@@ -132,14 +187,14 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             toasting("success", "Success", "Process Mining was successful");
 
         } else {
-            throw 'Process mining terminated unsuccessfully'
+            throw new Error('Process mining terminated unsuccessfully')
         }
     } catch (err) {
         setStarted(false);
         setFinished(true);
       // If there's a cancellation error, toast a success message
-      if (axios.isCancel(err)) {
-        toasting("success", "Success", "Process Mining was canceled");
+      if (window.canceled || axios.isCancel(err)) {
+        toasting("info", "Canceled", "Process Mining was canceled");
       } else {
         // Otherwise, toast an error message
         console.log(err)
@@ -152,8 +207,9 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
   // Function to abort the Process Mining
   const abort = () => {
     console.log("abort");
+    window.canceled = true;
     // Cancelling the source and updating the finished and started states
-    source.current.cancel("Process Mining was canceled");
+    source.current.cancel("Process Mining was canceled22");
     setStarted(false);
     setResponse({ message: "canceled" }); 
   };
@@ -210,15 +266,11 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             <Progress isIndeterminate isAnimated hasStripe value={100} colorScheme="green" />
         </Card>}
 
-        {finished&&!errored&&
+        {finished &&
         <Card bg="white" p="5" >
-            <Progress  hasStripe value={100} colorScheme="green" />
+            <Progress  hasStripe value={100} colorScheme={errored ? "red" : (window.canceled ? "gray" : "green")} />
         </Card>}
 
-        {finished&&errored&&
-        <Card bg="white" p="5" >
-            <Progress  hasStripe value={100} colorScheme="red" />
-        </Card>}
             <Card bg="white">
                 <CardHeader>
                     <Heading size='ms'> Process Miner settings </Heading>
@@ -249,7 +301,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
                             
                             {!started&& 
                             <Button variant="outline" bg="#FFFF" onClick={start} disabled={!logFile || !miner}>
-                                <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Start Miner</Text>
+                                <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Start Miner{JSON.parse(sessionStorage.getItem('DEBUG')) && '*'}</Text>
                             </Button>}
 
                             {started&& 
