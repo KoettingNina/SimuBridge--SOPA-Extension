@@ -4,9 +4,9 @@ import xml2js from 'browser-xml2js'
 
 
 
-export function convertSimodOutput(jsonOutput, bpmnOutput) {
+export function convertSimodOutput(configJsonString, bpmnXmlString) {
 
-    const jsonObj = JSON.parse(jsonOutput);
+    const jsonObj = JSON.parse(configJsonString);
 
     //create Scenario Object, use default for name, starting date, no. process instances, and currency
     let Scenario = scenario("Scenario 1");
@@ -14,7 +14,7 @@ export function convertSimodOutput(jsonOutput, bpmnOutput) {
     //Get Scenario parameters which are needed in the internal Representation of SimuBridge
     Scenario.startingTime = getstartingTime(jsonObj);
     Object.assign(Scenario.resourceParameters, getResourceParameters(jsonObj));
-    Object.assign(Scenario.models, [getModel(jsonObj, bpmnOutput)]);
+    Object.assign(Scenario.models, [getModel(jsonObj, bpmnXmlString)]);
 
     return Scenario;
 }
