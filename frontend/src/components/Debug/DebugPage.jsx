@@ -7,7 +7,7 @@ import {
     FiTrash2
 } from 'react-icons/fi';
 
-import { deleteAllFiles, deleteFile, downloadFile, getFile, getFiles, getScenarioFileName, setFile, uploadFileToProject } from '../../util/Storage';
+import { deleteAllFiles, deleteFile, downloadFile, getFile, getFiles, getScenarioFileName, purgeDatabase, setFile, uploadFileToProject } from '../../util/Storage';
 import { convertSimodOutput } from 'simulation-bridge-converter-simod/simod_converter';
 
 
@@ -61,6 +61,11 @@ function DebugPage({projectName, getData}) {
                             deleteAllFiles(projectName).then(updateFileList);
                         }}>Delete All Files</Button> 
                         <Button onClick={() => console.log(getData())}>Print State</Button> 
+                        <Button onClick={() => {
+                            if(window.confirm('Do you really want to proceed?')) {
+                                purgeDatabase();
+                            }
+                        }}>Purge Database</Button> 
                     </CardBody>
                 </Card>
 

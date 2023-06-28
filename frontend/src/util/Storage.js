@@ -33,6 +33,10 @@ function filePath(projectName, fileName) {
     return projectFilesPrefix(projectName) + '/' + fileName;
 }
 
+export function purgeDatabase() {
+    indexedDB.deleteDatabase('default');
+}
+
 async function getDatabase() {
     return await openDB('default', 6, {
         upgrade(database) {
