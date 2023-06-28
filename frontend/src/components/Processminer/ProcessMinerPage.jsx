@@ -7,6 +7,7 @@ import Gzip from 'pako';
 import simodConfiguration from './simod_config.yml'
 import { getFile, getFiles, setFile, uploadFileToProject } from "../../util/Storage";
 import { convertSimodOutput } from "simulation-bridge-converter-simod/simod_converter";
+import RunProgressIndicationBar from "../RunProgressIndicationBar";
 
 
 function getNumberOfInstances(eventLog) {
@@ -261,15 +262,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
         <Stack gap="2">
         <Heading size='lg' >Run Miner</Heading>
 
-        {started&& 
-        <Card bg="white" p="5" >
-            <Progress isIndeterminate isAnimated hasStripe value={100} colorScheme="green" />
-        </Card>}
-
-        {finished &&
-        <Card bg="white" p="5" >
-            <Progress  hasStripe value={100} colorScheme={errored ? "red" : (window.canceled ? "gray" : "green")} />
-        </Card>}
+        <RunProgressIndicationBar {...{started, finished, errored}}/>
 
             <Card bg="white">
                 <CardHeader>

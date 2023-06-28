@@ -5,12 +5,14 @@ import axios from 'axios';
 
 import { getFile, getScenarioFileName, setFile } from "../../util/Storage";
 import { convertScenario } from "simulation-bridge-converter-scylla/ConvertScenario";
+import RunProgressIndicationBar from "../RunProgressIndicationBar";
 
 const SimulationPage = ({projectName, getData, toasting }) => {
 
 // Setting initial states of started, finished, and response
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [errored, setErrored] = useState(false);
   const [response, setResponse] = useState({});
 
   const [scenarioName, setScenarioName] = useState();
@@ -24,6 +26,7 @@ const SimulationPage = ({projectName, getData, toasting }) => {
     // Resetting response and finished states
     setResponse({ message: "", files: [{ name: "", link: "" }] });
     setFinished(false);
+    setErrored(false);
     // Updating the started state
     setStarted(true);
 
@@ -74,6 +77,7 @@ const SimulationPage = ({projectName, getData, toasting }) => {
         // Otherwise, toast an error message
         setFinished(true);
         setStarted(false);
+        setErrored(true);
         console.log(err)
         //TODO also display error occurence
         toasting("error", "error", "Simulation was not successful");
@@ -111,15 +115,8 @@ const SimulationPage = ({projectName, getData, toasting }) => {
         <Stack gap="2">
         <Heading size='lg' >Run Simulation</Heading>
 
-        {started&& 
-        <Card bg="white" p="5" >
-            <Progress isIndeterminate isAnimated hasStripe value={100} colorScheme="green" />
-        </Card>}
-
-        {finished&& 
-        <Card bg="white" p="5" >
-            <Progress  hasStripe value={100} colorScheme="green" />
-        </Card>}
+        
+        <RunProgressIndicationBar {...{started, finished, errored}}/>
             <Card bg="white">
                 <CardHeader>
                     <Heading size='ms'> Simulation settings </Heading>
