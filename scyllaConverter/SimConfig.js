@@ -41,7 +41,7 @@ async function createSimConfig(scenario, processModel) {
     attributes.startDateTime = date + 'T' + time
 
     attributes.processRef = rootElement.rootElements[0].id;
-    attributes.processInstances = Math.min(scenario.numberOfInstances, 100) //TODO: Scylla cannot do Billions of instances
+    attributes.processInstances = Math.min(scenario.numberOfInstances, 5000) //TODO: Scylla cannot do Billions of instances
     simConfig._attributes = attributes;
     return { simulationConfiguration : simConfig };
 }
