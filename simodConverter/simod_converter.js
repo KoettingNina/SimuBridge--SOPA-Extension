@@ -45,9 +45,9 @@ function makeDistribution(simodDistribution){
 
     switch(simodDistribution.distribution_name.toLocaleLowerCase()) {
         case 'gamma':  { // Gamma distribution not supported by SimuBridge, approximate with normal distribution of same mean and variance
-            // Param documentation: https://github.com/AutomatedProcessImprovement/Prosimos/blob/34bf0e2367428cc4b87d626dde9161d82c89efb4/prosimos/probability_distributions.py#L165
-            const param1 = simodDistribution.distribution_params[0].value;
-            const param2 = simodDistribution.distribution_params[2].value
+            // Param documentation: https://github.com/AutomatedProcessImprovement/Prosimos/blob/4c0627c0ed241808fc65e80492d01945c571bfd7/prosimos/simulation_properties_parser.py#L520
+            const param1 = simodDistribution.distribution_params[0].value; // = pow(mean, 2) / variance;
+            const param2 = simodDistribution.distribution_params[2].value; // = variance / mean
             const mean = param1 * param2; // pow(mean, 2) / variance * variance / mean = pow(mean, 2) / mean = mean
             const variance = param2 * mean; // variance / mean * mean = variance
             return createDistributionConfig('normal', mean, variance);
@@ -70,13 +70,18 @@ function makeDistribution(simodDistribution){
             const variance = simodDistribution.distribution_params[1].value;
             return createDistributionConfig('normal', mean, variance);
         };
-        case 'lognorm': { //TODO translation semantic to be counterchecked
-            const logMean = simodDistribution.distribution_params[0].value;
-            const logVariance = simodDistribution.distribution_params[1].value;
+        case 'lognorm': { // Param documentation https://github.com/AutomatedProcessImprovement/Prosimos/blob/4c0627c0ed241808fc65e80492d01945c571bfd7/prosimos/simulation_properties_parser.py#L532 
+            
+            const logScale = simodDistribution.distribution_params[2].value; 
+            const logMean = Math.log(logScale); // = mu = log(mean**2 / phi) = log(mean**2 / sqrt([variance + mean**2])[0])
+            const logStdDev = simodDistribution.distribution_params[0].value; // = sigma = sqrt([log(phi**2 / mean**2)])[0] = sqrt([log((sqrt([variance + mean**2])[0])**2 / mean**2)])[0] = sqrt([log((variance + mean**2]) / mean**2)])[0] = sqrt(log(1 + variance / mean**2)) 
+            const logVariance = logStdDev ** 2;
 
-            const mean = Math.log(logMean ** 2 / Math.sqrt(logMean ** 2 + logVariance));
-            const variance = Math.sqrt(Math.log(1 + logVariance / logMean ** 2));
-            return createDistributionConfig('normal', mean, variance);
+            // Correct translation See https://rdrr.io/cran/collector/src/R/fit_distributions.R
+            const mean = Math.exp(logMean + logVariance / 2);
+            const variance = (Math.exp(logVariance) - 1) * Math.exp(2 * logMean + logVariance);
+
+            return createDistributionConfig('normal', mean, variance);;
         }; 
         default: throw new Error(`Distributiontype "${simodDistribution.distribution_name}" not supported`)
     }
