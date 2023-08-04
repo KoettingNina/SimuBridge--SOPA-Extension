@@ -6,7 +6,7 @@
  *
  */
 
-import { TimeUnits } from "../dataModel/DataModel.js";
+import { TimeUnits } from 'simulation-bridge-datamodel/SimulationModelDescriptor.js';
 
 export default {
 

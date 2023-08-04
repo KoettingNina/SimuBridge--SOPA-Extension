@@ -1,7 +1,7 @@
 import { ButtonGroup, Flex, FormControl, FormLabel, IconButton, Input, Select } from "@chakra-ui/react"
 import { getParamsForDistribution } from "../util/Distributions"
 import { AddIcon, MinusIcon } from "@chakra-ui/icons"
-import { TimeUnits, distributionTypes } from "simulation-bridge-datamodel/DataModel"
+import { TimeUnits, DistributionTypes } from "simulation-bridge-datamodel/SimulationModelDescriptor"
 
 export default function DistributionEditor({ state, setState }) {
 
@@ -9,7 +9,7 @@ export default function DistributionEditor({ state, setState }) {
         setState({
             ...state,
             distributionType: value,
-            distributionValues: new Array(distributionTypes[value].distribution_params.length).fill(0)
+            distributionValues: new Array(DistributionTypes[value].distribution_params.length).fill(0)
         })
     }
 
@@ -38,7 +38,7 @@ export default function DistributionEditor({ state, setState }) {
             <FormControl w="47%">
                 <FormLabel>Distribution:</FormLabel>
                 <Select name="distributionType" value={state.distributionType}  onChange={(event) => setDistributionType(event.target.value)}  bg="white" {...(!state.distributionType && {placeholder : 'Select distribution type', color : 'red'})} >
-                    {Object.keys(distributionTypes).map((distributionType, index) => {
+                    {Object.keys(DistributionTypes).map((distributionType, index) => {
                         return <option style={{ color: 'black' }} key={index} value={distributionType}>{distributionType}</option>
                     })}
                 </Select>

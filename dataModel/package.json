@@ -1,4 +1,7 @@
 {
-    "name" : "simulation-bridge-datamodel",
-    "type": "module"
+    "name": "simulation-bridge-datamodel",
+    "type": "module",
+    "dependencies": {
+        "moddle": "^6.2.3"
+    }
 }

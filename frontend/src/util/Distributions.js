@@ -1,9 +1,9 @@
-import { distributionTypes } from "simulation-bridge-datamodel/DataModel.js";
+import { DistributionTypes } from "simulation-bridge-datamodel/SimulationModelDescriptor.js";
 
 export function getParamsForDistribution(distributionType, distributionValues) {
     return (distributionType === "arbitraryFiniteProbabilityDistribution"
         ? distributionValues?.map((_, index) => 'entry' + index) //TODO: this currently only supports single frequency entries
-        : distributionTypes[distributionType]?.distribution_params);
+        : DistributionTypes[distributionType]?.distribution_params);
 }
 
 export function stateToDistribution(state) {

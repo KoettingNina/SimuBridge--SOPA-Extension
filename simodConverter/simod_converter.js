@@ -1,6 +1,7 @@
-import { Currencies, TimeUnits, activity, distribution, event, scenario, distributionTypes, model } from 'simulation-bridge-datamodel/DataModel.js';
+import { activity, distribution, event, scenario, model } from 'simulation-bridge-datamodel/DataModel.js';
 
 import xml2js from 'browser-xml2js'
+import { TimeUnits, Currencies, DistributionTypes } from 'simulation-bridge-datamodel/SimulationModelDescriptor.js';
 
 
 
@@ -38,7 +39,7 @@ function makeDistribution(simodDistribution){
     function createDistributionConfig (distributionType, ...values) {
         return Object.assign(distribution(), {
             distributionType, 
-            values : distributionTypes[distributionType].distribution_params.map((id, index) => ({id, value : values[index] })),
+            values : DistributionTypes[distributionType].distribution_params.map((id, index) => ({id, value : values[index] })),
             timeUnit : getTimeUnit()
         })
     }

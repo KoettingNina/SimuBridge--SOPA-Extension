@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {
   Input, FormControl, FormLabel, Button, Stack, Select, Box} from '@chakra-ui/react';
-import { Currencies } from 'simulation-bridge-datamodel/DataModel';
+import { Currencies } from 'simulation-bridge-datamodel/SimulationModelDescriptor';
 
 
 const EditScenario = ({getData, setShowSidebar}) => {
