@@ -19,16 +19,13 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
 import { deleteFile, getScenarioFileName, getScenarios, setFile, updateProject } from './util/Storage';
 import BpmnView from './components/ModelbasedParameters/BpmnView';
-import { model, scenario, limitToDataScheme } from 'simulation-bridge-datamodel/DataModel';
-import BPMNModdle from 'bpmn-moddle';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 import ModelBasedOverview from './components/TablesOverviewComparison/ModelBasedOverview';
 
 
 const { compare } = require('js-deep-equals')
 
 function App() {
-
-  const moddle = new BPMNModdle();
 
   // State is used for changing / adding a project projectName, it firest checks if project is already set as current in the session storage
   const [projectName, setProjectName] = useState(sessionStorage.getItem('currentProject') || "")
@@ -80,7 +77,7 @@ function App() {
   let ProjectDataClass;
 
   {
-    const [data, setDataInternal] = useState(undefined);
+    const [data, setDataInternal] = useState(undefined); // TODO refactor this, project data should have its own class without JSX state.
     // store and set information which BPMN and scenario is currently selected
     const [currentBpmn, setBpmn] = useState(0)
     const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
@@ -94,9 +91,11 @@ function App() {
         }
       }
       
-      addClasses(scenario) {
-        scenario.__proto__ = new ScenarioData(this);
-        scenario.models.forEach(model => model.__proto__ = new ModelData(scenario));
+      linkParents(scenario) {
+        scenario.parentProject = this;
+        scenario.models.forEach(model => { 
+          if (model.$parent !== scenario) { throw new Error(`Wrong parent ${model.$parent} should be ${scenario}`) }
+        });
       }
 
       getProjectName() {
@@ -105,11 +104,14 @@ function App() {
 
       async initializeData() {
         const scenarioFiles = await getScenarios(this.projectName);
-        const scenarioData = scenarioFiles.map(scenarioFile => { 
-          if (!scenarioFile.data) {console.error(`Scenario file ${scenarioFile.path.split('/').pop()} is empty. Skip.`)}
-          return scenarioFile.data && JSON.parse(scenarioFile.data)
-        }).filter(x => x);
-        scenarioData.forEach(this.addClasses);
+        const scenarioData = scenarioFiles
+          .map(scenarioFile => { 
+            if (!scenarioFile.data) {console.error(`Scenario file ${scenarioFile.path.split('/').pop()} is empty. Skip.`)}
+            return scenarioFile.data && JSON.parse(scenarioFile.data)
+          })
+          .filter(x => x)
+          .map(scenarioData => SimulationModelModdle.getInstance().create('simulationmodel:Scenario', scenarioData));
+        scenarioData.forEach(this.linkParents);
         await Promise.all(scenarioData.flatMap(scenario => scenario.models.map(model => model.parseXML())));
         setDataInternal(scenarioData);
       }
@@ -125,7 +127,8 @@ function App() {
       setCurrentBpmnByIndex(index) { setBpmn(index); }//TODO remove
 
       async addScenario(scenario) {
-        scenario.__proto__ = new ScenarioData(this);
+        //scenario.__proto__ = new ScenarioData();
+        scenario.parentProject = this;
         await scenario.save();
       }
 
@@ -151,82 +154,6 @@ function App() {
       // Call after some in-place operation has happened
       async saveCurrentScenario() {
         await this.getCurrentScenario().save();
-      }
-    }
-
-    class ScenarioData {
-      constructor(parentProject) {
-        this.parentProject = parentProject;
-      }
-
-      async save() {
-        console.log('save')
-        //TODO automatically detect renames
-        let scenarioFileName = getScenarioFileName(this.scenarioName);
-        await setFile(this.parentProject.projectName, scenarioFileName, JSON.stringify(this));
-        updateProject(this.parentProject.projectName)
-        await this.parentProject.initializeData();
-      }
-
-      async addModel(model) {
-        model.__proto__ = new ModelData(this);
-        this.models.push(model);
-        await this.save();
-      }
-
-      toJSON() {
-        return limitToDataScheme(this, scenario);
-      }
-
-      async duplicate() {
-        const newScenario = {...this};
-        newScenario.scenarioName = this.scenarioName + '_copy'
-        await this.parentProject.addScenario(newScenario);
-        //this.parentProject.setCurrentScenarioByName(newScenario.scenarioName);
-      }
-
-      async delete() {
-        let scenarioFileName = getScenarioFileName(this.scenarioName);
-        await deleteFile(this.parentProject.projectName, scenarioFileName); 
-        await this.parentProject.initializeData();
-      }
-    }
-
-    class ModelData {
-      constructor(parentScenario) {
-        this.parentScenario = parentScenario;
-      }
-
-      async parseXML() {
-        const {
-          rootElement,
-          references,
-          warnings,
-          elementsById
-        } = await moddle.fromXML(this.BPMN, 'bpmn:Definitions');
-        this.elementsById = elementsById;
-        this.rootElement = rootElement;
-        this.references = references;
-
-        function fixGatewayIncomingAndOutgoing() {
-          const gateways = Object.values(elementsById).filter(element => element.$type.includes('Gateway'));
-          const sequences = Object.values(elementsById).filter(element => element.$type.includes('SequenceFlow'));
-          gateways.forEach(gateway => {
-            sequences.forEach(sequence => {
-              if (sequence.targetRef === gateway && !gateway.incoming.includes(sequence)) {
-                gateway.incoming.push(sequence);
-              } 
-              if (sequence.sourceRef === gateway && !gateway.outgoing.includes(sequence)) {
-                gateway.outgoing.push(sequence);
-              } 
-            });
-          });
-        }
-        fixGatewayIncomingAndOutgoing();
-      }
-
-      toJSON() {
-        return limitToDataScheme(this, model);
       }
     }
 

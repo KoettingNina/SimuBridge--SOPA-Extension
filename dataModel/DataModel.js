@@ -1,6 +1,7 @@
 import { Moddle, isBuiltInType, isSimpleType, parseNameNS } from 'moddle';
 import SimulationModelDescriptor, { TimeUnits } from './SimulationModelDescriptor.js';
 
+//TODO potentially rename file
 
 export default function SimulationModelModdle(extensionPackages, options) {
     const packages = Object.assign({simulationmodel : SimulationModelDescriptor}, extensionPackages);
@@ -16,7 +17,7 @@ export default function SimulationModelModdle(extensionPackages, options) {
             //     value.$type = descriptorName
             // });
         });
-    })
+    });
 }
 
 SimulationModelModdle.setInstance = function() {
@@ -32,11 +33,6 @@ SimulationModelModdle.getInstance = function() {
 
 SimulationModelModdle.prototype = Object.create(Moddle.prototype);
 
-SimulationModelModdle.prototype.create = function(descriptor, attrs) {
-    const object = Moddle.prototype.create.call(this, descriptor, attributes);
-    return object;
-}   
-
 //TODO resolve double recursion between create and moddlefy
 
 SimulationModelModdle.prototype.create = function(typeName, attrs) {
@@ -51,13 +47,19 @@ SimulationModelModdle.prototype.create = function(typeName, attrs) {
         throw new Error(`Cannot create object of enum type ${typeName}`);
     }
 
+    const addParentWhereAppropriate = (obj) => {
+        if (obj?.$type) obj.$parent = object;
+    };
+
     // Enforce every attribute to be present
     descriptor.properties.forEach(p => {
         try {
             if (p.isMany) {
                 object[p.name] = (object[p.name] || []).map(obj => this.moddlefy(obj, p));
+                object[p.name].forEach(addParentWhereAppropriate);
             } else {
                 object[p.name] = this.moddlefy(object[p.name], p);
+                addParentWhereAppropriate(object[p.name]);
             }
         } catch(err) {
             throw new Error(`Failed to moddlefy attribute ${p.name} for parent of type ${typeName}`, {cause : err})
