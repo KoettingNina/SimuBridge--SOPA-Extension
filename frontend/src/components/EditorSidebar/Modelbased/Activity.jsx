@@ -9,7 +9,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import DistributionEditor from '../../DistributionEditor';
 import { distributionToState, stateToDistribution } from '../../../util/Distributions';
 import AbstractModelElementEditor from './AbstractModelElementEditor';
-import { activity } from 'simulation-bridge-datamodel/DataModel';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 
 const Activity = ({ getData, currentElement }) => {
 
@@ -61,7 +61,7 @@ const Activity = ({ getData, currentElement }) => {
     setState : setActivityConfiguration,
     currentElement,
     getData,
-    emptyConfig : activity(currentElement.id),
+    emptyConfig : SimulationModelModdle.getInstance().create('simulationmodel:Activity', {id : currentElement.id}),
     setSave
   }}>
 

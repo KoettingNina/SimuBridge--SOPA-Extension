@@ -75,8 +75,9 @@ export const SimulationModelDescriptor = {
         {
             "name" : "Resource",
             "properties": [
-                { "name": "id", "type": "String"}
-                //TODO override attributes!
+                { "name": "id", "type": "String"},
+                { "name": "schedule", "type": "String", default : null }, //TODO could be done with isReference and type Timetable
+                { "name": "costHour", "type": "Real", default : null },
             ]
         },
 

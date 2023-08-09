@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DistributionEditor from '../../DistributionEditor';
 import { distributionToState, stateToDistribution } from '../../../util/Distributions';
 import AbstractModelElementEditor from './AbstractModelElementEditor';
-import { event } from 'simulation-bridge-datamodel/DataModel';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 
 const Event = ({ getData, currentElement }) => {
 
@@ -28,7 +28,7 @@ const Event = ({ getData, currentElement }) => {
       setState : setEventConfiguration,
       currentElement,
       getData,
-      emptyConfig : event(currentElement.id),
+      emptyConfig : SimulationModelModdle.getInstance().create('simulationmodel:Event', {id : currentElement.id}),
       setSave
     }}>{
       eventConfiguration && (

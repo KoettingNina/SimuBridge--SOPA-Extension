@@ -6,6 +6,7 @@ import {
     debounce
 } from 'min-dash';
 
+// TODO replace emptyconfig with moddle type name
 export default function AbstractModelElementEditor({type, typeName, state, setState, currentElement, getData, emptyConfig, children, setSave}) {
 
     function getExistingElementConfiguration() {

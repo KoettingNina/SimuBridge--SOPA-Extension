@@ -57,8 +57,11 @@ export class ScenarioData {
         await this.parentProject.initializeData();
     }
 
-    async addModel(model) {
-        // model.__proto__ = new ModelData();
+    async addModel(modelName, bpmnXml) {
+        const model = SimulationModelModdle.getInstance().create('simulationmodel:Model', {
+            BPMN : bpmnXml,
+            name : modelName
+        });
         model.$parent = this;
         this.models.push(model);
         await this.save();

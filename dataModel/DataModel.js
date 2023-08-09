@@ -19,9 +19,16 @@ export default function SimulationModelModdle(extensionPackages, options) {
         });
     });
 }
+SimulationModelModdle.prototype = Object.create(Moddle.prototype);
 
-SimulationModelModdle.setInstance = function() {
-    //TODO
+
+// Utility function to initialize singleton, e.g., in a non-default way with extensions
+SimulationModelModdle.setInstance = function(instance) {
+    if (!SimulationModelModdle._instance) {
+        SimulationModelModdle._instance = instance;
+    } else {
+        throw new Error('SimulationModelModdle singleton instance already set.')
+    }
 }
 
 SimulationModelModdle.getInstance = function() {
@@ -31,7 +38,6 @@ SimulationModelModdle.getInstance = function() {
     return SimulationModelModdle._instance;
 }
 
-SimulationModelModdle.prototype = Object.create(Moddle.prototype);
 
 //TODO resolve double recursion between create and moddlefy
 
@@ -106,80 +112,10 @@ SimulationModelModdle.prototype.isValidForEnum = function (object, enumTypeName)
     return Object.values(descriptor.values).includes(object) || (object === null && descriptor.isNullable /* Accepts only null, not undefined */); //TODO what about equal but not identical?
 }
 
-
-
-export function scenario(scenarioName) {
-    return {
-        scenarioName: scenarioName,
-        startingDate: "01-01-0000",
-        startingTime: "00:00",
-        numberOfInstances: 1,
-        currency: Currencies.EURO,
-        resourceParameters: {
-            roles: [],
-            resources: [],
-            timeTables: []
-        },
-        models: []
-    }
-}
-
-//TODO role
-//TODO resource
-//TODO timetables
-
-export function model(modelName, bpmnXml) {
-    return {
-        BPMN : bpmnXml,
-        name : modelName,
-        modelParameter : {
-            activities : [],
-            events : [],
-            gateways : [],
-        }
-    }
-}
-
-export function activity(elementId) {
-    return {
-        id : elementId,
-        resources: [],
-        cost: 0,
-        duration: distribution()
-      }
-}
-
-export function event(elementId) {
-    return {
-        id : elementId,
-        interArrivalTime: distribution()
-    }
-}
-
-export function gateway(elementId) {
-    return {
-        id : elementId,
-        probabilities : {}
-    }
-}
-
-export function distribution() {
-    return {
-        distributionType: undefined,
-        timeUnit : TimeUnits.MINUTES,
-        values: []
-    }
-}
-
 // Eg. limitToDataScheme(myScenario)
-export function limitToDataScheme(object, DEPRECATED_dataScheme) {
-    if (DEPRECATED_dataScheme) console.log(`Deprecated parameter data scheme ${DEPRECATED_dataScheme} provided to limit to data scheme`)
-    if (!object?.$descriptor) { 
-        return object 
-    } else {
-        return Object.fromEntries(Object.entries(object)
-            .filter(([key, value]) => object.$descriptor.properties.some(prop => parseNameNS(prop.name).localName === key))
-            .map(([key, value]) =>  [key, Array.isArray(value) ? value.map(limitToDataScheme) : limitToDataScheme(value)])
-        );
-    }
+export function limitToDataScheme(object, ) {
+    return Object.fromEntries(Object.entries(object)
+        .filter(([key, value]) => object.$descriptor.properties.some(prop => parseNameNS(prop.name).localName === key))
+        .map(([key, value]) =>  [key, Array.isArray(value) ? value.map(limitToDataScheme) : limitToDataScheme(value)])
+    );
 }

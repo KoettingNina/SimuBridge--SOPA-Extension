@@ -39,7 +39,7 @@ export default function ScenarioOverview({getData}) {
                         const fileName = await uploadFileToProject(getData().getProjectName()); //TODO potentially do not create an additional file for this?
                         if (fileName) {
                             const fileData = (await getFile(getData().getProjectName(), fileName)).data;
-                            getData().getCurrentScenario().addModel(model(fileName, fileData));
+                            getData().getCurrentScenario().addModel(fileName, fileData);
                         }
                     }}> Upload one</Button>.
                 </CardBody>

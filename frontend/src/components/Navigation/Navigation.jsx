@@ -22,8 +22,7 @@ import {
     FiCornerLeftUp
   } from 'react-icons/fi';
 
-  import saveAs from 'file-saver';
-import { scenario } from 'simulation-bridge-datamodel/DataModel';
+import saveAs from 'file-saver';
 
   function Navigation({setCurrent, getData, current, selectProject}) {
 

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Button, Input, FormControl, FormLabel, Select, Switch, Stack, Box, Divider,CheckboxGroup, Checkbox } from '@chakra-ui/react';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 
+// TODO delete this class and integrate into EditResource
 const AddResource = ({ getData, setCurrent }) => {
   const [state, setState] = useState({
     id: "",
@@ -46,10 +48,10 @@ const AddResource = ({ getData, setCurrent }) => {
   const onSubmit = (event) => {
     event.preventDefault();
 
-    let obj = {
+    let obj = SimulationModelModdle.getInstance().create('simulationmodel:Resource', {
       id: state.id,
-      costHour: state.costHour,
-    }
+      costHour: state.costHour || null,
+    });
 
     getData().getCurrentScenario().resourceParameters.resources.push(obj);
 

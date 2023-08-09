@@ -1,4 +1,4 @@
-import { activity, distribution, event, scenario, model } from 'simulation-bridge-datamodel/DataModel.js';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel.js';
 
 import xml2js from 'browser-xml2js'
 import { TimeUnits, Currencies, DistributionTypes } from 'simulation-bridge-datamodel/SimulationModelDescriptor.js';
@@ -10,7 +10,7 @@ export function convertSimodOutput(configJsonString, bpmnXmlString) {
     const jsonObj = JSON.parse(configJsonString);
 
     //create Scenario Object, use default for name, starting date, no. process instances, and currency
-    let Scenario = scenario("Scenario 1");
+    let Scenario = SimulationModelModdle.getInstance().create('simulationmodel:TimeDistribution', { scenarioName : "Scenario 1" }); // TODO default name
 
     //Get Scenario parameters which are needed in the internal Representation of SimuBridge
     Scenario.startingTime = getstartingTime(jsonObj);
@@ -37,7 +37,7 @@ function getCaseArrivalRate(jsonObj) {
 function makeDistribution(simodDistribution){
 
     function createDistributionConfig (distributionType, ...values) {
-        return Object.assign(distribution(), {
+        return SimulationModelModdle.getInstance().create('simulationmodel:TimeDistribution',  {
             distributionType, 
             values : DistributionTypes[distributionType].distribution_params.map((id, index) => ({id, value : values[index] })),
             timeUnit : getTimeUnit()
@@ -90,11 +90,11 @@ function makeDistribution(simodDistribution){
 
 function getResourceParameters(jsonObj){
     //returns the resource Parameters, which contains Resources, Roles and Timetables
-    return {
+    return SimulationModelModdle.getInstance().create('simulationmodel:ResourceParameters', {
         roles : getRoles(jsonObj),
         resources : getResources(jsonObj),
         timeTables : getTimeTables(jsonObj)
-    }
+    })
 }
 
 function getResources(jsonObj){
@@ -102,11 +102,11 @@ function getResources(jsonObj){
     return jsonObj.resource_profiles.flatMap(role => {
         let defaultTimetableId = role.resource_list[0].calendar;
         let defaultCostHour = role.resource_list[0].cost_per_hour;
-        return role.resource_list.map(instance => ({
+        return role.resource_list.map(instance => SimulationModelModdle.getInstance().create('simulationmodel:Resource', {
             id: instance.id,
-            costHour: instance.cost_per_hour !== defaultCostHour ? instance.cost_per_hour : undefined,
+            costHour: instance.cost_per_hour !== defaultCostHour ? instance.cost_per_hour : null,
             //TODO unused attribute numberOfInstances: instance.amount,
-            schedule: instance.calendar !== defaultTimetableId ? instance.calendar : undefined
+            schedule: instance.calendar !== defaultTimetableId ? instance.calendar : null
         }));
     });
 }
@@ -118,7 +118,7 @@ function getTaskDuration(jsonObj, taskid){
 
 function getRoles(jsonObj){
     //returns the roles, contains for each role the id, a schedule and the specific resources
-    return jsonObj.resource_profiles.map(role => ({
+    return jsonObj.resource_profiles.map(role => SimulationModelModdle.getInstance().create('simulationmodel:Role', {
         id: role.id,
         schedule: role.resource_list[0].calendar, //Take first calendar by default
         costHour: role.resource_list[0].cost_per_hour, // Take first cost per hour by default
@@ -128,9 +128,9 @@ function getRoles(jsonObj){
 
 function getTimeTables(jsonObj){
     //returns all timetables of the resources
-    return jsonObj.resource_calendars.map(element =>({
+    return jsonObj.resource_calendars.map(element => SimulationModelModdle.getInstance().create('simulationmodel:Timetable', {
         id: element.id,
-        timeTableItems: element.time_periods.map(b => ({
+        timeTableItems: element.time_periods.map(b => SimulationModelModdle.getInstance().create('simulationmodel:TimetableItem', {
             startWeekday: firstLetterUpperCaseElseLowerCase(b.from),
             startTime: timeToNumber(b.beginTime),
             endWeekday: firstLetterUpperCaseElseLowerCase(b.to),
@@ -164,7 +164,9 @@ function getModel(jsonObj, bpmnXml){
         else{ throw error }
     });
     
-    return Object.assign(model("BPMN_1", bpmnXml), {
+    return SimulationModelModdle.getInstance().create('simulationmodel:Model',  {
+        BPMN : bpmnXml,
+        name : "BPMN_1", //TODO
         modelParameter : {
             activities : getActivities(bpmnObj, jsonObj),
             gateways : getGateways(jsonObj),
@@ -175,10 +177,12 @@ function getModel(jsonObj, bpmnXml){
 
 function getEvents(bpmnObj, jsonObj) {
     return bpmnObj.definitions.process.flatMap(element => 
-        [... element.startEvent.map(b => Object.assign(event(b.ATTR.id), {
+        [... element.startEvent.map(b => SimulationModelModdle.getInstance().create('simulationmodel:Event', {
+            id : b.ATTR.id,
             interArrivalTime: getCaseArrivalRate(jsonObj),
         })),
-        ... (element.intermediateCatchEvent || []).map(b => Object.assign(event(b.ATTR.id), {
+        ... (element.intermediateCatchEvent || []).map(b => SimulationModelModdle.getInstance().create('simulationmodel:Event', {
+            id : b.ATTR.id,
             interArrivalTime: makeDistribution(jsonObj.event_distribution.find(evtDist => evtDist.event_id === b.ATTR.id))
         }))]
     );
@@ -187,7 +191,7 @@ function getEvents(bpmnObj, jsonObj) {
 
 
 function getGateways(jsonObj){
-    return jsonObj.gateway_branching_probabilities.map(({gateway_id, probabilities}) => ({
+    return jsonObj.gateway_branching_probabilities.map(({gateway_id, probabilities}) => SimulationModelModdle.getInstance().create('simulationmodel:Gateway', {
         id : gateway_id,
         probabilities : Object.fromEntries(probabilities.map(({path_id, value}) => [path_id, value]))
     }));
@@ -196,14 +200,16 @@ function getGateways(jsonObj){
 function getActivities(bpmnObj, jsonObj) {
     return bpmnObj.definitions.process.flatMap(process => {
         return process.task.map(simodActivity => {
+            const id = simodActivity.ATTR.id;
             const roles = jsonObj.resource_profiles;
             const assignedRoles = roles
-                .filter(role => role.resource_list.some(instance => instance.assignedTasks.includes(simodActivity.ATTR.id)))
+                .filter(role => role.resource_list.some(instance => instance.assignedTasks.includes(id)))
                 .map(role => role.id);
 
-            return Object.assign(activity(simodActivity.ATTR.id), {
+            return SimulationModelModdle.getInstance().create('simulationmodel:Activity', {
+                id,
                 resources : assignedRoles,
-                duration : getTaskDuration(jsonObj, simodActivity.ATTR.id)
+                duration : getTaskDuration(jsonObj, id)
             });
         })
     })

@@ -1,8 +1,8 @@
 import { Input, FormControl, FormLabel, Text } from "@chakra-ui/react";
 import { React, useState } from "react";
 import { getElementLabel } from "../../../util/BpmnUtil";
-import { gateway } from "simulation-bridge-datamodel/DataModel";
 import AbstractModelElementEditor from "./AbstractModelElementEditor";
+import SimulationModelModdle from "simulation-bridge-datamodel/DataModel";
 
 
 const Gateway = ({ currentElement, getData}) => {
@@ -42,7 +42,7 @@ const Gateway = ({ currentElement, getData}) => {
       setState: setGatewayConfiguration,
       currentElement,
       getData,
-      emptyConfig: withDefaultProbabilities(gateway(currentElement.id)),
+      emptyConfig : SimulationModelModdle.getInstance().create('simulationmodel:Gateway', {id : currentElement.id}),
       setSave
     }}>
 

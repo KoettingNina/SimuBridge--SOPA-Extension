@@ -3,6 +3,7 @@ import { Box, Card, CardBody, Stack, Tabs, TabList, Tab, IconButton } from "@cha
 import { DeleteIcon, EditIcon, PlusSquareIcon } from '@chakra-ui/icons'
 import TimeTable from './TimeTable';
 import ResourceNavigation from '../ResourceNavigation';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 
 const TimetableOverview = ({getData, setCurrentRightSideBar }) => {
     // State to hold selected timetable index in the list 
@@ -28,10 +29,10 @@ const TimetableOverview = ({getData, setCurrentRightSideBar }) => {
 
 
     function addTimetable() {
-        getData().getCurrentScenario().resourceParameters.timeTables.push({
+        getData().getCurrentScenario().resourceParameters.timeTables.push(SimulationModelModdle.getInstance().create('simulationmodel:Timetable', {
             "id": "NewTimetable",
             "timeTableItems" : []
-        });
+        }));
         getData().saveCurrentScenario();
         setSelectedTimeTable(getData().getCurrentScenario().resourceParameters.timeTables.length - 1);
     }

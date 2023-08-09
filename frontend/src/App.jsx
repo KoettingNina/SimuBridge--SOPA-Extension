@@ -17,13 +17,16 @@ import TimetableOverview from './components/ResourceParameters/TimeTable/Timetab
 import ResourceOverview from './components/ResourceParameters/Resources/ResourceOverview';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProgressPage from './components/StartView/ProgressPage';
-import { deleteFile, getScenarioFileName, getScenarios, setFile, updateProject } from './util/Storage';
+import { getScenarios } from './util/Storage';
 import BpmnView from './components/ModelbasedParameters/BpmnView';
 import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 import ModelBasedOverview from './components/TablesOverviewComparison/ModelBasedOverview';
+import { ModelData, ScenarioData } from './util/DataHandles';
 
 
 const { compare } = require('js-deep-equals')
+
+const patchModdleClasses = [ScenarioData, ModelData]
 
 function App() {
 
@@ -127,9 +130,9 @@ function App() {
       setCurrentBpmnByIndex(index) { setBpmn(index); }//TODO remove
 
       async addScenario(scenario) {
-        //scenario.__proto__ = new ScenarioData();
         scenario.parentProject = this;
-        await scenario.save();
+        scenario = SimulationModelModdle.getInstance().create('simulationmodel:Scenario', scenario);
+        await scenario.save(); //TODO this implicitly requires a reload of data so the scenario appears in the data variable
       }
 
       setCurrentScenario(scenario) {

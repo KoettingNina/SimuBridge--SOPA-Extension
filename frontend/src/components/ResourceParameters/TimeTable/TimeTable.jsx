@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Box, Heading, Text, Grid, Card, CardBody } from "@chakra-ui/react";
 import { EditorSidebarAlternate } from '../../EditorSidebar/EditorSidebar';
 import EditTimetableItem from '../../EditorSidebar/Timetable/EditTimetableItem';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 
 const { compare } = require('js-deep-equals')
 
@@ -48,12 +49,12 @@ function TimeTable({currentTimetable, setCurrentRightSideBar, getData}) {
   }
 
   function addTimeTableItem(startDay, startHour) {
-    const newItem = {
+    const newItem = SimulationModelModdle.getInstance().create('simulationmodel:TimetableItem', {
       "startWeekday": startDay,
       "startTime": startHour,
       "endWeekday": startDay,
       "endTime": startHour+1
-    }
+    });
     currentTimetable.timeTableItems.push(newItem);
     setCurrentTimetableItem(newItem);
     getData().saveCurrentScenario();

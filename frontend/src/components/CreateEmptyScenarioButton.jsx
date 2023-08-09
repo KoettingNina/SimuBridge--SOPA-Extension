@@ -1,12 +1,12 @@
 import { Button } from "@chakra-ui/react";
-import { scenario } from "simulation-bridge-datamodel/DataModel";
+import SimulationModelModdle from "simulation-bridge-datamodel/DataModel";
 
 export default ({getData, toast, label='Add new empty scenario', ...props}) => {
     return (<Button {...props} onClick={() => {
         let scenarioName = window.prompt('Please enter scenario name');
         if (scenarioName) {
             if (!getData().getScenario(scenarioName)) {
-                getData().addScenario(scenario(scenarioName));
+                getData().addScenario(SimulationModelModdle.getInstance().create('simulationmodel:TimeDistribution', { scenarioName}));
             } else {
                 toast({
                     title: 'Scenario with that name already exist',
