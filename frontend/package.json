@@ -45,11 +45,11 @@
         "react-hook-form": "^7.42.0",
         "react-icons": "^3.11.0",
         "react-scripts": "5.0.1",
-        "wait-on": "^6.0.1",
-        "web-vitals": "^2.1.4",
-        "simulation-bridge-datamodel": "../dataModel",
         "simulation-bridge-converter-scylla": "../scyllaConverter",
-        "simulation-bridge-converter-simod": "../simodConverter"
+        "simulation-bridge-converter-simod": "../simodConverter",
+        "simulation-bridge-datamodel": "../dataModel",
+        "wait-on": "^6.0.1",
+        "web-vitals": "^2.1.4"
     },
     "scripts": {
         "start": "react-scripts start",
@@ -92,7 +92,8 @@
     },
     "devDependencies": {
         "@testing-library/cypress": "^8.0.7",
-        "cypress": "^11.0.0",
+        "cy-verify-downloads": "^0.1.16",
+        "cypress": "^12.17.4",
         "react-router-dom": "^6.4.3"
     }
 }

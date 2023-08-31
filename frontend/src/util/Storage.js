@@ -121,6 +121,10 @@ export async function downloadFile(projectName, fileName, encoding='charset=UTF-
     if(!fileName) throw new Error('No file name provided');
 
     const data = (await getFile(projectName, fileName)).data;
+    return downloadData(data, fileName, encoding);
+}
+
+export function downloadData(data, fileName, encoding='charset=UTF-8') {
     const encodedData = encodeURIComponent(data);
     const a = document.createElement("a");
     // Creating a download link and triggering a click event

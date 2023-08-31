@@ -22,7 +22,7 @@ import {
     FiCornerLeftUp
   } from 'react-icons/fi';
 
-import saveAs from 'file-saver';
+import { downloadData } from '../../util/Storage';
 
   function Navigation({setCurrent, getData, current, selectProject}) {
 
@@ -57,7 +57,10 @@ import saveAs from 'file-saver';
       // Define Navigation items that will be displayed at the bottom of the navigation
      
       const LinkItems3 = [
-        { name: 'Download Project', icon: FiDownload, path: '/#', event: () => save() },
+        { name: 'Download Project', icon: FiDownload, path: null, event: (e) => {
+          e.preventDefault();
+          save();
+        } },
         { name: 'Close Project', icon: FiCornerLeftUp, path: '/#', event: () => selectProject(null) },
       ];
 
@@ -70,8 +73,7 @@ import saveAs from 'file-saver';
       // function to download the internal data as a json file
       const save = () =>{
         const jsonData = JSON.stringify(getData().getAllScenarios());
-        const blob = new Blob([jsonData], { type: "application/json" });
-        saveAs(blob, `${getData().projectName}.json`);
+        downloadData(jsonData, `${getData().projectName}.json`);
       }
       
   return (
