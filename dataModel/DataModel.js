@@ -85,8 +85,9 @@ SimulationModelModdle.prototype.moddlefy = function(obj, property) {
         return obj; //TODO: Subattributes?
     } else if (this.isEnumType(typeName)) {
         const descriptor = this.getTypeDescriptor(typeName);
-        const isValidIdentifier = Object.keys(descriptor.values).includes(obj);
-        const isValidValue = Object.values(descriptor.values).some(value => JSON.stringify(value) === JSON.stringify(obj)); // Check deep equalish
+        const isValidNull =  obj === null && descriptor.isNullable /* Accepts only null, not undefined */;
+        const isValidIdentifier = Object.keys(descriptor.values).includes(obj) || isValidNull;
+        const isValidValue = Object.values(descriptor.values).some(value => JSON.stringify(value) === JSON.stringify(obj)) /*Check deep equalish*/ || isValidNull;
         if (property.isReference && !isValidIdentifier) {
             throw new Error(`${JSON.stringify(obj)} is not a valid identifier for enum ${typeName}`);
         } else if (!property.isReference && !isValidValue) {
@@ -104,13 +105,13 @@ SimulationModelModdle.prototype.isEnumType = function (typeName) {
     return this.getTypeDescriptor(typeName)?.isEnum;
 }
 
-SimulationModelModdle.prototype.isValidForEnum = function (object, enumTypeName) {
-    if(!enumTypeName || !this.isEnumType(enumTypeName)) {
-        throw Error(`Invalid enum type name ${enumTypeName}`);
-    }
-    const descriptor = this.getTypeDescriptor(enumTypeName);
-    return Object.values(descriptor.values).includes(object) || (object === null && descriptor.isNullable /* Accepts only null, not undefined */); //TODO what about equal but not identical?
-}
+// SimulationModelModdle.prototype.isValidForEnum = function (object, enumTypeName) {
+//     if(!enumTypeName || !this.isEnumType(enumTypeName)) {
+//         throw Error(`Invalid enum type name ${enumTypeName}`);
+//     }
+//     const descriptor = this.getTypeDescriptor(enumTypeName);
+//     return Object.values(descriptor.values).includes(object) || (object === null && descriptor.isNullable /* Accepts only null, not undefined */); //TODO what about equal but not identical?
+// }
 
 // Eg. limitToDataScheme(myScenario)
 export function limitToDataScheme(object) {

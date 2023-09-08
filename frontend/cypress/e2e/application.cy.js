@@ -136,7 +136,7 @@ describe('Inside a project', () => {
                 rowForScenario(defaultScenarioName).should('exist');
             });
 
-            describe.only('Control Cell', () => {
+            describe('Control Cell', () => {
 
                 function getControlCell() {
                     return rowForScenario(defaultScenarioName).find('td').last();
@@ -161,4 +161,34 @@ describe('Inside a project', () => {
             });
         })
     });
+
+    describe('Model-based Parameter Page', () => {
+
+        function getModelElement(id) {
+            return cy.get(`g[data-element-id=${id}]`)
+        }
+
+        const defaultModelParameter = defaultScenarioData.models[0].modelParameter;
+
+        beforeEach(() => cy.visit('http://localhost:3000/modelbased'));
+
+        it('shows all activities and gateways', () => {
+            [... defaultModelParameter.activities, ... defaultModelParameter.gateways]
+                .forEach(({id}) => getModelElement(id).should('exist'));
+        });
+
+        it('allows to edit gateway probabilities', () => {
+            const field = () => cy.findAllByRole('textbox', { name: /to.*/g }).first();
+            const selectElement = () => getModelElement(defaultModelParameter.gateways[0].id).click();
+            const value = 0.9;
+
+            selectElement();
+            field().type('{selectAll}{backspace}'+value);
+            cy.wait(1000); // After each keystroke there is a short delay until saved to allow more inputs
+            cy.reload();
+            selectElement();
+            field().should('have.value', ''+value);;
+        });
+
+    })
 });

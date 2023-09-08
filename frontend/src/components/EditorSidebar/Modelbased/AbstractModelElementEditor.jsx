@@ -5,6 +5,7 @@ import { getElementLabel } from "../../../util/BpmnUtil";
 import {
     debounce
 } from 'min-dash';
+import { limitToDataScheme } from "simulation-bridge-datamodel/DataModel";
 
 // TODO replace emptyconfig with moddle type name
 export default function AbstractModelElementEditor({type, typeName, state, setState, currentElement, getData, emptyConfig, children, setSave}) {
@@ -25,7 +26,7 @@ export default function AbstractModelElementEditor({type, typeName, state, setSt
         debounceSave();
     }
     
-    useEffect(() => setState({... (getExistingElementConfiguration() || emptyConfig)}), [currentElement.id]);
+    useEffect(() => setState({... (limitToDataScheme(getExistingElementConfiguration()) || emptyConfig)}), [currentElement.id]);
     setSave(save);
 
     return (
