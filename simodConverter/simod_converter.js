@@ -10,14 +10,12 @@ export function convertSimodOutput(configJsonString, bpmnXmlString) {
     const jsonObj = JSON.parse(configJsonString);
 
     //create Scenario Object, use default for name, starting date, no. process instances, and currency
-    let Scenario = SimulationModelModdle.getInstance().create('simulationmodel:TimeDistribution', { scenarioName : "Scenario 1" }); // TODO default name
-
-    //Get Scenario parameters which are needed in the internal Representation of SimuBridge
-    Scenario.startingTime = getstartingTime(jsonObj);
-    Object.assign(Scenario.resourceParameters, getResourceParameters(jsonObj));
-    Object.assign(Scenario.models, [getModel(jsonObj, bpmnXmlString)]);
-
-    return Scenario;
+    return SimulationModelModdle.getInstance().create('simulationmodel:Scenario', { 
+        scenarioName : "Scenario 1", // TODO default name
+        startingTime : getstartingTime(jsonObj),
+        resourceParameters : getResourceParameters(jsonObj),
+        models : [getModel(jsonObj, bpmnXmlString)]
+    });
 }
 
 function getstartingTime(jsonObj){
