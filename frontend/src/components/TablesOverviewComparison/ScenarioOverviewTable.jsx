@@ -32,7 +32,7 @@ function OverviewTable({getData, toast}){
                     {/*Filling in the table*/}
                     {getData().getAllScenarios().map((scenario, index) => {
                         return <Tr>
-                            <Td align="left">{scenario.scenarioName} </Td>
+                            <Td align="left">{scenario.scenarioName}</Td>
                             <Td align="left" >{scenario.startingDate}</Td>
                             <Td align="left" >{scenario.startingTime}</Td>
                             <Td align="left">{scenario.numberOfInstances}</Td>

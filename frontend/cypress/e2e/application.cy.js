@@ -1,5 +1,8 @@
 import { getScenarioFileName, purgeDatabase, setFile, updateProject } from "../../src/util/Storage";
 import defaultScenarioData from '../fixtures/defaultTestScenario.json'
+import { CopyIcon, DeleteIcon } from "@chakra-ui/icons";
+import { FiEye } from "react-icons/fi";
+import { renderToString } from 'react-dom/server';
 
 function udescribe(){}; // For debug; quick way to comment out a test
 
@@ -14,8 +17,16 @@ function loadDefaultProjectData() {
     })()).then(() => cy.reload()) // Reload to ensure new data is displayed
 }
 
+function iconFilter(icon) {
+    const iconExample = icon.render ? icon.render() : icon();
+    const iconPath = renderToString(iconExample.props.children);
+    return (index, element) => {
+        return element.firstChild.innerHTML === iconPath;
+    }
+}
 
-// There seems to be an issue with test isolation on the local runner. This should at least isolate suide runs.
+
+// There seems to be an issue with test isolation on the local runner. This database purge should at least isolate suite runs.
 before(() => {
     purgeDatabase();
 });
@@ -114,5 +125,40 @@ describe('Inside a project', () => {
         it('is shown by default', () => {
             cy.url().should('contain', '/overview')
         });
+
+        describe('Scenario Overview Table', () => {
+
+            function rowForScenario(scenarioName) {
+                return cy.get('tr').filter((index, row) => Array.from(row.children).some(cell => cell.textContent === scenarioName));
+            }
+            
+            it('has a row for the default scenario', () => {
+                rowForScenario(defaultScenarioName).should('exist');
+            });
+
+            describe.only('Control Cell', () => {
+
+                function getControlCell() {
+                    return rowForScenario(defaultScenarioName).find('td').last();
+                }
+
+                it('allows scenario inspection', () => {
+                    getControlCell().children().filter(iconFilter(FiEye)).click();
+                    cy.url().should('contain', '/scenario');
+                    cy.findByText(`Scenario ${defaultScenarioName}`).should('exist');
+
+                });
+
+                it('allows scenario duplication', () => {
+                    getControlCell().children().filter(iconFilter(CopyIcon)).click();
+                    rowForScenario(`${defaultScenarioName}_copy`).should('exist');
+                });
+
+                it('allows scenario deletion', () => {
+                    getControlCell().children().filter(iconFilter(DeleteIcon)).click();
+                    rowForScenario(defaultScenarioName).should('not.exist');
+                });
+            });
+        })
     });
 });

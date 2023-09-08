@@ -130,8 +130,8 @@ function App() {
       setCurrentBpmnByIndex(index) { setBpmn(index); }//TODO remove
 
       async addScenario(scenario) {
-        scenario.parentProject = this;
         scenario = SimulationModelModdle.getInstance().create('simulationmodel:Scenario', scenario);
+        scenario.parentProject = this;
         await scenario.save(); //TODO this implicitly requires a reload of data so the scenario appears in the data variable
       }
 
