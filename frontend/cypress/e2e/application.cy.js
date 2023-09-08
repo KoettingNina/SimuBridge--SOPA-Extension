@@ -1,8 +1,13 @@
 import { getScenarioFileName, purgeDatabase, setFile, updateProject } from "../../src/util/Storage";
-import defaultScenarioData from '../fixtures/defaultTestScenario.json'
 import { CopyIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FiEye } from "react-icons/fi";
 import { renderToString } from 'react-dom/server';
+
+
+import defaultScenarioData from '../fixtures/defaultTestScenario.json'
+import defaultConfigMinerOutput from '../fixtures/defaultConfigurationMinerOutput.json'
+import defaultBpmnMinerOutput from '../fixtures/defaultBpmnMinerOutput.js'
+import defaultEventLog from '../fixtures/defaultXESLog.js'
 
 function udescribe(){}; // For debug; quick way to comment out a test
 
@@ -190,5 +195,30 @@ describe('Inside a project', () => {
             field().should('have.value', ''+value);;
         });
 
-    })
+    });
+
+    describe.only('Process Miner Page', () => {
+        beforeEach(() => cy.visit('http://localhost:3000/processminer'));
+
+        it('allows converting miner output to a new scenario', () => {
+            const defaultConfigMinerOutputFilename = 'simod_results/foobar/best_result/default_simulation_parameters.json';
+            const defaultBpmnMinerOutputFilename = 'simod_results/foobar/structure_trial/defaultBpmnMinerOutput.bpmn';
+            const defaultEventlogFilename = 'event_log.xes';
+            const convertedScenarioName = 'Converted_Scenario';
+            cy.wrap((async () => {
+                await setFile(defaultProjectName, defaultConfigMinerOutputFilename, JSON.stringify(defaultConfigMinerOutput));
+                await setFile(defaultProjectName, defaultBpmnMinerOutputFilename, defaultBpmnMinerOutput);
+                await setFile(defaultProjectName, defaultEventlogFilename, defaultEventLog);
+            })()).then(() => {
+                cy.get('select').contains(/Event Log/gi).select(defaultEventlogFilename);
+                cy.get('select').contains(/Config File/gi).select(defaultConfigMinerOutputFilename);
+                cy.get('select').contains(/Bpmn File/gi).select(defaultBpmnMinerOutputFilename);
+                cy.window().then(window => {
+                    cy.stub(window, 'prompt').returns(convertedScenarioName);
+                    cy.findByRole('button', { name: /Convert.*Scenario/gi }).click();
+                });
+                cy.findByText(convertedScenarioName).should('be.selected');
+            });
+        });
+    });
 });
