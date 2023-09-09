@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getFile, getScenarioFileName, setFile } from "../../util/Storage";
 import { convertScenario } from "simulation-bridge-converter-scylla/ConvertScenario";
 import RunProgressIndicationBar from "../RunProgressIndicationBar";
+import ToolRunOutputCard from "../ToolRunOutputCard";
 
 const SimulationPage = ({projectName, getData, toasting }) => {
 
@@ -13,7 +14,7 @@ const SimulationPage = ({projectName, getData, toasting }) => {
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
   const [errored, setErrored] = useState(false);
-  const [response, setResponse] = useState({});
+  const [response, setResponse] = useState(JSON.parse(sessionStorage.getItem(projectName+'/lastSimulatorResponse')) || {});
 
   const [scenarioName, setScenarioName] = useState();
   const [simulator, setSimulator] = useState();
@@ -24,7 +25,7 @@ const SimulationPage = ({projectName, getData, toasting }) => {
   // function to start the simulation
   const start = async () => {
     // Resetting response and finished states
-    setResponse({ message: "", files: [{ name: "", link: "" }] });
+    setResponse({ message: "", files: [] });
     setFinished(false);
     setErrored(false);
     // Updating the started state
@@ -64,7 +65,15 @@ const SimulationPage = ({projectName, getData, toasting }) => {
       })
 
       // Setting the response state and updating the finished and started states
-      setResponse(r.data);
+      
+      const responseObject = {
+        message : r.data.message,
+        files : r.data.files.map(file => file.name),
+        finished : new Date(),
+        requestId
+    }
+    setResponse(responseObject);
+    sessionStorage.setItem(projectName+'/lastSimulatorResponse', JSON.stringify(responseObject));
       setFinished(true);
       setStarted(false);
       // Toasting a success message
@@ -119,7 +128,7 @@ const SimulationPage = ({projectName, getData, toasting }) => {
         <RunProgressIndicationBar {...{started, finished, errored}}/>
             <Card bg="white">
                 <CardHeader>
-                    <Heading size='ms'> Simulation settings </Heading>
+                    <Heading size='md'> Start Simulation Run </Heading>
                 </CardHeader>
                 <CardBody>
                   
@@ -161,20 +170,8 @@ const SimulationPage = ({projectName, getData, toasting }) => {
                 </CardBody>
             </Card>
 
-            <Card bg="white">
-                <CardHeader>
-                    <Heading size='ms'> Simulator feedback </Heading>
-                </CardHeader>
-                <CardBody>
-                    <Textarea isDisabled  value={response.message} />
-                    {response.files && response.message && <>
-                        <Heading size='ms' mt={5}>Click on the name of the file to download it:</Heading>
-                        <UnorderedList>
-                        {response.files.map(x => (<ListItem><Button onClick={() => download(x.data, x.name)} variant="link">{x.name}</Button></ListItem>)) }
-                        </UnorderedList>
-                    </>}
-                </CardBody>
-            </Card>
+            
+            <ToolRunOutputCard {...{projectName, response, toolName : 'Simulator', processName : 'simulation', filePrefix : response.requestId}}/>
             
         
             

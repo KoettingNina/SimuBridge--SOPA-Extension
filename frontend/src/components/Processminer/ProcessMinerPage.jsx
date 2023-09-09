@@ -8,6 +8,7 @@ import simodConfiguration from './simod_config.yml'
 import { getFile, getFiles, setFile, uploadFileToProject } from "../../util/Storage";
 import { convertSimodOutput } from "simulation-bridge-converter-simod/simod_converter";
 import RunProgressIndicationBar from "../RunProgressIndicationBar";
+import ToolRunOutputCard from "../ToolRunOutputCard";
 
 
 function getNumberOfInstances(eventLog) {
@@ -20,7 +21,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
   const [errored, setErrored] = useState(false);
-  const [response, setResponse] = useState({});
+  const [response, setResponse] = useState(JSON.parse(sessionStorage.getItem(projectName+'/lastMinerResponse')) || {});
   const [logFile, setLogFile] = useState();
   const [miner, setMiner] = useState();
   
@@ -171,14 +172,17 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
             
             relevant_files.forEach(file => {
                 
-                setFile(projectName, 'simod_results/' + file.name, file.data);
+                setFile(projectName, 'simod_results/' + file.name, file.data); // TODO extract magic string 'simod_results'
             })
     
             // Setting the response state and updating the finished and started states
-            setResponse({
+            const responseObject = {
                 message : 'Miner output currently not captured',
-                files : relevant_files
-            });
+                files : relevant_files.map(file => file.name),
+                finished : new Date()
+            }
+            setResponse(responseObject);
+            sessionStorage.setItem(projectName+'/lastMinerResponse', JSON.stringify(responseObject));
             console.log('simod_results/' + relevant_files.find(file => /.*best_result.*simulation_parameters\.json/.test(file.name))?.name)
             setConfigFile('simod_results/' + relevant_files.find(file => /.*best_result.*simulation_parameters\.json/.test(file.name))?.name)
             setBpmnFile('simod_results/' + relevant_files.find(file => /.*structure_trial.*\.bpmn/.test(file.name))?.name)
@@ -266,7 +270,7 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
 
             <Card bg="white">
                 <CardHeader>
-                    <Heading size='ms'> Process Miner settings </Heading>
+                    <Heading size='md'> Start Process Miner Run </Heading>
                 </CardHeader>
                 <CardBody>
                   
@@ -309,47 +313,37 @@ const ProcessMinerPage = ({projectName, getData, toasting }) => {
 
             <Card bg="white">
                 <CardHeader>
-                    <Heading size='md'> Miner feedback </Heading>
+                    <Heading size='md'> Convert Miner Output to Scenario: </Heading>
                 </CardHeader>
                 <CardBody>
-                    <Flex flexDirection='column' gap='5'>
-                        <Textarea isDisabled value={response.message} />
-                        {response.files && response.message && <>
-                            <Heading size='ms' mt={5}>Click on the name of the file to download it:</Heading>
-                            <UnorderedList>
-                            {response.files.map(x => (<ListItem><Button onClick={() => download(x.data, x.name)} variant="link">{x.name}</Button></ListItem>)) }
-                            </UnorderedList>
-                        </>}
+                    <Flex
+                    gap="15"
+                    flexDirection="row"
+                    alignItems="end"
+                    >               
+                        {fileSelect('Select .json Config File:', configFile, setConfigFile, file => file.endsWith('.json') && file.includes('simulation_parameters') && !file.includes('converted'))}
+                        {fileSelect('Select Bpmn File:', bpmnFile, setBpmnFile, file => file.endsWith('.bpmn'))}
+                        
+                        <Button disabled={!configFile || !bpmnFile} onClick={async () => {
+                            console.log('Converting files ' + configFile + ' ' + bpmnFile)
+                            const converted = convertSimodOutput((await getFile(projectName, configFile)).data, (await getFile(projectName, bpmnFile)).data);
+                            const eventLog = (await getFile(projectName, logFile || fileList.filter(file => file.endsWith('.xes'))[0])).data; //TODO what if somebody selects another config?
+                            converted.numberOfInstances = getNumberOfInstances(eventLog);
 
-                            <Heading size='ms' mt='10'>Convert Miner Output to Scenario:</Heading>
-                            <Flex
-                            gap="15"
-                            flexDirection="row"
-                            alignItems="end"
-                            >               
-                                {fileSelect('Select .json Config File:', configFile, setConfigFile, file => file.endsWith('.json') && file.includes('simulation_parameters') && !file.includes('converted'))}
-                                {fileSelect('Select Bpmn File:', bpmnFile, setBpmnFile, file => file.endsWith('.bpmn'))}
-                                
-                                <Button disabled={!configFile || !bpmnFile} onClick={async () => {
-                                    console.log('Converting files ' + configFile + ' ' + bpmnFile)
-                                    const converted = convertSimodOutput((await getFile(projectName, configFile)).data, (await getFile(projectName, bpmnFile)).data);
-                                    const eventLog = (await getFile(projectName, logFile || fileList.filter(file => file.endsWith('.xes'))[0])).data; //TODO what if somebody selects another config?
-                                    converted.numberOfInstances = getNumberOfInstances(eventLog);
+                            const scenarioName = window.prompt('Please enter scenario name');
+                            if (scenarioName) {
+                                converted.scenarioName = scenarioName;
+                                getData().addScenario(converted);
+                            }
+                        }}>
+                            <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Convert to Scenario</Text>
+                        </Button>
 
-                                    const scenarioName = window.prompt('Please enter scenario name');
-                                    if (scenarioName) {
-                                        converted.scenarioName = scenarioName;
-                                        getData().addScenario(converted);
-                                    }
-                                }}>
-                                    <Text color="RGBA(0, 0, 0, 0.64)" fontWeight="bold">Convert to Scenario</Text>
-                                </Button>
-
-                            </Flex>
                     </Flex>
                 </CardBody>
             </Card>
-            
+
+            <ToolRunOutputCard {...{projectName, response, toolName : 'Miner', processName : 'process mining', filePrefix : 'simod_results'}}/>         
         
             
         </Stack>
