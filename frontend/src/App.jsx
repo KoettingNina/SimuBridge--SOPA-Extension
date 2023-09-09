@@ -24,6 +24,24 @@ import ModelBasedOverview from './components/TablesOverviewComparison/ModelBased
 import { ModelData, ScenarioData } from './util/DataHandles';
 
 
+const errorsToWarn = [
+  "Warning:",
+];
+const oldConsError = console.error;
+console.error = function(...args) {
+  let toWarn = false;
+
+  if (typeof args[0] === 'string') {
+      errorsToWarn.map(function(_s) {
+          if (args[0].startsWith(_s)) {
+              toWarn = true;
+          }
+      })
+  }
+  toWarn ? console.warn(...args) : oldConsError(...args);
+}
+
+
 const { compare } = require('js-deep-equals')
 
 const patchModdleClasses = [ScenarioData, ModelData]
