@@ -30,6 +30,11 @@ function iconFilter(icon) {
     }
 }
 
+function clickButton(label) {
+    cy.findByRole('button', { name: new RegExp(label, 'gi') }).click();
+    return { shouldLeadTo : (url) => { return cy.url().should('contain', url) } }
+}
+
 
 // There seems to be an issue with test isolation on the local runner. This database purge should at least isolate suite runs.
 before(() => {
@@ -95,10 +100,6 @@ describe('Inside a project', () => {
 
 
     describe('Left Side Bar', () => {
-        function clickButton(label) {
-            cy.findByRole('button', { name: new RegExp(label, 'i') }).click();
-            return { shouldLeadTo : (url) => { return cy.url().should('contain', url) } }
-        }
 
         it('displays the current scenario', () => {
             cy.get('select').find('option:selected').should('have.text', defaultScenarioName);
@@ -131,11 +132,28 @@ describe('Inside a project', () => {
             cy.url().should('contain', '/overview')
         });
 
-        describe('Scenario Overview Table', () => {
+        function rowForScenario(scenarioName) {
+            return cy.get('tr').filter((index, row) => Array.from(row.children).some(cell => cell.textContent === scenarioName));
+        }
 
-            function rowForScenario(scenarioName) {
-                return cy.get('tr').filter((index, row) => Array.from(row.children).some(cell => cell.textContent === scenarioName));
-            }
+        describe('Upper Button Bar', () => {
+            it('allows to create a new empty scenario', () => {
+                const newEmptyScenarioName = 'NewEmptyScenarioFromOverview';
+                cy.window().then(window => {
+                    cy.stub(window, 'prompt').returns(newEmptyScenarioName);
+                    cy.findByRole('button', { name: /new.*empty.*scenario/ig}).click();
+                    rowForScenario(newEmptyScenarioName).should('exist')
+                });
+
+            });
+
+            it('forwards to process miner page to create new scenario', () => {
+                cy.findByText(/Add Scenario From Process Mining/gi).click()
+                cy.url().should('contain', '/processminer')
+            });
+        });
+
+        describe('Scenario Overview Table', () => {
             
             it('has a row for the default scenario', () => {
                 rowForScenario(defaultScenarioName).should('exist');
@@ -197,7 +215,7 @@ describe('Inside a project', () => {
 
     });
 
-    describe.only('Process Miner Page', () => {
+    describe('Process Miner Page', () => {
         beforeEach(() => cy.visit('http://localhost:3000/processminer'));
 
         it('allows converting miner output to a new scenario', () => {

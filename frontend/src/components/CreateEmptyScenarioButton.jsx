@@ -6,7 +6,7 @@ export default ({getData, toast, label='Add new empty scenario', ...props}) => {
         let scenarioName = window.prompt('Please enter scenario name');
         if (scenarioName) {
             if (!getData().getScenario(scenarioName)) {
-                getData().addScenario(SimulationModelModdle.getInstance().create('simulationmodel:TimeDistribution', { scenarioName}));
+                getData().addScenario(SimulationModelModdle.getInstance().create('simulationmodel:Scenario', { scenarioName}));
             } else {
                 toast({
                     title: 'Scenario with that name already exist',
