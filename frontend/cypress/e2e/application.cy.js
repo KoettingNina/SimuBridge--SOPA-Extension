@@ -26,7 +26,7 @@ function iconFilter(icon) {
     const iconExample = icon.render ? icon.render() : icon();
     const iconPath = renderToString(iconExample.props.children);
     return (index, element) => {
-        return element.firstChild.innerHTML === iconPath;
+        return element?.firstChild?.innerHTML === iconPath;
     }
 }
 
@@ -142,7 +142,9 @@ describe('Inside a project', () => {
                 cy.window().then(window => {
                     cy.stub(window, 'prompt').returns(newEmptyScenarioName);
                     cy.findByRole('button', { name: /new.*empty.*scenario/ig}).click();
-                    rowForScenario(newEmptyScenarioName).should('exist')
+                    rowForScenario(newEmptyScenarioName).should('exist');
+                    // Postprocess due to bad isolation
+                    rowForScenario(newEmptyScenarioName).find('*').filter(iconFilter(DeleteIcon)).click();
                 });
 
             });
@@ -206,6 +208,23 @@ describe('Inside a project', () => {
             const value = 0.9;
 
             selectElement();
+            field().type('{selectAll}{backspace}'+value);
+            cy.wait(1000); // After each keystroke there is a short delay until saved to allow more inputs
+            cy.reload();
+            selectElement();
+            field().should('have.value', ''+value);;
+        });
+
+        it('allows to edit event arrival rate', () => {
+            const distributionType = 'triangular';
+            const typeSelect = () => cy.contains(distributionType).parent();
+            const field = () => cy.findAllByRole('textbox', { name: /upper/gi }).first();
+            const selectElement = () => getModelElement(defaultModelParameter.events[0].id).click();
+            const value = 420;
+
+            selectElement();
+            cy.contains(distributionType).should('not.to.be.visible');
+            typeSelect().select(distributionType);
             field().type('{selectAll}{backspace}'+value);
             cy.wait(1000); // After each keystroke there is a short delay until saved to allow more inputs
             cy.reload();
