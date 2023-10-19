@@ -234,6 +234,27 @@ describe('Inside a project', () => {
 
     });
 
+    describe('Resource Parameter Page', () => {
+        
+        beforeEach(() => cy.visit('http://localhost:3000/resource'));
+
+        it('allows to create a new role', () => {
+            const testRoleName = 'TestRole';
+            clickButton('Add Role');
+            cy.findByRole('textbox', { name: /Name/g }).type(testRoleName);
+            clickButton('Add Role');
+            cy.findByRole('button', {name : testRoleName}).should('exist');
+        });
+
+        it('allows to create a new resource', () => {
+            const testResourceName = 'TestResource';
+            clickButton('Add Resource');
+            cy.findByRole('textbox', { name: /Name/g }).type(testResourceName);
+            clickButton('Add Resource');
+            cy.findByRole('button', {name : testResourceName}).should('exist');
+        });
+    })
+
     describe('Process Miner Page', () => {
         beforeEach(() => cy.visit('http://localhost:3000/processminer'));
 

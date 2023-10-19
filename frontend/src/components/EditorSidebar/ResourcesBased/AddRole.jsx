@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button, Input, FormControl, FormLabel, Select, Divider, Switch, Stack, Box } from '@chakra-ui/react';
+import SimulationModelModdle from 'simulation-bridge-datamodel/DataModel';
 
 const AddRole = ({getData, setCurrent }) => {
   const [state, setState] = React.useState({
@@ -28,11 +29,11 @@ const AddRole = ({getData, setCurrent }) => {
   const onSubmit = (event) => {
     event.preventDefault();
 
-    let obj = {
+    let obj = SimulationModelModdle.getInstance().create('simulationmodel:Role' , {
       id: state.id,
       schedule: state.schedule,
       resources: []
-    }
+    });
 
     getData().getCurrentScenario().resourceParameters.roles.push(obj)
 
