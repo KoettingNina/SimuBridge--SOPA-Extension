@@ -150,7 +150,7 @@ export const SimulationModelDescriptor = {
             "name": "Gateway",
             "superClass": ["ModelElement"],
             "properties": [
-                { "name": "probabilities", "type": "String" } // TODO this shouldn't work, but it does. It is actually a map to String
+                { "name": "probabilities", "type": "String", default : {} } // TODO this shouldn't work, but it does. It is actually a map to String
             ]
         },
 

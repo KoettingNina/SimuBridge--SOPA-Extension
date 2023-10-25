@@ -1,4 +1,5 @@
 import { getScenarioFileName, purgeDatabase, setFile, updateProject } from "../../src/util/Storage";
+import { deepCopy } from "../../src/util/ObjectUtil";
 import { CopyIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FiEye } from "react-icons/fi";
 import { renderToString } from 'react-dom/server';
@@ -13,11 +14,21 @@ function udescribe(){}; // For debug; quick way to comment out a test
 
 const defaultProjectName = 'testProject';
 const defaultScenarioName = defaultScenarioData.scenarioName;
+const noModelConfigScenarioName = defaultScenarioName + '_noModelConfig';
 
 function loadDefaultProjectData() {
-    const fileName = getScenarioFileName(defaultScenarioName);
     return cy.wrap((async () => {
-        await setFile(defaultProjectName, fileName, JSON.stringify(defaultScenarioData));
+        // Default Scenario
+        const defaultScenarioFileName = getScenarioFileName(defaultScenarioName);
+        await setFile(defaultProjectName, defaultScenarioFileName, JSON.stringify(defaultScenarioData));
+
+        // Scenario without model data (as if it was newly created)
+        const noModelConfigScenarioData = deepCopy(defaultScenarioData);
+        noModelConfigScenarioData.scenarioName = noModelConfigScenarioName;
+        noModelConfigScenarioData.models[0].modelParameter = {};
+        const noModelConfigScenarioFileName = getScenarioFileName(noModelConfigScenarioData.scenarioName);
+        await setFile(defaultProjectName, noModelConfigScenarioFileName, JSON.stringify(noModelConfigScenarioData));
+        
         await updateProject(defaultProjectName);
     })()).then(() => cy.reload()) // Reload to ensure new data is displayed
 }
@@ -95,7 +106,10 @@ describe('Inside a project', () => {
     beforeEach(() => {
         cy.visit('http://localhost:3000'); // Necessary duplicate to avoid not being able to click on select project
         // load and open default project:
-        loadDefaultProjectData().then(() => cy.findByText(defaultProjectName).click())
+        loadDefaultProjectData().then(() => {
+            cy.findByText(defaultProjectName).click();
+            cy.get('select').select(defaultScenarioName);
+        });
     });
 
 
@@ -194,12 +208,39 @@ describe('Inside a project', () => {
         }
 
         const defaultModelParameter = defaultScenarioData.models[0].modelParameter;
+        const parameters = [{scenarioName : defaultScenarioName}, {scenarioName : noModelConfigScenarioName}];
 
-        beforeEach(() => cy.visit('http://localhost:3000/modelbased'));
+        
+        // BEGIN foreach scenario
+        parameters.forEach(currentParameters => { describe(JSON.stringify(currentParameters), () => {
+
+        beforeEach(() => {
+            cy.visit('http://localhost:3000/modelbased');
+            cy.get('select').select(currentParameters.scenarioName);
+        });
 
         it('shows all activities and gateways', () => {
             [... defaultModelParameter.activities, ... defaultModelParameter.gateways]
                 .forEach(({id}) => getModelElement(id).should('exist'));
+        });
+
+        //TODO refactor common code between edit element tests
+
+        it('allows to edit activity costs', () => {
+            const field = () => cy.findAllByRole('textbox', { name: /.*cost.*/gi }).first();
+            const selectElement = () => {
+                getModelElement(defaultModelParameter.activities[0].id).click();
+                cy.findByText('General Parameters').click();
+            };
+            const value = 42.0;
+
+            selectElement();
+            field().type('{selectAll}{backspace}'+value);
+            cy.wait(1000); // After each keystroke there is a short delay until saved to allow more inputs
+            cy.reload();
+            cy.get('select').select(currentParameters.scenarioName);
+            selectElement();
+            field().should('have.value', ''+value);;
         });
 
         it('allows to edit gateway probabilities', () => {
@@ -211,6 +252,7 @@ describe('Inside a project', () => {
             field().type('{selectAll}{backspace}'+value);
             cy.wait(1000); // After each keystroke there is a short delay until saved to allow more inputs
             cy.reload();
+            cy.get('select').select(currentParameters.scenarioName);
             selectElement();
             field().should('have.value', ''+value);;
         });
@@ -228,9 +270,13 @@ describe('Inside a project', () => {
             field().type('{selectAll}{backspace}'+value);
             cy.wait(1000); // After each keystroke there is a short delay until saved to allow more inputs
             cy.reload();
+            cy.get('select').select(currentParameters.scenarioName);
             selectElement();
             field().should('have.value', ''+value);;
         });
+            
+        // END foreach scenario
+        })})
 
     });
 

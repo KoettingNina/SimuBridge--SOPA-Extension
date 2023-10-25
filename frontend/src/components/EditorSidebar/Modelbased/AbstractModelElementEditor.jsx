@@ -5,10 +5,9 @@ import { getElementLabel } from "../../../util/BpmnUtil";
 import {
     debounce
 } from 'min-dash';
-import { limitToDataScheme } from "simulation-bridge-datamodel/DataModel";
+import SimulationModelModdle, { assign, limitToDataScheme } from "simulation-bridge-datamodel/DataModel";
 
-// TODO replace emptyconfig with moddle type name
-export default function AbstractModelElementEditor({type, typeName, state, setState, currentElement, getData, emptyConfig, children, setSave}) {
+export default function AbstractModelElementEditor({type, typeName, state, setState, currentElement, getData, moddleClass, children, setSave}) {
 
     function getExistingElementConfiguration() {
         return getData().getCurrentModel().modelParameter[type].find(value => value.id === currentElement.id)
@@ -18,15 +17,19 @@ export default function AbstractModelElementEditor({type, typeName, state, setSt
     
     function save() {
         if (!getExistingElementConfiguration()) {
-            getData().getCurrentModel().modelParameter[type].push({...state});
+            const newElementConfiguration = SimulationModelModdle.getInstance().create(moddleClass, state);
+            getData().getCurrentModel().modelParameter[type].push(newElementConfiguration);
         } else {
-            Object.assign(getExistingElementConfiguration(), state);
+            //TODO refactor the need for de- and re-moddleifying
+            assign(getExistingElementConfiguration(), state);
         }
         setState({...state}); //Ensure that state changes are notfied even before save and reload
         debounceSave();
     }
     
-    useEffect(() => setState({... (limitToDataScheme(getExistingElementConfiguration()) || emptyConfig)}), [currentElement.id]);
+    useEffect(() => setState({... (
+        limitToDataScheme(getExistingElementConfiguration() || SimulationModelModdle.getInstance().create(moddleClass, {id : currentElement.id}))
+    )}), [currentElement.id]);
     setSave(save);
 
     return (

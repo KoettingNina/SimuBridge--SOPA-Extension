@@ -28,7 +28,7 @@ const Event = ({ getData, currentElement }) => {
       setState : setEventConfiguration,
       currentElement,
       getData,
-      emptyConfig : SimulationModelModdle.getInstance().create('simulationmodel:Event', {id : currentElement.id}),
+      moddleClass : 'simulationmodel:Event',
       setSave
     }}>{
       eventConfiguration && (

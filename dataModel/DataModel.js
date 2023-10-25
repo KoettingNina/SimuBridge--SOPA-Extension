@@ -115,6 +115,7 @@ SimulationModelModdle.prototype.isEnumType = function (typeName) {
 
 // Eg. limitToDataScheme(myScenario)
 export function limitToDataScheme(object) {
+    if(object === undefined) return null;
     return Object.fromEntries(Object.entries(object)
         .map(([key, value]) => ({key, value, moddleProperty : object.$descriptor.properties.find(prop => parseNameNS(prop.name).localName === key)}) )
         .filter(({moddleProperty}) => moddleProperty)
@@ -124,4 +125,10 @@ export function limitToDataScheme(object) {
                 value.map(limitToDataScheme) : 
                 limitToDataScheme(value)])
     );
+}
+
+export function assign(moddleElement, plainObject) {
+    Object.entries(SimulationModelModdle.getInstance().create(moddleElement.$descriptor.name, plainObject))
+        .filter(([key, value]) => moddleElement.$descriptor.properties.find(prop => parseNameNS(prop.name).localName === key))
+        .forEach(([key, value]) => moddleElement[key] = value);
 }

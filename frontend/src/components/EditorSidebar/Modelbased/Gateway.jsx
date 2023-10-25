@@ -42,7 +42,7 @@ const Gateway = ({ currentElement, getData}) => {
       setState: setGatewayConfiguration,
       currentElement,
       getData,
-      emptyConfig : SimulationModelModdle.getInstance().create('simulationmodel:Gateway', {id : currentElement.id}),
+      moddleClass : 'simulationmodel:Gateway',
       setSave
     }}>
 

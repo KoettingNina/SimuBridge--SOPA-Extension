@@ -61,7 +61,7 @@ const Activity = ({ getData, currentElement }) => {
     setState : setActivityConfiguration,
     currentElement,
     getData,
-    emptyConfig : SimulationModelModdle.getInstance().create('simulationmodel:Activity', {id : currentElement.id}),
+    moddleClass : 'simulationmodel:Activity',
     setSave
   }}>
 
