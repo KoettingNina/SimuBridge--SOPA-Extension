@@ -18,18 +18,31 @@ var options = {
 };
 
 
-export async function convertScenario(scenario) {
+export async function convertScenario(scenarioRaw) {
+    // copy scenarioRaw object
+    const scenario = JSON.parse(JSON.stringify(scenarioRaw));
+
+    // Iterate over each costDriver in the resourceParameters
+    scenario.resourceParameters.costDrivers.forEach(abstractDriver => {
+        // Replace the id of each concreteCostDriver with its name
+        abstractDriver.concreteCostDrivers.forEach(concreteCostDriver => {
+            concreteCostDriver.id = concreteCostDriver.name;
+        });
+    });
 
     if (!scenario.models.length) throw 'No models to convert were provided';
 
     // create one global configuration:
+    //console.log("Scenario: ", scenario);
     const globalConfig_json = createNewJsonGlob(scenario);
     var globalConfig = json2xml(globalConfig_json, options);
+
     // create one simulation configuration for each model in a scenario:
 
     const simConfigs = await Promise.all(scenario.models.map(async currentModel => {
         const simConfig_json = await createNewJsonSim(scenario, currentModel);
         var simConfig = json2xml(simConfig_json, options);
+        //console.log('SimConfig: ', simConfig);
         return simConfig;
     }));
 

@@ -19,7 +19,9 @@ import {
     FiPlay,
     FiEye,
     FiUser,
-    FiCornerLeftUp
+    FiCornerLeftUp,
+    FiFeather,
+    FiServer
   } from 'react-icons/fi';
 
 import { downloadData } from '../../util/Storage';
@@ -37,12 +39,14 @@ import { downloadData } from '../../util/Storage';
       { name: 'Scenario Overview', icon: FiSettings, path: '/scenario', event: () =>  setCurrent("Scenario Parameters") },
       { name: 'Resource Parameters', icon: FiUser, path: '/resource', event: () =>  setCurrent("Resource Parameters")},
       { name: 'Model-based Parameters', icon: FiStar, path: '/modelbased', event: () =>  setCurrent("Modelbased Parameters") },
+      { name: 'LCA Variants', icon: FiFeather, path: '/lcavariants', event: () =>  setCurrent("LCA Configuration") },
     ]
 
     
     let LinkItems2 = [
       { name: 'Run Simulation', icon: FiPlay, path: '/simulation', event: () =>  setCurrent("Run Simulation") },
       { name: 'Run Process Miner', icon: FiPlay, path: '/processminer', event: () =>  setCurrent("Run Process Miner") },
+      { name: 'OpenLCA Integration', icon: FiServer, path: '/lcaintegration', event: () =>  setCurrent("OpenLCA Integration") },
       // { name: 'Debugging View', icon: FiPlay, path: '/debug', event: () =>  setCurrent("Debug View") }
     ];
 

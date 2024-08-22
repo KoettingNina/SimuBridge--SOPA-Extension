@@ -1,0 +1,90 @@
+{
+    "jsonrpc": "2.0",
+    "result": [
+        {
+            "@type": "ProductSystem",
+            "@id": "eb2d7a95-af12-4c07-8483-76c222bd2a8a",
+            "name": "Delivery_A_Lorry",
+            "category": "Delivery"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "2320625c-91a6-46fe-a338-30e31da90aeb",
+            "name": "Delivery_B_Small_Lorry",
+            "category": "Delivery"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "ef48baf7-4885-4d95-96b8-8d3d4a1092dc",
+            "name": "Shipment_A_Lorry",
+            "category": "Shipment"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "7fa79147-2fa5-47f8-9bd5-b4a05ec65b49",
+            "name": "Shipment_A_Rail_Electric",
+            "category": "Shipment"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "70957e6a-c47e-4cc2-b4cf-ca3863153c9f",
+            "name": "Re-Routing_A_Lorry",
+            "category": "Re-Routing"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "985e5853-47ad-48b9-af14-db5f46249f4a",
+            "name": "Re-Routing_A_Small_Lorry",
+            "category": "Re-Routing"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "e4b2ab16-bab1-44be-91df-8a1e859553f6",
+            "name": "Delivery_B_Lorry",
+            "category": "Delivery"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "7d56ac6e-0d5b-41e4-b83e-cbb43557a937",
+            "name": "Delivery_A_Small_Lorry",
+            "category": "Delivery"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "a0cd2fa8-a7b4-4805-a662-38f701862a2f",
+            "name": "Shipment_B_Lorry",
+            "category": "Shipment"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "256b0228-f05a-4e35-a5f2-efec99b0b406",
+            "name": "Shipment_B_Rail_Electric",
+            "category": "Shipment"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "1ce01d66-552b-4bc2-9103-680d37531c72",
+            "name": "Packaging_Material_B",
+            "category": "Packaging Material"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "ee2a9ffc-24ae-499b-b11e-77f52094aa21",
+            "name": "Packaging_Material_A",
+            "category": "Packaging Material"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "1964790c-5d5f-412c-b6a1-beb2df9508c9",
+            "name": "Receipt",
+            "category": "Receipt"
+        },
+        {
+            "@type": "ProductSystem",
+            "@id": "fdd48db8-b321-43a1-9a01-569963bc5f71",
+            "name": "Filling_A",
+            "category": "Filling Material"
+        }
+    ],
+    "id": 1
+}

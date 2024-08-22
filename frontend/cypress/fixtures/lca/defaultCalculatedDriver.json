@@ -1,0 +1,286 @@
+{
+    "jsonrpc": "2.0",
+    "result": [
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "95f89947-4850-31b8-9101-090cf2bf431b",
+                "name": "Resource use, fossils",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "MJ"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "7e5f7680-70bd-3598-8d56-e8b3185dd595",
+                "name": "Climate change - Biogenic",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg CO2 eq"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "b4028c28-92bf-3731-af31-5005d1acea62",
+                "name": "Ozone depletion",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg CFC11 eq"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "9ee5b46d-5bd1-3461-abc4-0ce9dcd85dcd",
+                "name": "Human toxicity, cancer",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 2.1367777824966915E-15
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "8dc972d8-cd5f-34c4-984b-01df508bac8b",
+                "name": "Human toxicity, cancer - metals",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "eb072b11-7c98-3470-a835-b428f1797461",
+                "name": "Human toxicity, non-cancer - inorganics",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "d955e015-db81-325e-acf4-89044bceb3e6",
+                "name": "Climate change - Fossil",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg CO2 eq"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "20c5efe6-135a-30d0-b941-75f30bb1cdd8",
+                "name": "Human toxicity, cancer - organics",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "4316221b-d1ab-3b99-b816-d8ffaab7fab5",
+                "name": "Eutrophication, marine",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg N eq"
+            },
+            "amount": 4.4470547641914194E-7
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "5067f656-f54f-3393-a55a-9c2a54444756",
+                "name": "Ionising radiation",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kBq U-235 eq"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "3bc1c67f-d3e3-3891-9fea-4512107d88ef",
+                "name": "Climate change",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg CO2 eq"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "c732bdc7-4044-31ae-a670-6d9ccf4507b0",
+                "name": "Water use",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "m3 depriv."
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "1783fe30-a9ed-34b5-b5f9-9acdb2fcd013",
+                "name": "Ecotoxicity, freshwater - inorganics",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUe"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "241a3453-8167-35d0-a5da-d2bff22a65a6",
+                "name": "Ecotoxicity, freshwater - organics",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUe"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "dbdd01d5-2be4-3ba4-8127-de89f065fda1",
+                "name": "Ecotoxicity, freshwater",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUe"
+            },
+            "amount": 1.7538507626315786E-8
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "00af7673-38a0-3b59-a7ac-10fafe9b83d2",
+                "name": "Eutrophication, freshwater",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg P eq"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "248a3f3f-933e-3c45-a799-fad9f956e03c",
+                "name": "Photochemical ozone formation",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg NMVOC eq"
+            },
+            "amount": 1.2050224881066374E-6
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "2bbe3c6a-5f0d-33d5-a6b9-8501e3821746",
+                "name": "Human toxicity, non-cancer - organics",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "f4895d6e-c2cc-3096-bfab-197436031d1e",
+                "name": "Human toxicity, non-cancer",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 2.5725344183990433E-16
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "4eb4c81b-7cda-3264-9ad1-fa15168bdcd3",
+                "name": "Eutrophication, terrestrial",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "mol N eq"
+            },
+            "amount": 6.108781606060859E-6
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "7c535cfd-1efb-3d8c-8ed3-9732fb78dfed",
+                "name": "Human toxicity, non-cancer - metals",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "f22e8177-5b42-3686-b68f-bbf1325a7e30",
+                "name": "Ecotoxicity, freshwater - metals",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUe"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "5fa27803-3370-3136-8274-8149415d2c26",
+                "name": "Climate change - Land use and LU change",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg CO2 eq"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "198c2d4f-9aca-38ed-999a-416e09370de6",
+                "name": "Particulate matter",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "disease inc."
+            },
+            "amount": 3.6140258635115415E-12
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "2dddb0a4-2f97-3fef-a4e6-708f0b4c2554",
+                "name": "Human toxicity, cancer - inorganics",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "CTUh"
+            },
+            "amount": 0.0
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "2e0b3f30-541b-37c9-8cfe-071de8a46f6d",
+                "name": "Land use",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "Pt"
+            },
+            "amount": -3.2668769011722873E-7
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "b3ba5fc3-5a6f-364b-b839-9ee55d418cb3",
+                "name": "Resource use, minerals and metals",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "kg Sb eq"
+            },
+            "amount": 1.6797948331412463E-11
+        },
+        {
+            "impactCategory": {
+                "@type": "ImpactCategory",
+                "@id": "9d1aee72-1b47-323e-afbc-827b452d4940",
+                "name": "Acidification",
+                "category": "EF 3.0 Method (adapted)",
+                "refUnit": "mol H+ eq"
+            },
+            "amount": 1.773355344820356E-6
+        }
+    ],
+    "id": 9
+}

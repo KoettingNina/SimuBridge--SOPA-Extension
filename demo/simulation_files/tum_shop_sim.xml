@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions>
+	<simulationConfiguration id="TUM Shop Delivery_ModBPMN_1_Sim" startDateTime="0000-01-01T00:00+00:00" processRef="Process_1qfsj4d" processInstances="608">
+		<costVariantConfig count="1">
+			<variant id="Basic" frequency="1">
+				<driver id="Delivery" cost="0.000009222736147284307"/>
+				<driver id="Shipment" cost="0.000025279427000910646"/>
+				<driver id="Packaging Material" cost="0.000004607338473103258"/>
+				<driver id="Filling Material" cost="0.000005119664581012698"/>
+			</variant>
+		</costVariantConfig>
+		<Task id="Activity_12nhj09">
+			<duration timeUnit="SECONDS">
+				<normalDistribution>
+					<mean>1091.827953405018</mean>
+					<standardDeviation>25.43501071300728</standardDeviation>
+				</normalDistribution>
+			</duration>
+			<costDrivers>
+				<costDriver id="Filling Material"/>
+				<costDriver id="Packaging Material"/>
+			</costDrivers>
+			<resources>
+				<resource id="Role 2" amount="1"/>
+			</resources>
+		</Task>
+		<Task id="Activity_0zw7mmo">
+			<duration timeUnit="SECONDS">
+				<normalDistribution>
+					<mean>1377.5888516228747</mean>
+					<standardDeviation>22.83512404119388</standardDeviation>
+				</normalDistribution>
+			</duration>
+			<costDrivers>
+				<costDriver id="Shipment"/>
+			</costDrivers>
+			<resources>
+				<resource id="Role 2" amount="1"/>
+			</resources>
+		</Task>
+		<Task id="Activity_0gdnps8">
+			<duration timeUnit="SECONDS">
+				<constantDistribution>
+					<constantValue>60</constantValue>
+				</constantDistribution>
+			</duration>
+			<costDrivers>
+				<costDriver id="Delivery"/>
+			</costDrivers>
+			<resources>
+				<resource id="Role 3" amount="1"/>
+			</resources>
+		</Task>
+		<exclusiveGateway id="Gateway_18euw97">
+			<outgoingSequenceFlow id="Flow_1lgsuz0">
+				<branchingProbability>0.21885521885521886</branchingProbability>
+			</outgoingSequenceFlow>
+			<outgoingSequenceFlow id="Flow_01lk7fy">
+				<branchingProbability>0.7811447811447811</branchingProbability>
+			</outgoingSequenceFlow>
+		</exclusiveGateway>
+		<startEvent id="StartEvent_1">
+			<arrivalRate timeUnit="SECONDS">
+				<normalDistribution>
+					<mean>22393.925501432666</mean>
+					<standardDeviation>29294.674848659557</standardDeviation>
+				</normalDistribution>
+			</arrivalRate>
+		</startEvent>
+	</simulationConfiguration>
+</definitions>

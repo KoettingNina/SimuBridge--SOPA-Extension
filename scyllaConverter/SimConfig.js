@@ -12,6 +12,7 @@ export default async function createNewJsonSim(scenario, processModel) {
 async function createSimConfig(scenario, processModel) {
     var simConfig = new Object;
     var attributes = new Object;
+    var costVariantConfig = new Object;
 
     const {
       rootElement,
@@ -19,6 +20,10 @@ async function createSimConfig(scenario, processModel) {
       warnings,
       elementsById
     } = await moddle.fromXML(processModel.BPMN, 'bpmn:Definitions');
+
+    costVariantConfig._attributes = { count: processModel.modelParameter.costVariantConfig.count };
+    costVariantConfig.variant = conv_ele.createVariants(processModel.modelParameter.costVariantConfig.variants);
+    simConfig.costVariantConfig = costVariantConfig;
 
     // create Tasks:
     simConfig.Task = conv_ele.createTasks(processModel.modelParameter.activities)

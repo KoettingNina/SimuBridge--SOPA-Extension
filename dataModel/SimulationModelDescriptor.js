@@ -58,7 +58,9 @@ export const SimulationModelDescriptor = {
             "properties": [
                 { "name": "roles", "type": "Role", isMany : true },
                 { "name": "resources", "type": "Resource", isMany : true },
-                { "name": "timeTables", "type": "Timetable", isMany : true }
+                { "name": "timeTables", "type": "Timetable", isMany : true },
+                { "name": "costDrivers", "type": "AbstractCostDriver", isMany : true },
+                { "name": "environmentMappingConfig", "type": "EnvironmentMappingConfig" }
             ]
         },
 
@@ -77,7 +79,7 @@ export const SimulationModelDescriptor = {
             "properties": [
                 { "name": "id", "type": "String"},
                 { "name": "schedule", "type": "String", default : null }, //TODO could be done with isReference and type Timetable
-                { "name": "costHour", "type": "Real", default : null },
+                { "name": "costHour", "type": "Real", default : null }
             ]
         },
 
@@ -100,6 +102,70 @@ export const SimulationModelDescriptor = {
             ]
         },
 
+        {
+            "name" : "AbstractCostDriver",
+            "properties": [
+                { "name": "id", "type": "String"}, //TODO check if defaultTime unit is to be included
+                { "name": "name", "type": "String"},
+                { "name": "concreteCostDrivers", "type": "ConcreteCostDriver", isMany : true }, // TODO concreteCostDriver is missplelled in the xml files provided from team B.
+            ]
+        },
+
+        {
+            "name" : "ConcreteCostDriver",
+            "properties": [
+                { "name": "id", "type": "String"},
+                { "name": "name", "type": "String"},
+                { "name": "cost", "type": "Real"},
+            ]
+        },
+
+        {
+            "name" : "EnvironmentMappingConfig",
+            "properties": [
+                { "name": "variants", "type": "VariantExtended", isMany : true },
+            ]
+        },
+        {
+            "name" : "VariantExtended",
+            "properties": [
+                { "name": "id", "type": "String"},
+                { "name": "name", "type": "String"},
+                { "name": "frequency", "type": "Real"},
+                { "name": "mappings", "type": "DriversMapping", isMany : true }
+            ]
+        },
+        {
+            "name" : "DriversMapping",
+            "properties": [
+                { "name": "abstractDriver", "type": "String"},
+                { "name": "concreteDriver", "type": "String"},
+            ]
+        },
+
+        {
+            "name" : "CostVariantConfig",
+            "properties": [
+                { "name": "count", "type": "String"},
+                { "name": "variants", "type": "Variant", isMany : true }
+            ]
+        },
+        {
+            "name" : "Variant",
+            "properties": [
+                { "name": "id", "type": "String"},
+                { "name": "name", "type": "String"},
+                { "name": "frequency", "type": "String"},
+                { "name": "drivers", "type": "Driver", isMany : true }
+            ]
+        },
+        {
+            "name" : "Driver",
+            "properties": [
+                { "name": "id", "type": "String"},
+                { "name": "cost", "type": "String"},
+            ]
+        },
 
         {
             "name": "Model",
@@ -115,7 +181,8 @@ export const SimulationModelDescriptor = {
             "properties": [
                 { "name": "activities", "type": "Activity", "isMany": true },
                 { "name": "events", "type": "Event", "isMany": true },
-                { "name": "gateways", "type": "Gateway", "isMany": true }
+                { "name": "gateways", "type": "Gateway", "isMany": true },
+                { "name": "costVariantConfig", "type": "CostVariantConfig" }
             ]
         },
 
@@ -132,6 +199,7 @@ export const SimulationModelDescriptor = {
             "superClass": ["ModelElement"],
             "properties": [
                 { "name": "resources", "type": "String", "isMany": true },
+                { "name": "costDrivers", "type": "String", "isMany": true },
                 { "name": "cost", "type": "Real", "default": 0 },
                 { "name": "duration", "type": "TimeDistribution" }
             ]

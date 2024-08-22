@@ -1,0 +1,10 @@
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "@id": "dce854c1-8b42-4f98-a859-a7017669f67c",
+        "isReady": true,
+        "isScheduled": false,
+        "time": 1708094791641
+    },
+    "id": 8
+}

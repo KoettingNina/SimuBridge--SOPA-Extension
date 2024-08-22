@@ -24,6 +24,13 @@ const SimulationPage = ({projectName, getData, toasting }) => {
 
   // function to start the simulation
   const start = async () => {
+    let variants = getData().getCurrentScenario().resourceParameters.environmentMappingConfig.variants;
+    if(variants.reduce((sum, variant) => sum + parseInt(variant.frequency), 0) != 100)
+    {
+      toasting("error", "Frequencies sum is not 100%", "For correct simulation, the sum of frequencies must be 100%");
+      return;
+    }
+
     // Resetting response and finished states
     setResponse({ message: "", files: [] });
     setFinished(false);
@@ -35,17 +42,25 @@ const SimulationPage = ({projectName, getData, toasting }) => {
     source.current = axios.CancelToken.source();
 
     try {
-
       const requestId = 'request' + Math.random();
       const formData = new FormData();
       const scenarioData = getData().getScenario(scenarioName);
       
+      console.log('ScenarioData', scenarioData);
 
       const {globalConfig, simConfigs} = await convertScenario(scenarioData);
+
+      console.log("globalConfig", globalConfig);
+      console.log("simConfigs", simConfigs[0]);
+
       const simConfig = simConfigs[0]; //TODO magic index access
       const processModel = scenarioData.models[0]; //TODO magic index access
 
-      const bpmnFile = new File([processModel.BPMN], processModel.name + '.bpmn')
+      let bpmn = processModel.BPMN;
+      bpmn = bpmn.replace(/'/g, "");
+      //console.log('BPMN', bpmn);
+
+      const bpmnFile = new File([bpmn], processModel.name + '.bpmn')
       formData.append("bpmn", bpmnFile, bpmnFile.name);
       const globalConfigFile = new File([globalConfig], scenarioData.scenarioName + '_Global.xml')
       formData.append("globalConfig", globalConfigFile, globalConfigFile.name);

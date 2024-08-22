@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<globalConfiguration id="TUM Shop Delivery_Global">
+	<resourceData>
+		<dynamicResource id="Role 1" name="Role 1" defaultCost="20" defaultQuantity="14" defaultTimetableId="Role 1" defaultTimeUnit="HOURS">
+			<instance id="Kim Passa" name="Kim Passa"/>
+			<instance id="Immanuel Karagianni" name="Immanuel Karagianni"/>
+			<instance id="Alberto Duport" name="Alberto Duport"/>
+			<instance id="Fjodor Kowalski" name="Fjodor Kowalski"/>
+			<instance id="Esmana Liubiata" name="Esmana Liubiata"/>
+			<instance id="Christian Francois" name="Christian Francois"/>
+			<instance id="Tesca Lobes" name="Tesca Lobes"/>
+			<instance id="Penn Osterwalder" name="Penn Osterwalder"/>
+			<instance id="Nico Ojenbeer" name="Nico Ojenbeer"/>
+			<instance id="Anne Olwada" name="Anne Olwada"/>
+			<instance id="Miu Hanwan" name="Miu Hanwan"/>
+			<instance id="Anna Kaufmann" name="Anna Kaufmann"/>
+			<instance id="Elvira Lores" name="Elvira Lores"/>
+			<instance id="Clement Duchot" name="Clement Duchot"/>
+		</dynamicResource>
+		<dynamicResource id="Role 4" name="Role 4" defaultCost="20" defaultQuantity="3" defaultTimetableId="Role 4" defaultTimeUnit="HOURS">
+			<instance id="Maris Freeman" name="Maris Freeman"/>
+			<instance id="Heinz Gutschmidt" name="Heinz Gutschmidt"/>
+			<instance id="Francis Odell" name="Francis Odell"/>
+		</dynamicResource>
+		<dynamicResource id="Role 3" name="Role 3" defaultCost="20" defaultQuantity="3" defaultTimetableId="Role 3" defaultTimeUnit="HOURS">
+			<instance id="Karel de Groot" name="Karel de Groot"/>
+			<instance id="Magdalena Predutta" name="Magdalena Predutta"/>
+			<instance id="Francois de Perrier" name="Francois de Perrier"/>
+		</dynamicResource>
+		<dynamicResource id="Role 5" name="Role 5" defaultCost="20" defaultQuantity="2" defaultTimetableId="Role 5" defaultTimeUnit="HOURS">
+			<instance id="Karalda Nimwada" name="Karalda Nimwada"/>
+			<instance id="Pedro Alvares" name="Pedro Alvares"/>
+		</dynamicResource>
+		<dynamicResource id="Role 2" name="Role 2" defaultCost="20" defaultQuantity="5" defaultTimetableId="Role 2" defaultTimeUnit="HOURS">
+			<instance id="Sean Manney" name="Sean Manney"/>
+			<instance id="Esmeralda Clay" name="Esmeralda Clay"/>
+			<instance id="Carmen Finacse" name="Carmen Finacse"/>
+			<instance id="Karen Clarens" name="Karen Clarens"/>
+			<instance id="Kiu Kan" name="Kiu Kan"/>
+		</dynamicResource>
+	</resourceData>
+	<timetables>
+		<timetable id="Role 1">
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="00:00" endTime="16:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="17:00" endTime="23:59"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="00:00" endTime="23:59"/>
+		</timetable>
+		<timetable id="Role 3">
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="00:00" endTime="23:59"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="00:00" endTime="23:59"/>
+		</timetable>
+		<timetable id="Role 4">
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="04:00" endTime="08:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="09:00" endTime="11:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="12:00" endTime="13:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="16:00" endTime="18:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="19:00" endTime="20:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="21:00" endTime="23:59"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="00:00" endTime="01:00"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="03:00" endTime="09:00"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="10:00" endTime="21:00"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="22:00" endTime="23:59"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="00:00" endTime="03:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="07:00" endTime="08:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="09:00" endTime="12:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="13:00" endTime="15:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="17:00" endTime="19:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="20:00" endTime="22:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="23:00" endTime="23:59"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="00:00" endTime="02:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="03:00" endTime="04:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="05:00" endTime="10:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="11:00" endTime="13:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="14:00" endTime="15:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="16:00" endTime="17:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="18:00" endTime="23:59"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="00:00" endTime="03:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="04:00" endTime="05:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="07:00" endTime="09:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="10:00" endTime="13:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="14:00" endTime="20:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="21:00" endTime="23:59"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="01:00" endTime="02:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="04:00" endTime="07:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="09:00" endTime="10:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="11:00" endTime="12:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="18:00" endTime="19:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="20:00" endTime="21:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="22:00" endTime="23:59"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="01:00" endTime="04:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="05:00" endTime="12:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="15:00" endTime="16:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="17:00" endTime="23:59"/>
+		</timetable>
+		<timetable id="Role 2">
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="00:00" endTime="10:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="11:00" endTime="16:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="18:00" endTime="22:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="23:00" endTime="23:59"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="00:00" endTime="07:00"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="08:00" endTime="13:00"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="14:00" endTime="18:00"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="21:00" endTime="23:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="00:00" endTime="03:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="05:00" endTime="06:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="07:00" endTime="11:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="14:00" endTime="21:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="00:00" endTime="01:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="02:00" endTime="04:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="05:00" endTime="06:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="07:00" endTime="14:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="15:00" endTime="18:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="19:00" endTime="21:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="23:00" endTime="23:59"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="00:00" endTime="17:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="18:00" endTime="19:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="20:00" endTime="23:59"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="01:00" endTime="02:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="03:00" endTime="05:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="06:00" endTime="08:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="09:00" endTime="20:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="21:00" endTime="22:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="23:00" endTime="23:59"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="00:00" endTime="06:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="07:00" endTime="09:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="10:00" endTime="13:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="14:00" endTime="17:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="18:00" endTime="19:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="21:00" endTime="23:59"/>
+		</timetable>
+		<timetable id="Role 5">
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="01:00" endTime="02:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="04:00" endTime="08:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="11:00" endTime="12:00"/>
+			<timetableItem from="MONDAY" to="MONDAY" beginTime="13:00" endTime="23:59"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="01:00" endTime="07:00"/>
+			<timetableItem from="TUESDAY" to="TUESDAY" beginTime="14:00" endTime="23:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="00:00" endTime="03:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="04:00" endTime="09:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="11:00" endTime="14:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="15:00" endTime="17:00"/>
+			<timetableItem from="WEDNESDAY" to="WEDNESDAY" beginTime="19:00" endTime="20:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="05:00" endTime="12:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="13:00" endTime="20:00"/>
+			<timetableItem from="THURSDAY" to="THURSDAY" beginTime="22:00" endTime="23:59"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="01:00" endTime="05:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="07:00" endTime="11:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="14:00" endTime="18:00"/>
+			<timetableItem from="FRIDAY" to="FRIDAY" beginTime="20:00" endTime="23:59"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="00:00" endTime="04:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="07:00" endTime="10:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="12:00" endTime="20:00"/>
+			<timetableItem from="SATURDAY" to="SATURDAY" beginTime="21:00" endTime="22:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="00:00" endTime="02:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="04:00" endTime="05:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="07:00" endTime="10:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="12:00" endTime="19:00"/>
+			<timetableItem from="SUNDAY" to="SUNDAY" beginTime="20:00" endTime="23:59"/>
+		</timetable>
+	</timetables>
+	<costDriver>
+		<abstractCostDriver id="Delivery">
+			<concreteCostDriver id="Delivery_A_Lorry" cost="0.000009222736147284307"/>
+			<concreteCostDriver id="Delivery_B_Small_Lorry" cost="0.000017790529652615878"/>
+			<concreteCostDriver id="Delivery_B_Lorry" cost="0.000013834104220926462"/>
+			<concreteCostDriver id="Delivery_A_Small_Lorry" cost="0.000011860353101743918"/>
+		</abstractCostDriver>
+		<abstractCostDriver id="Shipment">
+			<concreteCostDriver id="Shipment_A_Lorry" cost="0.000025279427000910646"/>
+			<concreteCostDriver id="Shipment_A_Rail_Electric" cost="-3.9450807802685816e-7"/>
+			<concreteCostDriver id="Shipment_B_Lorry" cost="0.00005055885400182129"/>
+			<concreteCostDriver id="Shipment_B_Rail_Electric" cost="-7.890161560537163e-7"/>
+		</abstractCostDriver>
+		<abstractCostDriver id="Re-Routing">
+			<concreteCostDriver id="Re-Routing_A_Lorry" cost="0.000002766820844185292"/>
+			<concreteCostDriver id="Re-Routing_A_Small_Lorry" cost="0.000003558105930523175"/>
+		</abstractCostDriver>
+		<abstractCostDriver id="Packaging Material">
+			<concreteCostDriver id="Packaging_Material_B" cost="0.000004607338473103258"/>
+			<concreteCostDriver id="Packaging_Material_A" cost="0.000009214676946206515"/>
+		</abstractCostDriver>
+		<abstractCostDriver id="Receipt">
+			<concreteCostDriver id="Receipt" cost="0.000005075463136208346"/>
+		</abstractCostDriver>
+		<abstractCostDriver id="Filling Material">
+			<concreteCostDriver id="Filling_A" cost="0.000005119664581012698"/>
+		</abstractCostDriver>
+	</costDriver>
+</globalConfiguration>

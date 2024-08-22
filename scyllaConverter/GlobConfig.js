@@ -21,6 +21,7 @@ function createGlobConfig(scenario) {
     var attributes = new Object;
     var resourceData = new Object;
     var timetables = new Object;
+    var costDriver = new Object; // TODO: should the variable be called costDriver or costDrivers? , in the xml it is called costDriver
 
     //create Elements from resource parameters:
 
@@ -43,9 +44,12 @@ function createGlobConfig(scenario) {
     //timetables:
     timetables.timetable = conv_ele.createTimeTables(scenario.resourceParameters.timeTables);
 
+    costDriver.abstractCostDriver = conv_ele.createAbstractCostDrivers(scenario.resourceParameters.costDrivers);
+
     attributes.id = scenario.scenarioName + '_Global'
     globConfig.resourceData = resourceData;
     globConfig.timetables = timetables;
     globConfig._attributes = attributes;
+    globConfig.costDriver = costDriver;
     return globConfig;
 }

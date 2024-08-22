@@ -29,7 +29,7 @@ function BpmnView({getData, setCurrentRightSideBar}) {
 
   useEffect(() => {
     if (currentElement) {
-      setCurrentRightSideBar(<EditorSidebarAlternate title={`Edit ${currentElement?.$type.split(':').pop()} Configuration`} content={<TypeSelector {...{currentElement, getData, currentModel}} />}/>)
+      setCurrentRightSideBar(<EditorSidebarAlternate title={`Edit ${currentElement?.$type.split(':').pop()} Configuration`} content={<TypeSelector {...{currentElement, getData, currentModel, setCurrentRightSideBar}} />}/>)
     } else {
       setCurrentRightSideBar(undefined);
     }

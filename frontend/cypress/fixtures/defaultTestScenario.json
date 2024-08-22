@@ -1,5 +1,4 @@
-{
-    "scenarioName": "PurchasingExample",
+{ "scenarioName": "PurchasingExample",
     "startingDate": "01-01-0000",
     "startingTime": "00:00",
     "numberOfInstances": 608,
@@ -990,6 +989,10 @@
                         "resources": [
                             "Role 4"
                         ],
+                        "costDrivers": [
+                            "Filling Material"
+                        ],
+
                         "cost": 0,
                         "duration": {
                             "distributionType": "normal",
