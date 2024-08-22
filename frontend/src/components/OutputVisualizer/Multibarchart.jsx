@@ -1,6 +1,7 @@
 import { BarChart } from '@mui/x-charts/BarChart';
 import { createTheme, ThemeProvider } from "@mui/material";
 import { Box } from '@chakra-ui/react';
+import { mangoFusionPalette } from '@mui/x-charts';
 
 
 const defaultChartSetting = {
@@ -11,7 +12,8 @@ const defaultChartSetting = {
         right: 80,
         top: 80,
         bottom: 80,
-    }
+    },
+    colors: mangoFusionPalette
 };
 
 

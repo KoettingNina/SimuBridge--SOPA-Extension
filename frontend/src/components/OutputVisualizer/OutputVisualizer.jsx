@@ -15,7 +15,9 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
     const [totalChartData, setTotalChartData] = useState();
     const [activityChartData, setActivityChartData] = useState();
     const normalizationFactor = 1000.0;
-    const normalizationString = ' x 10^' + Math.log10(normalizationFactor);
+    const normalizationString = ' x 10^' + (-Math.log10(normalizationFactor));
+    const valueFormatter = (value) => (<span>{value.toFixed(2) + ' x 10'}<sup>{-Math.log10(normalizationFactor)}</sup></span>);
+
 
     useEffect(() => {
         getFiles(projectName).then(async fileList => {
@@ -46,8 +48,8 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 
     
                 const scenarioKey = 'scenario_'+folderName;
-                totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel});
-                activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel});
+                totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter});
+                activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter});
 
                 const avgPICost = parseFloat(fileXml.getElementsByTagName('Average_Process_Instance_Cost')[0].innerHTML) * normalizationFactor;
                 totalChartDataToBe.dataset[0][scenarioKey] = avgPICost;
