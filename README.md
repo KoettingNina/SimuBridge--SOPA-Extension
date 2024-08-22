@@ -5,34 +5,18 @@ This repository is a supplementary branch to the main [SimuBridge](https://githu
 
 This project focuses on **sustainability related information on SimuBridge**. The extensions made allows users to assign abstract environmental cost drivers to specific activities, and further refine these into concrete cost drivers for accurate impact assessment. The platform facilitates a deeper understanding of the environmental implications of different operational choices, providing valuable insights for sustainable decision-making.
 
-## 💻 LCA Components Structure
-The module is structured to segregate UI components from logic.
-  
-Lca/  
-├── Components/  
-│   ├── BasicSpinner.jsx  
-│   ├── FormattedConcreteDriver.jsx  
-│   ├── LcaIntegration.jsx  
-│   ├── LcaVariantsConfiguration.jsx  
-│   ├── OlcaConnectionAlert.jsx  
-│   └── VariantEditor.jsx  
-└── Logic/  
-    ├── LcaDataManager.js  
-    ├── LcaIntegrationUtils.js  
-    └── OpenLcaConnector.js  
-  
-### Components
-- `BasicSpinner.jsx`: Auxiliary React component for the loading spinner.
-- `FormattedConcreteDriver.jsx`: Component to display formatted data of concrete cost drivers.
-- `LcaIntegration.jsx`: Interface for configuring external LCA data integration.
-- `LcaVariantsConfiguration.jsx`: Manages the mapping of abstract and concrete cost drivers for variants.
-- `VariantEditor.jsx`: UI component for creating or editing variants.
-- `OlcaConnectionAlert.jsx`: Notifies about the OpenLCA connection status.
+## Quick Start
+The fastest way to setup the system is to use the provided `docker-compose` file provided with this repository - no git checkout needed. As a prerequisite, Docker needs to be installed
+To do so, first <a href="https://raw.githubusercontent.com/INSM-TUM/SimuBridge--SOPA-Extension/main/docker-compose.yml" download> download </a> the `docker-compose.yml`.
+Then run the following command in the folder where you downloaded the compose file:
+```
+docker-compose -f docker-compose.yml up
+```
+This will set-up SimuBridge as well as Scylla, including the necessary plugins.
 
-### Logic
-- `LcaDataManager.js`: Manages app data storage.
-- `LcaIntegrationUtils.js`: Handles requests to external LCA systems.
-- `OpenLcaConnector.js`: Specialized connector for OpenLCA software integration.
+### OpenLCA & Example Data Setup
+To install openLCA, go to https://www.openlca.org/download/ and download and run the respective installer.
+Example data setup TBD.
 
 
 ## 📦️ UI Pages
@@ -65,6 +49,37 @@ We built the application using the Javascript library React, using the Chakra-UI
 ![Image](https://github.com/INSM-TUM-Teaching/SImuBridge-OLCA/assets/92756562/c4c45554-4587-4fc5-8bcc-b1eb9a0ce834)
 ![Image](https://github.com/INSM-TUM-Teaching/SImuBridge-OLCA/assets/92756562/8f63b277-1926-44e3-b5f0-0545cf485d22)
 
+
+##  Code Structure 
+This repository adds the following components and logic classes to the base SimuBridge project:
+
+```
+Lca/  
+├── Components/  
+│   ├── BasicSpinner.jsx  
+│   ├── FormattedConcreteDriver.jsx  
+│   ├── LcaIntegration.jsx  
+│   ├── LcaVariantsConfiguration.jsx  
+│   ├── OlcaConnectionAlert.jsx  
+│   └── VariantEditor.jsx  
+└── Logic/  
+    ├── LcaDataManager.js  
+    ├── LcaIntegrationUtils.js  
+    └── OpenLcaConnector.js
+```
+  
+### Components
+- `BasicSpinner.jsx`: Auxiliary React component for the loading spinner.
+- `FormattedConcreteDriver.jsx`: Component to display formatted data of concrete cost drivers.
+- `LcaIntegration.jsx`: Interface for configuring external LCA data integration.
+- `LcaVariantsConfiguration.jsx`: Manages the mapping of abstract and concrete cost drivers for variants.
+- `VariantEditor.jsx`: UI component for creating or editing variants.
+- `OlcaConnectionAlert.jsx`: Notifies about the OpenLCA connection status.
+
+### Logic
+- `LcaDataManager.js`: Manages app data storage.
+- `LcaIntegrationUtils.js`: Handles requests to external LCA systems.
+- `OpenLcaConnector.js`: Specialized connector for OpenLCA software integration.
 
 
 
