@@ -1,20 +1,21 @@
 # SimuBridge-OLCA <br><sub>![CI](https://github.com/INSM-TUM/SimuBridge--Main/actions/workflows/CI.yml/badge.svg)</sub>
 
 ## :information_source: About
-This repository is a supplementary branch to the main [SimuBridge](https://github.com/INSM-TUM/SimuBridge) project. It contains the source code for the web application that is the heart piece of the project. Please refer to the [root repository](https://github.com/INSM-TUM/SimuBridge) for overall project documentation.
+This repository is a supplementary branch to the main [SimuBridge](https://github.com/INSM-TUM/SimuBridge) project. It contains the source code for the web application that is the heart piece of the project. Please refer to the [SimuBridge project root repository](https://github.com/INSM-TUM/SimuBridge) for overall project documentation.
 
-This project focuses on **sustainability related information on SimuBridge**. The extensions made allows users to assign abstract environmental cost drivers to specific activities, and further refine these into concrete cost drivers for accurate impact assessment. The platform facilitates a deeper understanding of the environmental implications of different operational choices, providing valuable insights for sustainable decision-making.
+This project focuses on **sustainability related information on SimuBridge**. The extensions made allows users to assign abstract environmental cost drivers to specific activities, and further refine these into concrete cost drivers for accurate impact assessment. The platform facilitates a deeper understanding of the environmental implications of different operational choices, providing valuable insights for sustainable decision-making. 
+To this end, it communicates with the sustainability database software [openLCA](https://www.openlca.org/) and the business process simulation engine [Scylla](https://github.com/bptlab/scylla) using a tailored [plugin](https://github.com/INSM-TUM/Scylla-Plugin--SOPA).
 
 ## Quick Start
 The fastest way to setup the system is to use the provided `docker-compose` file provided with this repository - no git checkout needed. As a prerequisite, Docker needs to be installed
-To do so, first <a href="https://raw.githubusercontent.com/INSM-TUM/SimuBridge--SOPA-Extension/main/docker-compose.yml" download> download </a> the `docker-compose.yml`.
+To do so, first download  the <a href="./docker-compose.yml" download> docker-compose.yml</a>.
 Then run the following command in the folder where you downloaded the compose file:
-```
+``` posh
 docker-compose -f docker-compose.yml up
 ```
 This will set-up SimuBridge as well as Scylla, including the necessary plugins.
 
-### OpenLCA & Example Data Setup
+#### OpenLCA & Example Data Setup
 To install openLCA, go to https://www.openlca.org/download/ and download and run the respective installer.
 Example data setup TBD.
 
