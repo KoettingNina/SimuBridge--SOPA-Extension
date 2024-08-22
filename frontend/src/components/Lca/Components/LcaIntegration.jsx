@@ -73,8 +73,15 @@ const LcaIntegration = ({ getData, toasting }) => {
   };
 
   const handleFetchImpactMethodButtonClick = async () => {
+    if (!isApiUrlValid) {
+      toasting("error", "Invalid URL", "Please enter a valid URL in the format 'http://[host]:[port]'");
+      return;
+    }
     const impactMethodsToBe = await getAllImpactMethods(apiUrl);
     setImpactMethods(impactMethodsToBe);
+    if(impactMethodsToBe.length > 0) {
+      setImpactMethodId(impactMethodsToBe[0].id);
+    }
   }
 
   const handleFetchCostsButtonClick = async () => {
@@ -160,7 +167,7 @@ const LcaIntegration = ({ getData, toasting }) => {
               </InputGroup>
               
               <Button
-                id='fetchButton'
+                id='fetchIMButton'
                 onClick={handleFetchImpactMethodButtonClick}
                 disabled={isFetchingRunning}
                 colorScheme='white'

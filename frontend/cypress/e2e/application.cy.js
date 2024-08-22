@@ -347,6 +347,22 @@ describe('Inside a project', () => {
         });
     });
 
+
+});
+
+describe('LCA Configuration Tests', () => {
+    beforeEach(() => {
+        cy.visit('http://localhost:3000');
+
+        loadProjectData(
+            'testProject',
+            lcaTestScenarioData.scenarioName,
+            lcaTestScenarioData
+        ).then(() => {
+            cy.findByText('testProject').click();
+        });
+    });
+
     describe('OpenLCA Integration Tests', () => {
         beforeEach(() => {
             cy.intercept(
@@ -354,7 +370,17 @@ describe('Inside a project', () => {
                 'http://localhost:8081',
                 (req) => {
                     if (req.body.includes('ImpactMethod')) {
-                        req.reply(defaultImpactMethod);
+                        if (req.body.includes('get/all')) {
+                            req.reply({
+                                "jsonrpc": "2.0",
+                                result : [defaultImpactMethod.result]
+                            });
+                        } else {
+                            req.reply(defaultImpactMethod);
+                        }
+                    }
+                    else if (req.body.includes('ProductSystem')) {
+                        req.reply(defaultCostDrivers);
                     }
                     else if (req.body.includes('data/get/descriptors')) {
                         req.reply(defaultCostDrivers);
@@ -381,7 +407,7 @@ describe('Inside a project', () => {
             const validUrl = 'http://localhost:8081';
             cy.get('input[type="url"]').as('apiUrlInput');
             cy.get('@apiUrlInput').type(invalidUrl);
-            clickButton('Fetch');
+            clickButton('Fetch Impact Methods');
             cy.get('#apiUrlInput')
                 .should('have.attr', 'aria-invalid', 'true');
             cy.findByText('Invalid URL').should('exist');
@@ -390,14 +416,17 @@ describe('Inside a project', () => {
                 .not('have.attr', 'aria-invalid', 'true');
         });
 
-        it('fetches cost drivers when Fetch button is clicked', () => {
-            cy.get('button').contains('Fetch').as('fetchButton');
+        // TODO test selection of impact method & normalization set
+
+        it('fetches cost drivers when Fetch Costs button is clicked', () => {
+            clickButton('Fetch Impact Methods');
             cy.get('#fetchButton').click();
             cy.get('#fetchButton').should('be.disabled');
             cy.get('div[role="progressbar"]').should('be.visible');
         });
 
         it('displays fetched cost drivers correctly', () => {
+            clickButton('Fetch Impact Methods');
             cy.get('#fetchButton').click();
             cy.get('#fetchButton', { setTimeout: 50000 }).not('be.disabled').then(() => {
                 cy.get('.chakra-accordion').should('be.visible');
@@ -413,20 +442,6 @@ describe('Inside a project', () => {
                     .should('contain', 'Delivery');
             }
             );
-        });
-    });
-});
-
-describe('LCA Configuration Tests', () => {
-    beforeEach(() => {
-        cy.visit('http://localhost:3000');
-
-        loadProjectData(
-            'testProject',
-            lcaTestScenarioData.scenarioName,
-            lcaTestScenarioData
-        ).then(() => {
-            cy.findByText('testProject').click();
         });
     });
 
