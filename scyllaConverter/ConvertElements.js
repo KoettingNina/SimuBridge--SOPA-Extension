@@ -20,7 +20,9 @@ export default {
     },
     // getting ACDs
     createAbstractCostDrivers: function (abstractCostDrivers) {
-        return abstractCostDrivers.map(abstractCostDriver => createOneAbstractCostDriver(abstractCostDriver));
+        return abstractCostDrivers
+            .filter(abstractCostDriver => abstractCostDriver.id) // TODO Scylla plugin can't handle those without abstract costdriver (and not sure they make sense anyway)
+            .map(abstractCostDriver => createOneAbstractCostDriver(abstractCostDriver));
     },
 
     createVariants: function (variants) {
@@ -194,14 +196,14 @@ function createOneVariant(variant) {
             id : variant.id,
             frequency : variant.frequency / 100
         },
-        driver : variant.drivers.map(driver=> createOneDriver(driver))
+        driver : variant.drivers.map(driver => createOneDriverConcretization(driver))
     };
 }
-function createOneDriver(driver) {
+function createOneDriverConcretization(driver) {
     var item = new Object;
     var attributes = new Object;
-    attributes.id = driver.id;
-    attributes.cost = driver.cost;
+    attributes.abstractId = driver.abstractId;
+    attributes.concreteId = driver.concreteId;
     item._attributes = attributes;
     return item;
 }

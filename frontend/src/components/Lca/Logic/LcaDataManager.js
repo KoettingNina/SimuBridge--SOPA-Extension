@@ -96,9 +96,9 @@ export const saveCostVariantConfig = async (getData, allCostDrivers) => {
             const concreteDriver = allCostDrivers
                 .flatMap(driver => driver.concreteCostDrivers)
                 .find(driver => driver.id === m.concreteDriver);
-            const driver = SimulationModelModdle.getInstance().create("simulationmodel:Driver", {
-                id: m.abstractDriver,
-                cost: concreteDriver ? concreteDriver.cost : 0,
+            const driver = SimulationModelModdle.getInstance().create("simulationmodel:DriverConcretization", {
+                abstractId: m.abstractDriver,
+                concreteId: concreteDriver.name //TODO recheck whole usage of names vs. ids
             });
             drivers.push(driver);
         });

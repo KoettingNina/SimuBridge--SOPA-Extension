@@ -156,14 +156,14 @@ export const SimulationModelDescriptor = {
                 { "name": "id", "type": "String"},
                 { "name": "name", "type": "String"},
                 { "name": "frequency", "type": "String"},
-                { "name": "drivers", "type": "Driver", isMany : true }
+                { "name": "drivers", "type": "DriverConcretization", isMany : true }
             ]
         },
         {
-            "name" : "Driver",
+            "name" : "DriverConcretization",
             "properties": [
-                { "name": "id", "type": "String"},
-                { "name": "cost", "type": "String"},
+                { "name": "abstractId", "type": "String"},
+                { "name": "concreteId", "type": "String"}
             ]
         },
 
