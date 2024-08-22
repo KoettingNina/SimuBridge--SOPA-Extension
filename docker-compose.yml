@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  simubridge-sopa:
+    build:
+      dockerfile: Dockerfile
+    image: ghcr.io/insm-tum/simubridge--sopa-extension:main
+    container_name: simubridge-sopa
+    depends_on:
+      - scylla-sopa-extended
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+  scylla-sopa-extended:
+    build: 
+      dockerfile_inline: |
+        FROM ghcr.io/insm-tum/scylla-container:main
+        ADD https://github.com/INSM-TUM/Scylla-Plugin--SOPA/releases/download/0.1.2-SNAPSHOT/scylla-plugin--sopa.jar /app/plugins/scylla-plugin--sopa.jar
+    container_name: scylla-sopa-extended
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+
+
+networks:
+  app-network:
+    driver: bridge
