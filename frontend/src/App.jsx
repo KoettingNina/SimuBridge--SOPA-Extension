@@ -24,6 +24,7 @@ import ModelBasedOverview from './components/TablesOverviewComparison/ModelBased
 import { ModelData, ScenarioData } from './util/DataHandles';
 import LcaIntegration from './components/Lca/Components/LcaIntegration';
 import LcaVariantsConfiguration from './components/Lca/Components/LcaVariantsConfiguration';
+import OutputVisualizerPage from './components/OutputVisualizer/OutputVisualizer';
 
 const errorsToWarn = [
   "Warning:",
@@ -319,6 +320,7 @@ useEffect(() => {
               <Route path="/simulation" element={<SimulationPage path="/simulation"  {...{projectName, getData, toasting }} />} />
               <Route path="/processminer" element={<ProcessMinerPage path="/processminer" {...{projectName, getData, toasting }} />} />
               <Route path="/lcaintegration" element={<LcaIntegration path="/lcaintegration" {...{projectName, getData, toasting }} />} />
+              <Route path="/visualizer" element={<OutputVisualizerPage path="/visualizer" {...{projectName, getData, toasting }} />} />
               <Route path="/debug" element={<DebugPage path="/debug" {...{projectName, getData, toasting }} />} />
               <Route path='*' element={<Navigate to='/overview' />} />
             </Routes>
