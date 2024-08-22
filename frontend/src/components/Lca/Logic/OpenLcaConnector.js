@@ -1,5 +1,13 @@
 import * as o from "olca-ipc";
 
+
+export const getAllImpactMethods = async (apiUrl) => {
+    const client = new o.IpcClient.on(apiUrl);
+    const impactMethods = await client.getAll(o.RefType.ImpactMethod);
+    console.log('All Impact Methods:', impactMethods);
+    return impactMethods;
+}
+
 export const getImpactMethod = async (apiUrl, impactMethodId) => {
     const client = new o.IpcClient.on(apiUrl);
     const impactMethod = await client.get(
@@ -9,10 +17,10 @@ export const getImpactMethod = async (apiUrl, impactMethodId) => {
     return impactMethod;
 }
 
-export const getAllDescriptors = async (apiUrl, onSuccess, onError) => {
+export const getAllCostDrivers = async (apiUrl, onSuccess, onError) => {
     try {
         const client = new o.IpcClient.on(apiUrl);
-        const systems = await client.getDescriptors(o.RefType.ProductSystem);
+        const systems = await client.getAll(o.RefType.ProductSystem);
         console.log('Systems:', systems);
         onSuccess(systems);
     }
@@ -22,18 +30,20 @@ export const getAllDescriptors = async (apiUrl, onSuccess, onError) => {
     }
 }
 
-export const calculateCostDriver = async (apiUrl, impactMethod,
+export const calculateCostDriver = async (apiUrl, impactMethod, normalizationSetId,
     targetDriver, onSuccess, onError) => {
     try {
         const client = new o.IpcClient.on(apiUrl);
-        let e = impactMethod.nwSets;
+        let normalizationSet = normalizationSetId && impactMethod.nwSets.filter(set => set.id == normalizationSetId)[0];
         let calcSetup = await o.CalculationSetup.of({
             target: targetDriver,
             impactMethod: impactMethod,
-            nwSet: e[0],
+            nwSet: normalizationSet,
             allocation: o.AllocationType.USE_DEFAULT_ALLOCATION,
             withCosts: false,
-            withRegionalization: false
+            withRegionalization: false,
+            amount: targetDriver.targetAmount,
+            unit: targetDriver.targetUnit
         });
 
         const result = await client?.calculate(calcSetup);

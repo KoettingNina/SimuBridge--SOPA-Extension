@@ -1,16 +1,16 @@
 import * as openLca from "./OpenLcaConnector.js";
 
-export const calculateCostDrivers = async (apiUrl, impactMethodId, costDrivers,
+export const calculateCostDrivers = async (apiUrl, impactMethodId, normalizationSetId, costDrivers,
   updateProgress, onSuccess, onError) => {
 
   try {
-    const impactMethod = await (openLca.getImpactMethod)(apiUrl, impactMethodId);
+    const impactMethod = await openLca.getImpactMethod(apiUrl, impactMethodId);
 
     let normalizedCostDrivers = [];
 
     for (const el of costDrivers) {
       await (openLca.calculateCostDriver)(
-        apiUrl, impactMethod, el,
+        apiUrl, impactMethod, normalizationSetId, el,
         (driverWeights) => {
           const impactSum = driverWeights.map(i => i.amount || 0).reduce((sum, current) => sum + current, 0);
           normalizedCostDrivers.push(
@@ -38,7 +38,7 @@ export const calculateCostDrivers = async (apiUrl, impactMethodId, costDrivers,
 
 export const fetchAllCostDrivers = async (apiUrl, onSuccess, onError) => {
   try {
-    await (openLca.getAllDescriptors)(apiUrl, onSuccess, onError);
+    await openLca.getAllCostDrivers(apiUrl, onSuccess, onError);
   }
   catch (error) {
     console.error('Fetch all cost drivers error:', error);
