@@ -13,11 +13,10 @@ import DistributionEditor from '../../DistributionEditor';
 import AbstractModelElementEditor from './AbstractModelElementEditor';
 
 import { distributionToState, stateToDistribution } from '../../../util/Distributions';
-import { saveCostVariantConfig } from '../../Lca/Logic/LcaDataManager';
 
 
 const Activity = ({ getData, currentElement, setCurrentRightSideBar }) => {
-  const [allAbstractCostDrivers, setAllAbstractCostDrivers] = useState([]);
+  const [allAbstractCostDrivers, setAllAbstractCostDrivers] = useState([]); //TODO this shouldn't be a state
   const reactDomNavigator = useNavigate();
 
   //init
@@ -83,13 +82,11 @@ const Activity = ({ getData, currentElement, setCurrentRightSideBar }) => {
 
   const removeAbstractCostDriver = (index) => {
     setAbstractCostDrivers(activityConfiguration.costDrivers.filter((value, localIndex) => localIndex !== index));
-    saveCostVariantConfig(getData, allAbstractCostDrivers);
   }
 
   const handleAbstractCostDrivers = (index, value) => {
     activityConfiguration.costDrivers[index] = value;
     setAbstractCostDrivers(activityConfiguration.costDrivers.filter(abstractCostDriver => abstractCostDriver));
-    saveCostVariantConfig(getData, allAbstractCostDrivers);
   }
 
   return <AbstractModelElementEditor  {...{

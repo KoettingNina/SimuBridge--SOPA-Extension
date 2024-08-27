@@ -1097,11 +1097,9 @@
              ]
           }
        ],
-       "environmentMappingConfig":{
-          "variants":[
-             
-          ]
-       }
+       "variants":[
+            
+         ]
     },
     "models":[
        {
@@ -1638,12 +1636,7 @@
                       ]
                    }
                 }
-             ],
-             "costVariantConfig":{
-                "variants":[
-                   
-                ]
-             }
+             ]             
           }
        }
     ]

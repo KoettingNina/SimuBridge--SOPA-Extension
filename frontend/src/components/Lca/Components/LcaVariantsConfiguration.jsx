@@ -45,8 +45,7 @@ function LcaVariantsConfiguration({ getData, toasting }) {
 
     setVariants(updatedVariants);
 
-    await lcaDm.saveCostVariant(allCostDrivers, variant, updatedVariants, getData, toasting);
-    await lcaDm.saveCostVariantConfig(getData, allCostDrivers);
+    await lcaDm.saveCostVariant(variant, updatedVariants, getData, toasting);
 
     setCurrentVariant({ name: '', mappings: [], frequency: 15 });
     toasting("success", "Variant saved", "Cost variant saved successfully");
@@ -66,7 +65,6 @@ function LcaVariantsConfiguration({ getData, toasting }) {
     }
 
     await lcaDm.deleteVariantFromConfiguration(variantId, getData);
-    await lcaDm.deleteVariantFromCostVariantConfig(variantId, getData);
 
     toasting("info", "Variant deleted", "Cost variant deleted successfully");
   };

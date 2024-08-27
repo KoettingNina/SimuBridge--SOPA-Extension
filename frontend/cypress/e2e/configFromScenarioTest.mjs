@@ -954,27 +954,25 @@ const scenarioDataWithCostVariants =
                     ]
                 }
             ],
-            "costVariantConfig": {
-                "count": "100",
-                "variants": [
-                    {
-                        "id": "Shipment and delivery over distance A",
-                        "frequency": "0.2",
-                        "drivers": [
-                            {
-                                "id": "Delivery",
-                                "cost": "0.00002843"
-                            },
-                            {
-                                "id": "Filling Material",
-                                "cost": "0.00001468"
+            "variants": [
+                {
+                    "id" : "1", 
+                    "name": "Shipment and delivery over distance A",
+                    "frequency": "0.2",
+                    "mappings": [ // TODO mappings are not done cost based anymore
+                        {
+                            "id": "Delivery",
+                            "cost": "0.00002843"
+                        },
+                        {
+                            "id": "Filling Material",
+                            "cost": "0.00001468"
 
-                            }
+                        }
 
-                        ]
-                    }
-                ]
-            }
+                    ]
+                }
+            ]
         },
         "models": [
             {
@@ -1537,43 +1535,41 @@ const logisticsScenario = {
             },
 
         ],
-        "costVariantConfig": {
-            "count": "100",
-            "variants": [
-                {
-                    "id": "Shipment and delivery over distance A",
-                    "frequency": "0.2",
-                    "drivers": [
-                        {
-                            "id": "Delivery",
-                            "cost": "0.00002843"
-                        },
-                        {
-                            "id": "Filling Material",
-                            "cost": "0.00001468"
-                        },
-                        {
-                            "id": "Packaging Material",
-                            "cost": "0.00003806"
-                        },
-                        {
-                            "id": "Re-Routing",
-                            "cost": "0.000008529"
-                        },
-                        {
-                            "id": "Receipt",
-                            "cost": "0.00001153"
-                        },
-                        {
-                            "id": "Shipment",
-                            "cost": "0.00007839"
-                        },
+        "variants": [
+            {
+                "id" : "2",
+                "name": "Shipment and delivery over distance A",
+                "frequency": "0.2",
+                "mappings": [ // TODO mappings are not done cost based anymore
+                    {
+                        "id": "Delivery",
+                        "cost": "0.00002843"
+                    },
+                    {
+                        "id": "Filling Material",
+                        "cost": "0.00001468"
+                    },
+                    {
+                        "id": "Packaging Material",
+                        "cost": "0.00003806"
+                    },
+                    {
+                        "id": "Re-Routing",
+                        "cost": "0.000008529"
+                    },
+                    {
+                        "id": "Receipt",
+                        "cost": "0.00001153"
+                    },
+                    {
+                        "id": "Shipment",
+                        "cost": "0.00007839"
+                    },
 
 
-                    ]
-                }
-            ]
-        }
+                ]
+            }
+        ]
     },
     "models": [
         {

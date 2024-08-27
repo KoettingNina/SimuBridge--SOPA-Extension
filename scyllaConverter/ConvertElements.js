@@ -183,7 +183,8 @@ function createOneTimeTable(timetable) {
 function createOneAbstractCostDriver(abstractCostDriver) {
     return {
         _attributes : {
-            id : abstractCostDriver.id // TODO: see if defaultTimeUnit is to be added
+            id : abstractCostDriver.id, // TODO: see if defaultTimeUnit is to be added
+            name : abstractCostDriver.name
         },
         concreteCostDriver : abstractCostDriver.concreteCostDrivers.map(item => createOneConcreteCostDriver(item))
     };
@@ -194,16 +195,17 @@ function createOneVariant(variant) {
     return {
         _attributes : {
             id : variant.id,
+            name : variant.name,
             frequency : variant.frequency / 100
         },
-        driver : variant.drivers.map(driver => createOneDriverConcretization(driver))
+        driver : variant.mappings.map(driver => createOneDriverConcretization(driver))
     };
 }
 function createOneDriverConcretization(driver) {
     var item = new Object;
     var attributes = new Object;
-    attributes.abstractId = driver.abstractId;
-    attributes.concreteId = driver.concreteId;
+    attributes.abstractId = driver.abstractDriver;
+    attributes.concreteId = driver.concreteDriver;
     item._attributes = attributes;
     return item;
 }
@@ -212,6 +214,7 @@ function createOneConcreteCostDriver(concreteCostDriver) { // aka createOneCon
     var item = new Object;
     var attributes = new Object;
     attributes.id = concreteCostDriver.id;
+    attributes.name = concreteCostDriver.name;
     attributes.cost = concreteCostDriver.cost;
     item._attributes = attributes;
     return item;

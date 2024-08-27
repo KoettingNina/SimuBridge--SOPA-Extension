@@ -60,7 +60,7 @@ export const SimulationModelDescriptor = {
                 { "name": "resources", "type": "Resource", isMany : true },
                 { "name": "timeTables", "type": "Timetable", isMany : true },
                 { "name": "costDrivers", "type": "AbstractCostDriver", isMany : true },
-                { "name": "environmentMappingConfig", "type": "EnvironmentMappingConfig" }
+                { "name": "variants", "type": "Variant", isMany : true }
             ]
         },
 
@@ -119,54 +119,22 @@ export const SimulationModelDescriptor = {
                 { "name": "cost", "type": "Real"},
             ]
         },
-
-        {
-            "name" : "EnvironmentMappingConfig",
-            "properties": [
-                { "name": "variants", "type": "VariantExtended", isMany : true },
-            ]
-        },
-        {
-            "name" : "VariantExtended",
-            "properties": [
-                { "name": "id", "type": "String"},
-                { "name": "name", "type": "String"},
-                { "name": "frequency", "type": "Real"},
-                { "name": "mappings", "type": "DriversMapping", isMany : true }
-            ]
-        },
-        {
-            "name" : "DriversMapping",
-            "properties": [
-                { "name": "abstractDriver", "type": "String"},
-                { "name": "concreteDriver", "type": "String"},
-            ]
-        },
-
-        {
-            "name" : "CostVariantConfig",
-            "properties": [
-                { "name": "count", "type": "String"},
-                { "name": "variants", "type": "Variant", isMany : true }
-            ]
-        },
         {
             "name" : "Variant",
             "properties": [
                 { "name": "id", "type": "String"},
                 { "name": "name", "type": "String"},
-                { "name": "frequency", "type": "String"},
-                { "name": "drivers", "type": "DriverConcretization", isMany : true }
+                { "name": "frequency", "type": "Real"},
+                { "name": "mappings", "type": "DriverConcretization", isMany : true }
             ]
         },
         {
             "name" : "DriverConcretization",
             "properties": [
-                { "name": "abstractId", "type": "String"},
-                { "name": "concreteId", "type": "String"}
+                { "name": "abstractDriver", "type": "String"},
+                { "name": "concreteDriver", "type": "String"},
             ]
         },
-
         {
             "name": "Model",
             "properties": [
@@ -181,8 +149,7 @@ export const SimulationModelDescriptor = {
             "properties": [
                 { "name": "activities", "type": "Activity", "isMany": true },
                 { "name": "events", "type": "Event", "isMany": true },
-                { "name": "gateways", "type": "Gateway", "isMany": true },
-                { "name": "costVariantConfig", "type": "CostVariantConfig" }
+                { "name": "gateways", "type": "Gateway", "isMany": true }
             ]
         },
 

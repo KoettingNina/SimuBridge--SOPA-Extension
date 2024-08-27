@@ -22,14 +22,6 @@ export async function convertScenario(scenarioRaw) {
     // copy scenarioRaw object
     const scenario = JSON.parse(JSON.stringify(scenarioRaw));
 
-    // Iterate over each costDriver in the resourceParameters
-    scenario.resourceParameters.costDrivers.forEach(abstractDriver => {
-        // Replace the id of each concreteCostDriver with its name
-        abstractDriver.concreteCostDrivers.forEach(concreteCostDriver => {
-            concreteCostDriver.id = concreteCostDriver.name;
-        });
-    });
-
     if (!scenario.models.length) throw 'No models to convert were provided';
 
     // create one global configuration:
