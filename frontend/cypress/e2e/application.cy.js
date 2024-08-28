@@ -554,5 +554,7 @@ describe('LCA Configuration Tests', () => {
             cy.get('button.chakra-accordion__button').should('have.length', 1);
             cy.get('button.chakra-accordion__button').findByText(newVariantName).should('exist');
         });
+
+        // TODO regression test for: View doesn't update when changing scenarios
     });
 });

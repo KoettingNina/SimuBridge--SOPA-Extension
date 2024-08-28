@@ -33,7 +33,7 @@ function LcaVariantsConfiguration({ getData, toasting }) {
 
     setVariants(lcaDm.getVariants(getData));
     setIsScenarioModelLoaded(true);
-  }, []);
+  }, [getData]);
 
   const handleSaveCostVariant = async (variant) => {
     const isExistingVariant = variant.id && variants.some(v => v.id === variant.id);
