@@ -49,6 +49,15 @@ export const SimulationModelDescriptor = {
                 { "name": "currency", "type": "Currency", default : Currencies.EURO },
                 { "name": "resourceParameters", "type": "ResourceParameters" },
                 { "name": "models", "type": "Model", isMany : true },
+                { "name": "environmentImpactParameters", "type": "EnvironmentImpactParameters" },
+            ]
+        },
+
+        {
+            "name" : "EnvironmentImpactParameters",
+            "properties": [
+                { "name": "costDrivers", "type": "AbstractCostDriver", isMany : true },
+                { "name": "variants", "type": "Variant", isMany : true }
             ]
         },
 
@@ -58,9 +67,7 @@ export const SimulationModelDescriptor = {
             "properties": [
                 { "name": "roles", "type": "Role", isMany : true },
                 { "name": "resources", "type": "Resource", isMany : true },
-                { "name": "timeTables", "type": "Timetable", isMany : true },
-                { "name": "costDrivers", "type": "AbstractCostDriver", isMany : true },
-                { "name": "variants", "type": "Variant", isMany : true }
+                { "name": "timeTables", "type": "Timetable", isMany : true }
             ]
         },
 

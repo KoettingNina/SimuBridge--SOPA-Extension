@@ -24,7 +24,7 @@ const SimulationPage = ({projectName, getData, toasting }) => {
 
   // function to start the simulation
   const start = async () => {
-    let variants = getData().getCurrentScenario().resourceParameters.variants;
+    let variants = getData().getCurrentScenario().environmentImpactParameters.variants;
     if(variants.reduce((sum, variant) => sum + parseInt(variant.frequency), 0) != 100)
     {
       toasting("error", "Frequencies sum is not 100%", "For correct simulation, the sum of frequencies must be 100%");

@@ -4,7 +4,7 @@ export const getCostDriversFromScenario = (getData) => {
     const scenario = getData().getCurrentScenario();
 
     if (scenario) {
-        const costDrivers = scenario.resourceParameters.costDrivers;
+        const costDrivers = scenario.environmentImpactParameters.costDrivers;
         if (costDrivers) {
             const uniqueCostDrivers = Array.from(new Map(costDrivers.map(item => [item.id, item])).values());
             return uniqueCostDrivers;
@@ -16,8 +16,8 @@ export const getCostDriversFromScenario = (getData) => {
 export const getVariants = (getData) => {
     const scenario = getData().getCurrentScenario();
     
-    if (scenario && scenario.resourceParameters.variants) {
-        return scenario.resourceParameters.variants;
+    if (scenario && scenario.environmentImpactParameters.variants) {
+        return scenario.environmentImpactParameters.variants;
     }
     return [];
 };
@@ -47,7 +47,7 @@ export const mapAbstractDriversFromConcrete = (concreteCostDrivers) => {
 };
 
 export const saveAllCostDrivers = async (abstractCostDrivers, getData) => {
-    getData().getCurrentScenario().resourceParameters.costDrivers = abstractCostDrivers;
+    getData().getCurrentScenario().environmentImpactParameters.costDrivers = abstractCostDrivers;
     await getData().saveCurrentScenario();
 };
 
@@ -67,12 +67,12 @@ export const saveCostVariant = async (variant, updatedVariants, getData) => {
         mappings: driversMappings,
     });
     let updatedVariantsObject = [...updatedVariants.filter(v => v.id !== variant.id), updatedVariant];
-    getData().getCurrentScenario().resourceParameters.variants = updatedVariantsObject;
+    getData().getCurrentScenario().environmentImpactParameters.variants = updatedVariantsObject;
     await getData().saveCurrentScenario();
 };
 
 
 export const deleteVariantFromConfiguration = async (variantId, getData) => {
-    getData().getCurrentScenario().resourceParameters.variants = getData().getCurrentScenario().resourceParameters.variants.filter(v => v.id !== variantId);
+    getData().getCurrentScenario().environmentImpactParameters.variants = getData().getCurrentScenario().environmentImpactParameters.variants.filter(v => v.id !== variantId);
     await getData().saveCurrentScenario();
 };

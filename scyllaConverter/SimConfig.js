@@ -21,7 +21,7 @@ async function createSimConfig(scenario, processModel) {
       elementsById
     } = await moddle.fromXML(processModel.BPMN, 'bpmn:Definitions');
 
-    costVariantConfig.variant = conv_ele.createVariants(scenario.resourceParameters.variants);
+    costVariantConfig.variant = conv_ele.createVariants(scenario.environmentImpactParameters.variants);
     simConfig.costVariantConfig = costVariantConfig;
 
     // create Tasks:
