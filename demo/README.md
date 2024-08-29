@@ -4,9 +4,9 @@
 
 We provide three process models and three event logs to showcase the applicability of SOPA and SimuBridge:a  hiring process in a university, a logistics process, and a pizza delivery process. For each, you can either discover simulation scenarios from the event logs, or create them manually from the respective process model. Then, try out to configure different cost variants using the abstract and concrete cost drivers present in the data set. Assume that one abstract cost driver is relevant for one specific activity of each process. What happens when you:
 
-- change the concretization into concrete cost drivers as defined by the environmental cost variants
-- change simulation parameters of the process: how does executing the process differently change its environmental impact?
-- change concrete cost drivers and simulation parameters at the same time: how does the environmental impact change when process behaviour is influenced by concrete cost drivers?
+- change the concretization of abstract into concrete cost drivers as defined by the environmental cost variants?
+- change simulation parameters of the process --- how does executing the process differently change its environmental impact?
+- change concrete cost drivers and simulation parameters at the same time --- how does the environmental impact change when process behaviour is influenced by concrete cost drivers?
 
 ## LCA Data
 

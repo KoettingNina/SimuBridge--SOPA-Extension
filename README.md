@@ -17,7 +17,7 @@ This will set-up SimuBridge as well as Scylla, including the necessary plugins.
 
 #### OpenLCA & Example Data Setup
 To install openLCA, go to https://www.openlca.org/download/ and download and run the respective installer.
-Example data setup TBD.
+Download the demo data we provide at `./demo/LCA/demo_dataset.zolca` and import into openLCA via `File > Import > File > demo_dataset.zolca`. Open the demo database by double-clicking on it. Start the IPC server of openLCA by clicking `Tools > Developer tools > IPC Server`, entering port `8081` and clicking `run`. Open SimuBridge in the browser at `http://localhost:3000` and select the `OpenLCA Integration` menu entry. Click `Fetch Impact Methods`, select an impact method such as `ReCiPe 2016 Endpoint (H)` and click `Calculate`. Proceed to configure the simulation scenario and environmental cost variants. The `demo` folder of this repository provides three sample process models and event logs you can use to test out the main functionalities of the SOPA-SimuBridge integration, as well as a screencast.
 
 
 ## 📦️ UI Pages
@@ -25,7 +25,7 @@ The web application is split into multiple pages, each with dedicated purpose.
 Notably, the discovery and simulator views interact with the external process discovery and simulation tools, respectively.
 
 #### LCA Integration Panel
-Configure LCA with host and port for a flexible data fetching. For now, only availability is the normalization method of EF3.0 to calculate impacts.
+Configure LCA with host and port for a flexible data fetching. Note that the availability of LCA data and impact calculation methods is determined by the database loaded into openLCA.
 
 #### Configure Cost Drivers nn Process Model 
 Assign abstract cost drivers to activities within your process model in model based parameters panel.
