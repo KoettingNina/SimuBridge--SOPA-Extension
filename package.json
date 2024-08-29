@@ -1,6 +1,6 @@
 {
     "name": "simulation-bridge",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "![CI](https://github.com/INSM-TUM/SimuBridge/actions/workflows/cypress.yml/badge.svg) ![CI](https://github.com/INSM-TUM/SimuBridge/actions/workflows/dockerCompose.yml/badge.svg)",
     "main": "index.js",
     "scripts": {
