@@ -22,6 +22,16 @@ services:
       - "8080:8080"
     networks:
       - app-network
+  simod:
+    build: 
+      dockerfile_inline: |
+        FROM nokal/simod-http:3.2.1-prerelease38
+        ADD https://raw.githubusercontent.com/INSM-TUM/SimuBridge/main/simod_http_augemented/main.py /usr/src/Simod/src/simod_http/main.py
+    container_name: simod-cors
+    ports:
+      - "8880:80"
+    networks:
+      - app-network
 
 
 
