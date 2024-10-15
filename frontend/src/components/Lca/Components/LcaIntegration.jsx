@@ -53,6 +53,7 @@ const LcaIntegration = ({ getData, toasting }) => {
     if (impactMethodId) {
       const impactMethod = impactMethods.filter(im => im.id == impactMethodId)[0];
       setNormalizationSets(impactMethod.nwSets);
+      setNormalizationSetId(impactMethod.nwSets && impactMethod.nwSets[0]?.id)
     }
   }, [impactMethodId]);
 
