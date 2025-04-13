@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardBody, CardHeader, Flex, Heading, Spacer, Stack } from "@chakra-ui/react";
 import Multibarchart from "./Multibarchart";
-import { deleteFile, getFile, getFiles, uploadFileToProject } from "../../util/Storage";
+import { deleteFile, getFile, getFiles, uploadFileToProject, uploadFile, setFile } from "../../util/Storage";
 import { useEffect, useState } from "react";
 import TabBar from "../TabBar.jsx";
 import { axisClasses } from "@mui/x-charts";
@@ -22,7 +22,6 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
     useEffect(() => {
         getFiles(projectName).then(async fileList => {
             const event_logs = fileList.filter(fileName => fileName.endsWith('.xes')) //TODO create better filter function
-            console.log(event_logs);
             const allEventLogs = await Promise.all(event_logs.map(file => getFile(projectName, file)));
 
             const parser = new DOMParser();
@@ -37,20 +36,28 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 series : []
             };
 
+            
+            if (allEventLogs === undefined || allEventLogs == [] || (allEventLogs.length == 1 && allEventLogs[0] == undefined)) {
+                return;
+            }
             allEventLogs.forEach(fileData => {
                 const fileXml = parser.parseFromString(fileData.data, "text/xml");
 
                 // TODO hacky way to get scenario name
-                const folderName = fileData.path.split('/').slice(3, -1).join('/');
-                const resourceUtilsFile = fileList.filter(fileName => fileName.startsWith(folderName) && fileName.endsWith('resourceutilization.xml'))[0];
                 let scenarioLabel;
                 let scenarioKey;
-                try {
+                
+                const folderName = fileData.path.split('/').slice(3, -1).join('/');
+                
+                const resourceUtilsFile = fileList.filter(fileName => fileName.startsWith(folderName) && fileName.endsWith('resourceutilization.xml'))[0];
+
+                if (resourceUtilsFile === undefined || folderName === "") {
+                    scenarioLabel = "Uploaded"; // todo: find better method for naming and finding uploaded scenarios
+                    scenarioKey = 'uploaded';
+                } else {
+
                     scenarioLabel = resourceUtilsFile.split('/').slice(-1)[0].split('_Global_resourceutilization.xml')[0];
                     scenarioKey = 'scenario_' + folderName;
-                } catch (error) {
-                    scenarioLabel = "Uploaded";
-                    scenarioKey = 'uploaded';
                 }
                 
                 
@@ -68,7 +75,7 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 const averageProcessInstanceCost = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
                 totalChartDataToBe.dataset[0][scenarioKey] = averageProcessInstanceCost;
 
-                // calcutate average costs per activity
+                // calculate average costs per activity
                 const activityCostMap = new Map();
                 for (const trace of [...fileXml.getElementsByTagName('trace')]) {
                     // get all events
@@ -81,7 +88,6 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
 
                             let allCostsOfActivity = activityCostMap.get(activityName)
                             if (allCostsOfActivity && activityCost !== undefined) {
-                                console.log(allCostsOfActivity)
                                 allCostsOfActivity.push(parseFloat(activityCost))
                                 activityCostMap.set(activityName, allCostsOfActivity)
                             } else {
@@ -111,6 +117,10 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
         getFiles(projectName).then(async fileList => {
             const outputFiles = fileList.filter(fileName => fileName.startsWith('request0')) //TODO create better filter function
             outputFiles.forEach(file => deleteFile(projectName, file));
+            const uploadedFile = fileList.find(fileName => fileName.endsWith('uploaded_scenario.xes'))
+            if (uploadedFile !== undefined) {
+                deleteFile(projectName, uploadedFile);
+            }
         });
         reload();
     }
@@ -158,7 +168,9 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                          <CardBody>
                             You can add additional event logs to compare simulated cost with executed costs
                             <Button variant='link' onClick={async () => {
-                                await uploadFileToProject(projectName);
+                                const { name, data } = await uploadFile('UTF-8');
+                                await setFile(projectName, "uploaded_scenario.xes", data)
+                                await uploadFileToProject(projectName).then(reload()); // todo: fix duplicate opening of dialogue
                             }
                             }>here</Button>.
                             </CardBody>
