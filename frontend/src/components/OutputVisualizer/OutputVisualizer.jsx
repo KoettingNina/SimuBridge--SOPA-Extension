@@ -1,12 +1,19 @@
-import { Box, Button, Card, CardBody, CardHeader, Flex, Heading, Spacer, Stack } from "@chakra-ui/react";
+import { Box, Button, Card, CardBody, CardHeader, Flex, Heading, Spacer, Select, Stack, Text } from "@chakra-ui/react";
 import Multibarchart from "./Multibarchart";
 import { deleteFile, getFile, getFiles, uploadFileToProject, uploadFile, setFile } from "../../util/Storage";
 import { useEffect, useState } from "react";
+import { FiChevronDown } from 'react-icons/fi';
 import TabBar from "../TabBar.jsx";
 import { axisClasses } from "@mui/x-charts";
 
+const median = arr => {
+    const mid = Math.floor(arr.length / 2),
+      nums = [...arr].sort((a, b) => a - b);
+    return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+  };
+
 const OutputVisualizerPage = ({projectName, getData, toasting }) => {
-    
+   
     const [reloadFlag, setReloadFlag] = useState(true);
     function reload() {
         setReloadFlag(!reloadFlag);
@@ -17,7 +24,7 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
     const normalizationFactor = 1000.0;
     const normalizationString = ' x 10^' + (-Math.log10(normalizationFactor));
     const valueFormatter = (value) => (<span>{value.toFixed(2) + ' x 10'}<sup>{-Math.log10(normalizationFactor)}</sup></span>);
-
+    const [calculationMode, setCalculationMode] = useState();
 
     useEffect(() => {
         getFiles(projectName).then(async fileList => {
@@ -72,10 +79,25 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                     const parsedProcessInstanceCost = parseFloat(processInstanceCost);
                     processInstanceCosts.push(parsedProcessInstanceCost);
                 }
-                const averageProcessInstanceCost = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
-                totalChartDataToBe.dataset[0][scenarioKey] = averageProcessInstanceCost;
 
-                // calculate average costs per activity
+                // depending on calculation mode, calculate median, max, min or average process instance costs
+                switch (calculationMode) {
+                    case "MEDIAN":
+                        totalChartDataToBe.dataset[0][scenarioKey] = median(processInstanceCosts) * normalizationFactor;
+                        break;
+                    case "MAX":
+                        totalChartDataToBe.dataset[0][scenarioKey] = Math.max(...processInstanceCosts) * normalizationFactor;
+                        break;
+                    case "MIN":
+                        totalChartDataToBe.dataset[0][scenarioKey] = Math.min(...processInstanceCosts) * normalizationFactor;
+                        break;
+                    default:
+                    case "AVERAGE":
+                        totalChartDataToBe.dataset[0][scenarioKey] = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
+                        break;
+                }
+
+                // calculate costs per activity
                 const activityCostMap = new Map();
                 for (const trace of [...fileXml.getElementsByTagName('trace')]) {
                     // get all events
@@ -104,7 +126,25 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                         dataPoint = {data : activityName};
                         activityChartDataToBe.dataset.push(dataPoint);
                     }
-                    dataPoint[scenarioKey] = (allCostsForActivity.reduce((a, b) => a + b, 0) / allCostsForActivity.length) * normalizationFactor;
+                    
+                    //depending on calculation mode, calculate median, max, min or average activity instance costs
+                    switch (calculationMode) {
+                        case "MEDIAN":
+                            dataPoint[scenarioKey] = median(allCostsForActivity) * normalizationFactor;
+                            break;
+                        case "MAX":
+                            dataPoint[scenarioKey] = Math.max(...allCostsForActivity) * normalizationFactor;
+                            break;
+                        case "MIN":
+                            dataPoint[scenarioKey] = Math.min(...allCostsForActivity) * normalizationFactor;
+                            break;
+                        default:
+                        case "AVERAGE":
+                            dataPoint[scenarioKey] = (allCostsForActivity.reduce((a, b) => a + b, 0) / allCostsForActivity.length) * normalizationFactor;
+                            break;
+                    }
+
+                    
                 });
             })
 
@@ -163,17 +203,28 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                                 <Spacer/>
                                 <Button onClick={deletePreviousOutputs}>Delete Previous Outputs</Button>
                                 <Spacer/>
-                            </Flex>
-                        </CardHeader>
-                         <CardBody>
-                            You can add additional event logs to compare simulated cost with executed costs
-                            <Button variant='link' onClick={async () => {
+                                <Button onClick={async () => {
                                 const { name, data } = await uploadFile('UTF-8');
                                 await setFile(projectName, "uploaded_scenario.xes", data)
                                 await uploadFileToProject(projectName).then(reload()); // todo: fix duplicate opening of dialogue
-                            }
-                            }>here</Button>.
-                            </CardBody>
+                                    }
+                                }>Add Executed Event Log</Button>
+                                <Spacer/>
+                                <Box>
+                                    <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select calculation mode:</Text>
+                                    <Select value={calculationMode} placeholder = 'choose calculation'
+                                        width = '100%'  {...(!calculationMode && {color: "gray"})} 
+                                        backgroundColor= 'white' icon={<FiChevronDown />}
+                                        onChange={evt => {setCalculationMode(evt.target.value); reload();}}>
+                                        <option value='AVERAGE' color="black">Average</option>
+                                        <option value='MEDIAN' color="black">Median</option>
+                                        <option value='MIN' color="black">Min</option>
+                                        <option value='MAX' color="black">Max</option>
+                                    </Select>
+                                </Box>
+                                <Spacer/>
+                            </Flex>
+                        </CardHeader>
                         <CardBody>
                             {activityChartData && totalChartData && <TabBar
                                 setCurrent={() => {reload()}}
