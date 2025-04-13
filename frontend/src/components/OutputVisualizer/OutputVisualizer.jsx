@@ -54,40 +54,48 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
                 activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
 
-                // change calculation!
+                // calculate average cost for process instances
                 var processInstanceCosts = [];
                 for (const trace of [...fileXml.getElementsByTagName('trace')]) {
                     // get element by key: cost:Process Instance, and get value attribute
-                    const processInstanceCost = trace.innerHTML.querySelectorAll('[key="cost:Process_Instance"]')[0].getAttribute("value");
+                    const processInstanceCost = trace.querySelectorAll('[key="cost:Process_Instance"]')[0].getAttribute("value");
                     const parsedProcessInstanceCost = parseFloat(processInstanceCost);
                     processInstanceCosts.push(parsedProcessInstanceCost);
                 }
                 const averageProcessInstanceCost = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
                 totalChartDataToBe.dataset[0][scenarioKey] = averageProcessInstanceCost;
 
+                // calcutate average costs per activity
                 const activityCostMap = new Map();
                 for (const trace of [...fileXml.getElementsByTagName('trace')]) {
                     // get all events
-                    for (const event of trace.getElementsByTagName('events').innerHTML) {
-                        const activityName = event.querySelectorAll('[key=concept:name]')[0].getAttribute("value");
-                        const activityCost = event.querySelectorAll('[key=cost:activity]')[0].getAttribute("value");
-                        let allCostsOfActivity = activityCostMap.get(activityName)
-                        if (totalActivityCost && activityCost !== undefined) {
-                           activityCostMap.set(activityName, allCostsOfActivity.push(parseFloat(activityCost)))
-                        } else {
-                            activityCostMap.set(activityName, [parseFloat(activityCost)])                        
+                    for (const event of trace.getElementsByTagName('event')) {
+                        const activityName = event.querySelector('[key="concept:name"]').getAttribute("value");
+                        const storedEventCost = event.querySelector('[key="cost:activity"]')
+                        // check if event has cost attached to it
+                        if (storedEventCost != null) {
+                            const activityCost = storedEventCost.getAttribute("value");
+
+                            let allCostsOfActivity = activityCostMap.get(activityName)
+                            if (allCostsOfActivity && activityCost !== undefined) {
+                                console.log(allCostsOfActivity)
+                                allCostsOfActivity.push(parseFloat(activityCost))
+                                activityCostMap.set(activityName, allCostsOfActivity)
+                            } else {
+                                allCostsOfActivity = [parseFloat(activityCost)]
+                                activityCostMap.set(activityName, allCostsOfActivity)
+                            }
                         }
                     }
                 }
-                activityCostMap.array.forEach((allCostsForActivity, activityName) => {
+                
+                activityCostMap.forEach((allCostsForActivity, activityName) => {
                     let dataPoint = activityChartDataToBe.dataset.filter(dataPoint => dataPoint.data == activityName)[0];
                     if(!dataPoint) {
                         dataPoint = {data : activityName};
                         activityChartDataToBe.dataset.push(dataPoint);
                     }
-
-                    // const averageProcessInstanceCost = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
-                    dataPoint[scenarioKey] = (allCostsForActivity.reduce((a,b) => a + b, 0) / allCostsForActivity.length) * normalizationFactor;
+                    dataPoint[scenarioKey] = (allCostsForActivity.reduce((a, b) => a + b, 0) / allCostsForActivity.length) * normalizationFactor;
                 });
             })
 
