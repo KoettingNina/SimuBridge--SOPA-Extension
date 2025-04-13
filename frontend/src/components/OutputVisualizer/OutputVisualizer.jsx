@@ -21,15 +21,14 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
 
     useEffect(() => {
         getFiles(projectName).then(async fileList => {
-            const statsfiles = fileList.filter(fileName => fileName.endsWith('statistic.xml')) //TODO create better filter function
-            console.log(statsfiles);
-    	    const allFileData = await Promise.all(statsfiles.map(file => getFile(projectName, file)));
+            const event_logs = fileList.filter(fileName => fileName.endsWith('.xes')) //TODO create better filter function
+            console.log(event_logs);
+            const allEventLogs = await Promise.all(event_logs.map(file => getFile(projectName, file)));
 
-            
             const parser = new DOMParser();
     
             const totalChartDataToBe = {
-                dataset : [{ data : ''}],
+                dataset : [{ data : '' }],
                 series : []
             };
     
@@ -38,40 +37,64 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 series : []
             };
 
-            allFileData.forEach(fileData => {
-                const fileXml = parser.parseFromString(fileData.data,"text/xml");
+            allEventLogs.forEach(fileData => {
+                const fileXml = parser.parseFromString(fileData.data, "text/xml");
 
                 // TODO hacky way to get scenario name
                 const folderName = fileData.path.split('/').slice(3, -1).join('/');
                 const resourceUtilsFile = fileList.filter(fileName => fileName.startsWith(folderName) && fileName.endsWith('resourceutilization.xml'))[0];
-                const scenarioLabel = resourceUtilsFile.split('/').slice(-1)[0].split('_Global_resourceutilization.xml')[0];
-                
-    
-                const scenarioKey = 'scenario_'+folderName;
-                totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter});
-                activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter});
+                let scenarioLabel;
+                try {
+                    scenarioLabel = resourceUtilsFile.split('/').slice(-1)[0].split('_Global_resourceutilization.xml')[0];
+                } catch (error) {
+                    scenarioLabel = "Uploaded"
+                }
 
-                const avgPICost = parseFloat(fileXml.getElementsByTagName('Average_Process_Instance_Cost')[0].innerHTML) * normalizationFactor;
-                totalChartDataToBe.dataset[0][scenarioKey] = avgPICost;
-    
-                for(const activity of [...fileXml.getElementsByTagName('Activity_Cost')[0].getElementsByTagName('Activity')]) {
-  
-                    const activityName = activity.getAttribute('id').replaceAll('_', ' ').replaceAll(/(\w*?) (\w*?) (\w*?) (\w*?)/g, '$1 $2 $3$4\n'); // TODO replacement is hacky to avoid too long labels
-                    
+                const scenarioKey = 'scenario_' + folderName;
+                totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+                activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+
+                // change calculation!
+                var processInstanceCosts = [];
+                for (const trace of [...fileXml.getElementsByTagName('trace')]) {
+                    // get element by key: cost:Process Instance, and get value attribute
+                    const processInstanceCost = trace.innerHTML.querySelectorAll('[key="cost:Process_Instance"]')[0].getAttribute("value");
+                    const parsedProcessInstanceCost = parseFloat(processInstanceCost);
+                    processInstanceCosts.push(parsedProcessInstanceCost);
+                }
+                const averageProcessInstanceCost = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
+                totalChartDataToBe.dataset[0][scenarioKey] = averageProcessInstanceCost;
+
+                const activityCostMap = new Map();
+                for (const trace of [...fileXml.getElementsByTagName('trace')]) {
+                    // get all events
+                    for (const event of trace.getElementsByTagName('events').innerHTML) {
+                        const activityName = event.querySelectorAll('[key=concept:name]')[0].getAttribute("value");
+                        const activityCost = event.querySelectorAll('[key=cost:activity]')[0].getAttribute("value");
+                        let allCostsOfActivity = activityCostMap.get(activityName)
+                        if (totalActivityCost && activityCost !== undefined) {
+                           activityCostMap.set(activityName, allCostsOfActivity.push(parseFloat(activityCost)))
+                        } else {
+                            activityCostMap.set(activityName, [parseFloat(activityCost)])                        
+                        }
+                    }
+                }
+                activityCostMap.array.forEach((allCostsForActivity, activityName) => {
                     let dataPoint = activityChartDataToBe.dataset.filter(dataPoint => dataPoint.data == activityName)[0];
                     if(!dataPoint) {
                         dataPoint = {data : activityName};
                         activityChartDataToBe.dataset.push(dataPoint);
                     }
-                    dataPoint[scenarioKey] = parseFloat(activity.getElementsByTagName('Activity_Average_Cost')[0].innerHTML) * normalizationFactor; 
-                };
 
+                    // const averageProcessInstanceCost = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
+                    dataPoint[scenarioKey] = (allCostsForActivity.reduce((a,b) => a + b, 0) / allCostsForActivity.length) * normalizationFactor;
+                });
             })
 
             setTotalChartData(totalChartDataToBe);
             setActivityChartData(activityChartDataToBe);
         });
-      }, [getData, reloadFlag]);
+        }, [getData, reloadFlag]);
 
     function deletePreviousOutputs() {
         getFiles(projectName).then(async fileList => {
