@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardBody, CardHeader, Flex, Heading, Spacer, Stack } from "@chakra-ui/react";
 import Multibarchart from "./Multibarchart";
-import { deleteFile, getFile, getFiles } from "../../util/Storage";
+import { deleteFile, getFile, getFiles, uploadFileToProject } from "../../util/Storage";
 import { useEffect, useState } from "react";
 import TabBar from "../TabBar.jsx";
 import { axisClasses } from "@mui/x-charts";
@@ -44,13 +44,16 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 const folderName = fileData.path.split('/').slice(3, -1).join('/');
                 const resourceUtilsFile = fileList.filter(fileName => fileName.startsWith(folderName) && fileName.endsWith('resourceutilization.xml'))[0];
                 let scenarioLabel;
+                let scenarioKey;
                 try {
                     scenarioLabel = resourceUtilsFile.split('/').slice(-1)[0].split('_Global_resourceutilization.xml')[0];
+                    scenarioKey = 'scenario_' + folderName;
                 } catch (error) {
-                    scenarioLabel = "Uploaded"
+                    scenarioLabel = "Uploaded";
+                    scenarioKey = 'uploaded';
                 }
-
-                const scenarioKey = 'scenario_' + folderName;
+                
+                
                 totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
                 activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
 
@@ -152,6 +155,13 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                                 <Spacer/>
                             </Flex>
                         </CardHeader>
+                         <CardBody>
+                            You can add additional event logs to compare simulated cost with executed costs
+                            <Button variant='link' onClick={async () => {
+                                await uploadFileToProject(projectName);
+                            }
+                            }>here</Button>.
+                            </CardBody>
                         <CardBody>
                             {activityChartData && totalChartData && <TabBar
                                 setCurrent={() => {reload()}}
