@@ -211,8 +211,7 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                                 }>Add Executed Event Log</Button>
                                 <Spacer/>
                                 <Box>
-                                    <Text fontSize="s" textAlign="start" color="#485152" fontWeight="bold" > Select calculation mode:</Text>
-                                    <Select value={calculationMode} placeholder = 'choose calculation'
+                                    <Select value={calculationMode} placeholder = 'Calculation mode'
                                         width = '100%'  {...(!calculationMode && {color: "gray"})} 
                                         backgroundColor= 'white' icon={<FiChevronDown />}
                                         onChange={evt => {setCalculationMode(evt.target.value); reload();}}>
