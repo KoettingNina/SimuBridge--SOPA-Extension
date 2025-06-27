@@ -102,10 +102,11 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 for (const trace of [...fileXml.getElementsByTagName('trace')]) {
                     // get all events
                     for (const event of trace.getElementsByTagName('event')) {
+                        const lifecycleTransition = event.querySelector('[key="lifecycle:transition"]').getAttribute("value");
                         const activityName = event.querySelector('[key="concept:name"]').getAttribute("value");
                         const storedEventCost = event.querySelector('[key="cost:activity"]')
-                        // check if event has cost attached to it
-                        if (storedEventCost != null) {
+                        // check if event has cost attached to it and is an end activity
+                        if (storedEventCost != null && lifecycleTransition == "complete") {
                             const activityCost = storedEventCost.getAttribute("value");
 
                             let allCostsOfActivity = activityCostMap.get(activityName)
