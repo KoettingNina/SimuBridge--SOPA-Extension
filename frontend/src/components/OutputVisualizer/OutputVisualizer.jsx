@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardBody, CardHeader, Flex, Heading, Spacer, Select, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Card, CardBody, CardHeader, Flex, FormControl, FormLabel, Heading, Spacer, Select, Stack, Text } from "@chakra-ui/react";
 import Multibarchart from "./Multibarchart";
 import { deleteFile, getFile, getFiles, uploadFileToProject, uploadFile, setFile } from "../../util/Storage";
 import { useEffect, useState } from "react";
@@ -212,15 +212,19 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                                 }>Add Executed Event Log</Button>
                                 <Spacer/>
                                 <Box>
-                                    <Select value={calculationMode} placeholder = 'Calculation mode'
-                                        width = '100%'  {...(!calculationMode && {color: "gray"})} 
-                                        backgroundColor= 'white' icon={<FiChevronDown />}
-                                        onChange={evt => {setCalculationMode(evt.target.value); reload();}}>
-                                        <option value='AVERAGE' color="black">Average</option>
-                                        <option value='MEDIAN' color="black">Median</option>
-                                        <option value='MIN' color="black">Min</option>
-                                        <option value='MAX' color="black">Max</option>
-                                    </Select>
+                                    <FormControl>
+                                        <Select value={calculationMode}
+                                            width = '100%'  {...(!calculationMode && {color: "gray"})} 
+                                            backgroundColor= 'white' icon={<FiChevronDown />}
+                                            onChange={evt => {setCalculationMode(evt.target.value); reload();}}>
+                                            <option value='' disabled={true} hidden={true}>Calculation Mode</option>
+                                            <option value='AVERAGE' color="black">Average</option>
+                                            <option value='MEDIAN' color="black">Median</option>
+                                            <option value='MIN' color="black">Min</option>
+                                            <option value='MAX' color="black">Max</option>
+                                        </Select>
+                                        <FormLabel>Calculation Mode</FormLabel>
+                                    </FormControl>
                                 </Box>
                                 <Spacer/>
                             </Flex>
