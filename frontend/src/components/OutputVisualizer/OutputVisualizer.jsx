@@ -214,10 +214,9 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                                 <Box>
                                     <FormControl>
                                         <Select value={calculationMode}
-                                            width = '100%'  {...(!calculationMode && {color: "gray"})} 
+                                            width = '100%'  {...(!calculationMode && {color: "gray"})} defaultValue={'AVERAGE'}
                                             backgroundColor= 'white' icon={<FiChevronDown />}
                                             onChange={evt => {setCalculationMode(evt.target.value); reload();}}>
-                                            <option value='' disabled={true} hidden={true}>Calculation Mode</option>
                                             <option value='AVERAGE' color="black">Average</option>
                                             <option value='MEDIAN' color="black">Median</option>
                                             <option value='MIN' color="black">Min</option>
