@@ -48,21 +48,26 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 return;
             }
             allEventLogs.forEach(fileData => {
+                if (fileData === undefined || fileData?.data === undefined) return;
                 const fileXml = parser.parseFromString(fileData.data, "text/xml");
 
                 // TODO hacky way to get scenario name
                 let scenarioLabel;
                 let scenarioKey;
                 
-                const folderName = fileData.path.split('/').slice(3, -1).join('/');
+                const folderName = fileData.path.split('/').slice(3,-1).join('/');
+                const fileName = fileData.path.split('/').slice(-1)[0]
                 
                 const resourceUtilsFile = fileList.filter(fileName => fileName.startsWith(folderName) && fileName.endsWith('resourceutilization.xml'))[0];
 
-                if (resourceUtilsFile === undefined || folderName === "") {
-                    scenarioLabel = "Uploaded"; // todo: find better method for naming and finding uploaded scenarios
-                    scenarioKey = 'uploaded';
-                } else {
 
+                if ((resourceUtilsFile === undefined || folderName === '') && fileName.startsWith("uploaded_")) {
+                    scenarioLabel = fileName.split('_')[1] + " [uploaded]"; // todo: find better method for naming and finding uploaded scenarios
+                    scenarioKey = fileName;
+                } 
+                else if (resourceUtilsFile === undefined) {
+                    return;
+                } else {
                     scenarioLabel = resourceUtilsFile.split('/').slice(-1)[0].split('_Global_resourceutilization.xml')[0];
                     scenarioKey = 'scenario_' + folderName;
                 }
@@ -155,15 +160,23 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
         }, [getData, reloadFlag]);
 
     function deletePreviousOutputs() {
+        setTotalChartData({
+                dataset : [{ data : '' }],
+                series : []
+            });
+    
+        setActivityChartData({
+                dataset : [],
+                series : []
+            });
         getFiles(projectName).then(async fileList => {
             const outputFiles = fileList.filter(fileName => fileName.startsWith('request0')) //TODO create better filter function
             outputFiles.forEach(file => deleteFile(projectName, file));
-            const uploadedFile = fileList.find(fileName => fileName.endsWith('uploaded_scenario.xes'))
+            const uploadedFile = fileList.find(fileName => fileName.startsWith('uploaded_'))
             if (uploadedFile !== undefined) {
                 deleteFile(projectName, uploadedFile);
             }
-        });
-        reload();
+        }).finally(reload);
     }
 
     const totalChartSetting = {
@@ -205,9 +218,8 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                                 <Button onClick={deletePreviousOutputs}>Delete Previous Outputs</Button>
                                 <Spacer/>
                                 <Button onClick={async () => {
-                                const { name, data } = await uploadFile('UTF-8');
-                                await setFile(projectName, "uploaded_scenario.xes", data)
-                                await uploadFileToProject(projectName).then(reload()); // todo: fix duplicate opening of dialogue
+                                    const { name, data } = await uploadFile('UTF-8');
+                                    await setFile(projectName, "uploaded_" + name, data).finally(reload());
                                     }
                                 }>Add Executed Event Log</Button>
                                 <Spacer/>
