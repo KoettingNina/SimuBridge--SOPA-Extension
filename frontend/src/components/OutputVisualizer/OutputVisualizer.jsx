@@ -1,12 +1,19 @@
-import { Box, Button, Card, CardBody, CardHeader, Flex, Heading, Spacer, Stack } from "@chakra-ui/react";
+import { Box, Button, Card, CardBody, CardHeader, Flex, FormControl, FormLabel, Heading, Spacer, Select, Stack, Text } from "@chakra-ui/react";
 import Multibarchart from "./Multibarchart";
-import { deleteFile, getFile, getFiles } from "../../util/Storage";
+import { deleteFile, getFile, getFiles, uploadFileToProject, uploadFile, setFile } from "../../util/Storage";
 import { useEffect, useState } from "react";
+import { FiChevronDown } from 'react-icons/fi';
 import TabBar from "../TabBar.jsx";
 import { axisClasses } from "@mui/x-charts";
 
+const median = arr => {
+    const mid = Math.floor(arr.length / 2),
+      nums = [...arr].sort((a, b) => a - b);
+    return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+  };
+
 const OutputVisualizerPage = ({projectName, getData, toasting }) => {
-    
+   
     const [reloadFlag, setReloadFlag] = useState(true);
     function reload() {
         setReloadFlag(!reloadFlag);
@@ -17,19 +24,17 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
     const normalizationFactor = 1000.0;
     const normalizationString = ' x 10^' + (-Math.log10(normalizationFactor));
     const valueFormatter = (value) => (<span>{value.toFixed(2) + ' x 10'}<sup>{-Math.log10(normalizationFactor)}</sup></span>);
-
+    const [calculationMode, setCalculationMode] = useState();
 
     useEffect(() => {
         getFiles(projectName).then(async fileList => {
-            const statsfiles = fileList.filter(fileName => fileName.endsWith('statistic.xml')) //TODO create better filter function
-            console.log(statsfiles);
-    	    const allFileData = await Promise.all(statsfiles.map(file => getFile(projectName, file)));
+            const event_logs = fileList.filter(fileName => fileName.endsWith('.xes')) //TODO create better filter function
+            const allEventLogs = await Promise.all(event_logs.map(file => getFile(projectName, file)));
 
-            
             const parser = new DOMParser();
     
             const totalChartDataToBe = {
-                dataset : [{ data : ''}],
+                dataset : [{ data : '' }],
                 series : []
             };
     
@@ -38,47 +43,140 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                 series : []
             };
 
-            allFileData.forEach(fileData => {
-                const fileXml = parser.parseFromString(fileData.data,"text/xml");
+            
+            if (allEventLogs === undefined || allEventLogs == [] || (allEventLogs.length == 1 && allEventLogs[0] == undefined)) {
+                return;
+            }
+            allEventLogs.forEach(fileData => {
+                if (fileData === undefined || fileData?.data === undefined) return;
+                const fileXml = parser.parseFromString(fileData.data, "text/xml");
 
                 // TODO hacky way to get scenario name
-                const folderName = fileData.path.split('/').slice(3, -1).join('/');
-                const resourceUtilsFile = fileList.filter(fileName => fileName.startsWith(folderName) && fileName.endsWith('resourceutilization.xml'))[0];
-                const scenarioLabel = resourceUtilsFile.split('/').slice(-1)[0].split('_Global_resourceutilization.xml')[0];
+                let scenarioLabel;
+                let scenarioKey;
                 
-    
-                const scenarioKey = 'scenario_'+folderName;
-                totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter});
-                activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter});
+                const folderName = fileData.path.split('/').slice(3,-1).join('/');
+                const fileName = fileData.path.split('/').slice(-1)[0]
+                
+                const resourceUtilsFile = fileList.filter(fileName => fileName.startsWith(folderName) && fileName.endsWith('resourceutilization.xml'))[0];
 
-                const avgPICost = parseFloat(fileXml.getElementsByTagName('Average_Process_Instance_Cost')[0].innerHTML) * normalizationFactor;
-                totalChartDataToBe.dataset[0][scenarioKey] = avgPICost;
-    
-                for(const activity of [...fileXml.getElementsByTagName('Activity_Cost')[0].getElementsByTagName('Activity')]) {
-  
-                    const activityName = activity.getAttribute('id').replaceAll('_', ' ').replaceAll(/(\w*?) (\w*?) (\w*?) (\w*?)/g, '$1 $2 $3$4\n'); // TODO replacement is hacky to avoid too long labels
-                    
+
+                if ((resourceUtilsFile === undefined || folderName === '') && fileName.startsWith("uploaded_")) {
+                    scenarioLabel = fileName.split('_')[1] + " [uploaded]"; // todo: find better method for naming and finding uploaded scenarios
+                    scenarioKey = fileName;
+                } 
+                else if (resourceUtilsFile === undefined) {
+                    return;
+                } else {
+                    scenarioLabel = resourceUtilsFile.split('/').slice(-1)[0].split('_Global_resourceutilization.xml')[0];
+                    scenarioKey = 'scenario_' + folderName;
+                }
+                
+                
+                totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+                activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+
+                // calculate average cost for process instances
+                var processInstanceCosts = [];
+                for (const trace of [...fileXml.getElementsByTagName('trace')]) {
+                    // get element by key: cost:Process Instance, and get value attribute
+                    const processInstanceCost = trace.querySelectorAll('[key="cost:Process_Instance"]')[0].getAttribute("value");
+                    const parsedProcessInstanceCost = parseFloat(processInstanceCost);
+                    processInstanceCosts.push(parsedProcessInstanceCost);
+                }
+
+                // depending on calculation mode, calculate median, max, min or average process instance costs
+                switch (calculationMode) {
+                    case "MEDIAN":
+                        totalChartDataToBe.dataset[0][scenarioKey] = median(processInstanceCosts) * normalizationFactor;
+                        break;
+                    case "MAX":
+                        totalChartDataToBe.dataset[0][scenarioKey] = Math.max(...processInstanceCosts) * normalizationFactor;
+                        break;
+                    case "MIN":
+                        totalChartDataToBe.dataset[0][scenarioKey] = Math.min(...processInstanceCosts) * normalizationFactor;
+                        break;
+                    default:
+                    case "AVERAGE":
+                        totalChartDataToBe.dataset[0][scenarioKey] = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
+                        break;
+                }
+
+                // calculate costs per activity
+                const activityCostMap = new Map();
+                for (const trace of [...fileXml.getElementsByTagName('trace')]) {
+                    // get all events
+                    for (const event of trace.getElementsByTagName('event')) {
+                        const lifecycleTransition = event.querySelector('[key="lifecycle:transition"]').getAttribute("value");
+                        const activityName = event.querySelector('[key="concept:name"]').getAttribute("value");
+                        const storedEventCost = event.querySelector('[key="cost:activity"]')
+                        // check if event has cost attached to it and is an end activity
+                        if (storedEventCost != null && lifecycleTransition == "complete") {
+                            const activityCost = storedEventCost.getAttribute("value");
+
+                            let allCostsOfActivity = activityCostMap.get(activityName)
+                            if (allCostsOfActivity && activityCost !== undefined) {
+                                allCostsOfActivity.push(parseFloat(activityCost))
+                                activityCostMap.set(activityName, allCostsOfActivity)
+                            } else {
+                                allCostsOfActivity = [parseFloat(activityCost)]
+                                activityCostMap.set(activityName, allCostsOfActivity)
+                            }
+                        }
+                    }
+                }
+                
+                activityCostMap.forEach((allCostsForActivity, activityName) => {
                     let dataPoint = activityChartDataToBe.dataset.filter(dataPoint => dataPoint.data == activityName)[0];
                     if(!dataPoint) {
                         dataPoint = {data : activityName};
                         activityChartDataToBe.dataset.push(dataPoint);
                     }
-                    dataPoint[scenarioKey] = parseFloat(activity.getElementsByTagName('Activity_Average_Cost')[0].innerHTML) * normalizationFactor; 
-                };
+                    
+                    //depending on calculation mode, calculate median, max, min or average activity instance costs
+                    switch (calculationMode) {
+                        case "MEDIAN":
+                            dataPoint[scenarioKey] = median(allCostsForActivity) * normalizationFactor;
+                            break;
+                        case "MAX":
+                            dataPoint[scenarioKey] = Math.max(...allCostsForActivity) * normalizationFactor;
+                            break;
+                        case "MIN":
+                            dataPoint[scenarioKey] = Math.min(...allCostsForActivity) * normalizationFactor;
+                            break;
+                        default:
+                        case "AVERAGE":
+                            dataPoint[scenarioKey] = (allCostsForActivity.reduce((a, b) => a + b, 0) / allCostsForActivity.length) * normalizationFactor;
+                            break;
+                    }
 
+                    
+                });
             })
 
             setTotalChartData(totalChartDataToBe);
             setActivityChartData(activityChartDataToBe);
         });
-      }, [getData, reloadFlag]);
+        }, [getData, reloadFlag]);
 
     function deletePreviousOutputs() {
+        setTotalChartData({
+                dataset : [{ data : '' }],
+                series : []
+            });
+    
+        setActivityChartData({
+                dataset : [],
+                series : []
+            });
         getFiles(projectName).then(async fileList => {
             const outputFiles = fileList.filter(fileName => fileName.startsWith('request0')) //TODO create better filter function
             outputFiles.forEach(file => deleteFile(projectName, file));
-        });
-        reload();
+            const uploadedFile = fileList.find(fileName => fileName.startsWith('uploaded_'))
+            if (uploadedFile !== undefined) {
+                deleteFile(projectName, uploadedFile);
+            }
+        }).finally(reload);
     }
 
     const totalChartSetting = {
@@ -118,6 +216,27 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                                 <Heading size='md'> Simulation Output Visualizer </Heading>
                                 <Spacer/>
                                 <Button onClick={deletePreviousOutputs}>Delete Previous Outputs</Button>
+                                <Spacer/>
+                                <Button onClick={async () => {
+                                    const { name, data } = await uploadFile('UTF-8');
+                                    await setFile(projectName, "uploaded_" + name, data).finally(reload());
+                                    }
+                                }>Add Executed Event Log</Button>
+                                <Spacer/>
+                                <Box>
+                                    <FormControl>
+                                        <Select value={calculationMode}
+                                            width = '100%'  {...(!calculationMode && {color: "gray"})} defaultValue={'AVERAGE'}
+                                            backgroundColor= 'white' icon={<FiChevronDown />}
+                                            onChange={evt => {setCalculationMode(evt.target.value); reload();}}>
+                                            <option value='AVERAGE' color="black">Average</option>
+                                            <option value='MEDIAN' color="black">Median</option>
+                                            <option value='MIN' color="black">Min</option>
+                                            <option value='MAX' color="black">Max</option>
+                                        </Select>
+                                        <FormLabel>Calculation Mode</FormLabel>
+                                    </FormControl>
+                                </Box>
                                 <Spacer/>
                             </Flex>
                         </CardHeader>
