@@ -90,35 +90,44 @@ const LcaIntegration = ({ getData, toasting }) => {
       toasting("error", "Invalid URL", "Please enter a valid URL in the format 'http://[host]:[port]'");
       return;
     }
+
+    // Save selected impact method and normalization set
+    const scenario = getData().getCurrentScenario();
+    
+    if (impactMethodId) {
+      const selectedImpactMethod = impactMethods.find(im => im.id === impactMethodId);
+      if (selectedImpactMethod) {
+        scenario.environmentImpactParameters.selectedImpactMethod = selectedImpactMethod.id;
+      }
+    }
+    if (normalizationSetId) {
+      const selectedNormalizationSet = normalizationSets.find(ns => ns.id === normalizationSetId);
+      if (selectedNormalizationSet) {
+        scenario.environmentImpactParameters.selectedNormalizationSet = selectedNormalizationSet.id;
+      }
+    }
+    await getData().saveCurrentScenario();
+
     setIsFetchingRunning(true);
     setProgressText('Fetching ...');
     setFetchingProgress(0);
 
     await fetchAllCostDrivers(apiUrl,
       (abstractCostDrivers) => {
-        toasting("info", "Success", "Cost drivers fetched successfully. Normalizing results...");
-        setProgressText('Normalizing ...');
-        setFetchingProgress(1 / (abstractCostDrivers.length + 1) * 100);
-        calculateCostDrivers(apiUrl, impactMethodId, normalizationSetId, abstractCostDrivers,
-          (progress) => setFetchingProgress(progress),
-          (normalizedCostDrivers) => {
-            const abstractCostDriversMap = mapAbstractDriversFromConcrete(normalizedCostDrivers);
+           
+       
+        const abstractCostDriversMap = mapAbstractDriversFromConcrete(abstractCostDrivers);
 
-            saveAllCostDrivers(
-              abstractCostDriversMap,
-              getData
-            );
+        saveAllCostDrivers(
+          abstractCostDriversMap,
+          getData
+        );
+       
 
-            toasting("success", "Success", "Cost drivers were successfully saved to the application");
-            setIsFetchingRunning(false);
-            setAllCostDrivers(abstractCostDriversMap);
-            setIsCostDriversLoaded(true);
-          },
-          (error) => {
-            setIsFetchingRunning(false);
-            toasting("error", "Error", "Error calculating cost drivers. Please check if the OpenLCA IPC server is running and the URL is correct");
-            console.error('API Error:', error);
-          });
+        toasting("success", "Success", "Cost drivers were successfully fetched and saved");
+        setIsFetchingRunning(false);
+        setAllCostDrivers(abstractCostDriversMap);
+        setIsCostDriversLoaded(true);
       },
       (error) => {
         setIsFetchingRunning(false);
@@ -225,7 +234,7 @@ const LcaIntegration = ({ getData, toasting }) => {
               _hover={{ bg: '#B4C7C9' }}
               ml={2}
             >
-              Fetch Costs
+              Fetch Cost Drivers
             </Button>
             }
             {isFetchingRunning &&
@@ -266,11 +275,15 @@ const LcaIntegration = ({ getData, toasting }) => {
                     </h2>
                     <AccordionPanel pb={4}>
                       <UnorderedList>
-                        {costDriver.concreteCostDrivers.map((concreteCostDriver, index) => (
-                          <ListItem key={index}>
-                            <FormattedConcreteDriver concreteCostDriver={concreteCostDriver} />
-                          </ListItem>
-                        ))}
+                        {costDriver.concreteCostDrivers.map((concreteCostDriver, index) => {
+                         
+                          return (
+                            <ListItem key={index}>
+                              <FormattedConcreteDriver concreteCostDriver={concreteCostDriver} />
+                              
+                            </ListItem>
+                          );
+                        })}
                       </UnorderedList>
                     </AccordionPanel>
                   </AccordionItem>

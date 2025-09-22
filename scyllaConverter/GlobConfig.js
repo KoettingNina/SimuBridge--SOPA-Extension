@@ -22,6 +22,13 @@ function createGlobConfig(scenario) {
     var resourceData = new Object;
     var timetables = new Object;
     var costDriver = new Object; // TODO: should the variable be called costDriver or costDrivers? , in the xml it is called costDriver
+    var impactMethodInfo = new Object;
+
+    // Add impact method and normalization set info
+    impactMethodInfo._attributes = {
+        selectedImpactMethod: scenario.environmentImpactParameters?.selectedImpactMethod || '',
+        selectedNormalizationSet: scenario.environmentImpactParameters?.selectedNormalizationSet || ''
+    };
 
     //create Elements from resource parameters:
 
@@ -51,5 +58,6 @@ function createGlobConfig(scenario) {
     globConfig.timetables = timetables;
     globConfig._attributes = attributes;
     globConfig.costDriver = costDriver;
+    globConfig.impactMethodInfo = impactMethodInfo;
     return globConfig;
 }

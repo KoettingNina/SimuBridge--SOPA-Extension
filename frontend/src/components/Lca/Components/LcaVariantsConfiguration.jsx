@@ -31,6 +31,7 @@ function LcaVariantsConfiguration({ getData, toasting }) {
     setAllCostDrivers(uniqueCostDrivers);
     setIsCostDriversLoaded(uniqueCostDrivers.length > 0);
 
+    const loadedVariants = lcaDm.getVariants(getData);
     setVariants(lcaDm.getVariants(getData));
     setIsScenarioModelLoaded(true);
   }, [getData]);
@@ -40,12 +41,31 @@ function LcaVariantsConfiguration({ getData, toasting }) {
     if (!isExistingVariant) {
       variant.id = uuidv4();
     }
+
+    const updatedMappings = (variant.mappings || []).map(mapping => ({
+      ...mapping,
+      
+      distribution: mapping.distribution?.distributionType 
+        ? {
+            distributionType: mapping.distribution.distributionType,
+            distributionValues: mapping.distribution.distributionValues || [],
+            timeUnit: mapping.distribution.timeUnit || ''
+          }
+        : null
+    }));
+
+    const updatedVariant = {
+      ...variant,
+      mappings: updatedMappings,
+      frequency: parseInt(variant.frequency) || 15
+    };
+
     const updatedVariants = variants.filter(v => v.id !== variant.id);
     updatedVariants.push(variant);
 
     setVariants(updatedVariants);
 
-    await lcaDm.saveCostVariant(variant, updatedVariants, getData, toasting);
+    await lcaDm.saveCostVariant(updatedVariant, updatedVariants, getData, toasting);
 
     setCurrentVariant({ name: '', mappings: [], frequency: 15 });
     toasting("success", "Variant saved", "Cost variant saved successfully");
@@ -147,8 +167,18 @@ function LcaVariantsConfiguration({ getData, toasting }) {
                             {allCostDrivers.find(driver => driver.name === mapping.abstractDriver)
                               ?.concreteCostDrivers.find(concreteDriver => concreteDriver.id === mapping.concreteDriver)
                               ?.name}
+                            {allCostDrivers.find(driver => driver.name === mapping.abstractDriver)
+                              ?.concreteCostDrivers.find(concreteDriver => concreteDriver.id === mapping.concreteDriver)
+                              ?.unit ? ` (${allCostDrivers.find(driver => driver.name === mapping.abstractDriver)
+                              ?.concreteCostDrivers.find(concreteDriver => concreteDriver.id === mapping.concreteDriver)
+                              ?.unit})` : ''}
+                            {" - "}{"distribution: "}
+                            {mapping.distribution
+                              ? `${mapping.distribution.distributionType} (${Array.isArray(mapping.distribution.values) ? mapping.distribution.values.join(", ") : ""})`
+                              : "none"}
                           </ListItem>
                         ))}
+                      
                       </UnorderedList>
                     </AccordionPanel>
                   </AccordionItem>
@@ -156,6 +186,7 @@ function LcaVariantsConfiguration({ getData, toasting }) {
               </Accordion>
             </CardBody>
           </Card>
+          
           <VariantEditor
             costVariant={currentVariant}
             allCostDrivers={allCostDrivers}

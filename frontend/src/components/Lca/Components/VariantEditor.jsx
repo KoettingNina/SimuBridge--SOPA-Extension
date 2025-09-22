@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 
 import {
-  Card, CardHeader, CardBody, Heading, Text,
+  Box, Card, CardHeader, CardBody, Heading, Text,
   Stack, Flex, VStack,
   Input, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper,
   Select, Button, IconButton,
-  SlideFade
+  SlideFade, Tooltip
 } from '@chakra-ui/react';
 
-import { FiSave, FiSlash } from 'react-icons/fi';
+import { FiSave, FiSlash, FiInfo } from 'react-icons/fi';
 import { AiOutlineMinusCircle } from 'react-icons/ai';
+
+import DistributionEditor from '../../DistributionEditor';
 
 
 export default function VariantEditor({ costVariant,
@@ -32,8 +34,22 @@ export default function VariantEditor({ costVariant,
     updateVariantDetails('frequency', val.replace(/^\%/, ''));
   }
 
+    
+
   useEffect(() => {
-    setDriverMapping(costVariant.mappings || []);
+    
+    const mappings = (costVariant.mappings || []).map(mapping => ({
+      ...mapping,
+      distribution: mapping.distribution ? {
+        distributionType: mapping.distribution.distributionType,
+        distributionValues: mapping.distribution.values,
+      } : {
+        distributionType: '',
+        distributionValues: [],
+      }
+    }));
+
+    setDriverMapping(mappings);
     setVariantName(costVariant.name || '');
     setFrequency(costVariant.frequency || defaultFrequency);
     setIsNewVariant(!costVariant.id);
@@ -51,7 +67,11 @@ export default function VariantEditor({ costVariant,
   const [showMappings, setShowMappings] = useState(driverMapping.map(() => true));
 
   const addNewDriverMapping = () => {
-    setDriverMapping([...driverMapping, { abstractDriver: '', concreteDriver: '' }]);
+    setDriverMapping([...driverMapping, { abstractDriver: '', concreteDriver: '', distribution: {
+      distributionType: 'constant',
+      distributionValues: [1],
+      timeUnit: ''
+    }}]);
     setShowMappings([...showMappings, true]);
   };
 
@@ -184,9 +204,11 @@ export default function VariantEditor({ costVariant,
           </Flex>
           {driverMapping.map((mapping, index) =>
             <SlideFade key={index} in={showMappings[index]} animateOpacity>
-              <Flex mt={3} alignItems="center" id={'mapping' + index}>
-                <Text mr={3}>{index + 1}.</Text>
+              <Flex mt={3} alignItems="center" id={'mapping' + index} gap={3}>
+                <Text minW="24px">{index + 1}.</Text>
                 <Select
+                  flex="1"
+                  minW="120px"
                   id="abstractDriverSelect"
                   placeholder="Select Abstract Driver"
                   key={`abstract${index}`}
@@ -194,25 +216,74 @@ export default function VariantEditor({ costVariant,
                   onChange={(e) => updateMapping(index, 'abstractDriver', e.target.value)}
                   isInvalid={!mappingValidations[index]?.abstractDriverValid}
                   errorBorderColor='red.300'
-                  mr={3}>
+                  mr={0}
+                >
                   {abstractDriverNames.map(name => (
                     <option value={name} key={name}>{name}</option>
                   ))}
                 </Select>
-                <Select
-                  id="concreteDriverSelect"
-                  placeholder="Select Concrete Driver"
-                  value={mapping.concreteDriver}
-                  key={`concrete${index}`}
-                  onChange={(e) => updateMapping(index, 'concreteDriver', e.target.value)}
-                  isInvalid={!mappingValidations[index]?.concreteDriverValid}
-                  errorBorderColor='red.300'>
-                  {allCostDrivers
-                    .find(driver => driver.name === mapping.abstractDriver)?.concreteCostDrivers
-                    .map(concreteDriver => (
-                      <option value={concreteDriver.id} key={concreteDriver.id}>{concreteDriver.name}</option>
-                    ))}
-                </Select>
+                <Flex flex="1" alignItems="center" gap={2}>
+                  <Select
+                    flex="1"
+                    minW="120px"
+                    id="concreteDriverSelect"
+                    placeholder="Select Concrete Driver"
+                    value={mapping.concreteDriver}
+                    key={`concrete${index}`}
+                    onChange={(e) => updateMapping(index, 'concreteDriver', e.target.value)}
+                    isInvalid={!mappingValidations[index]?.concreteDriverValid}
+                    errorBorderColor='red.300'
+                  >
+                    {allCostDrivers
+                      .find(driver => driver.name === mapping.abstractDriver)?.concreteCostDrivers
+                      .map(concreteDriver => (
+                        <option value={concreteDriver.id} key={concreteDriver.id}>
+                          {concreteDriver.name} 
+                        </option>
+                      ))}
+                  </Select>
+                  <Tooltip 
+                    label={
+                      allCostDrivers
+                        .find(driver => driver.name === mapping.abstractDriver)
+                        ?.concreteCostDrivers.find(cd => cd.id === mapping.concreteDriver)
+                        ?.processName || 'No process name available'
+                    }
+                    placement="top"
+                    hasArrow
+                  >
+                    <IconButton
+                      aria-label="Show process name"
+                      icon={<FiInfo />}
+                      size="md"
+                      variant="ghost"
+                      colorScheme="teal"
+                      isDisabled={!mapping.concreteDriver}
+                    />
+                  </Tooltip>
+                </Flex>
+                <Box flex="1" minW="220px">
+                  <DistributionEditor
+                    state={mapping.distribution}
+                    setState={(newDistribution) => {
+                      setDriverMapping(prevMappings => {
+                        const newMappings = [...prevMappings];
+                        newMappings[index] = {
+                          ...newMappings[index],
+                          distribution: newDistribution
+                        };
+                        return newMappings;
+                      });
+                    }}
+                    showTimeUnit={false}
+                    targetUnit={
+                      allCostDrivers
+                        .find(driver => driver.name === mapping.abstractDriver)
+                        ?.concreteCostDrivers.find(cd => cd.id === mapping.concreteDriver)
+                        ?.unit || ''
+                    }
+                  />
+                </Box>
                 <IconButton
                   aria-label="Remove mapping"
                   icon={<AiOutlineMinusCircle />}

@@ -28,7 +28,11 @@ export const mapAbstractDriversFromConcrete = (concreteCostDrivers) => {
         let concreteDriver = SimulationModelModdle.getInstance().create("simulationmodel:ConcreteCostDriver", {
             id: el.id,
             name: el.name,
-            cost: el.cost,
+            //TODO test kostenrechnung raus
+            //cost: el.cost || 0,
+            
+            unit: el.targetUnit?.name,
+             processName: el.refProcess?.name
         });
         if (!abstractCostDriversMap.has(el.category)) {
             let abstractDriver = SimulationModelModdle.getInstance().create("simulationmodel:AbstractCostDriver", {
@@ -41,8 +45,7 @@ export const mapAbstractDriversFromConcrete = (concreteCostDrivers) => {
             let abstractDriver = abstractCostDriversMap.get(el.category);
             abstractDriver.concreteCostDrivers.push(concreteDriver);
         }
-    }
-    );
+    });
     return Array.from(abstractCostDriversMap.values());
 };
 
@@ -54,9 +57,14 @@ export const saveAllCostDrivers = async (abstractCostDrivers, getData) => {
 export const saveCostVariant = async (variant, updatedVariants, getData) => {
     //save variants and its mappings
     let driversMappings = variant.mappings.map(mapping => {
+        console.log("LcaDataManager.js saveCostVariant - mapping:", mapping.distribution);
         return SimulationModelModdle.getInstance().create("simulationmodel:DriverConcretization", {
             abstractDriver: mapping.abstractDriver,
             concreteDriver: mapping.concreteDriver,
+            distribution: mapping.distribution ? SimulationModelModdle.getInstance().create("simulationmodel:Distribution", {
+            distributionType: mapping.distribution.distributionType,
+            values: mapping.distribution.distributionValues,
+            }) : null
         });
     });
 

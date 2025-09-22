@@ -72,34 +72,49 @@ const OutputVisualizerPage = ({projectName, getData, toasting }) => {
                     scenarioKey = 'scenario_' + folderName;
                 }
                 
-                
-                totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
-                activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+                //added later to fix error 
+               // totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+               // activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
 
                 // calculate average cost for process instances
                 var processInstanceCosts = [];
                 for (const trace of [...fileXml.getElementsByTagName('trace')]) {
                     // get element by key: cost:Process Instance, and get value attribute
-                    const processInstanceCost = trace.querySelectorAll('[key="cost:Process_Instance"]')[0].getAttribute("value");
+                    
+                    
+                    const costElements = trace.querySelectorAll('[key="cost:Process_Instance"]');
+                    if (costElements.length === 0) {
+                        continue;
+                    }
+                    const processInstanceCost = costElements[0].getAttribute("value");
+
                     const parsedProcessInstanceCost = parseFloat(processInstanceCost);
-                    processInstanceCosts.push(parsedProcessInstanceCost);
+                    
+                        processInstanceCosts.push(parsedProcessInstanceCost);
+                   
                 }
 
-                // depending on calculation mode, calculate median, max, min or average process instance costs
-                switch (calculationMode) {
-                    case "MEDIAN":
-                        totalChartDataToBe.dataset[0][scenarioKey] = median(processInstanceCosts) * normalizationFactor;
-                        break;
-                    case "MAX":
-                        totalChartDataToBe.dataset[0][scenarioKey] = Math.max(...processInstanceCosts) * normalizationFactor;
-                        break;
-                    case "MIN":
-                        totalChartDataToBe.dataset[0][scenarioKey] = Math.min(...processInstanceCosts) * normalizationFactor;
-                        break;
-                    default:
-                    case "AVERAGE":
-                        totalChartDataToBe.dataset[0][scenarioKey] = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
-                        break;
+                 
+                 if (processInstanceCosts.length > 0) {
+                    totalChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+                    activityChartDataToBe.series.push({ dataKey: scenarioKey, label: scenarioLabel, valueFormatter });
+
+                    // depending on calculation mode, calculate median, max, min or average process instance costs
+                    switch (calculationMode) {
+                        case "MEDIAN":
+                            totalChartDataToBe.dataset[0][scenarioKey] = median(processInstanceCosts) * normalizationFactor;
+                            break;
+                        case "MAX":
+                            totalChartDataToBe.dataset[0][scenarioKey] = Math.max(...processInstanceCosts) * normalizationFactor;
+                            break;
+                        case "MIN":
+                            totalChartDataToBe.dataset[0][scenarioKey] = Math.min(...processInstanceCosts) * normalizationFactor;
+                            break;
+                        default:
+                        case "AVERAGE":
+                            totalChartDataToBe.dataset[0][scenarioKey] = (processInstanceCosts.reduce((a, b) => a + b, 0) / processInstanceCosts.length) * normalizationFactor;
+                            break;
+                    }
                 }
 
                 // calculate costs per activity

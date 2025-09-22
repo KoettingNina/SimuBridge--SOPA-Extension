@@ -18,7 +18,7 @@ export const {TimeUnits, Currencies, DistributionTypes, Weekdays} = {
         constant: { distribution_params: ["constantValue"] },
         erlang: { distribution_params: ["order", "mean"] },
         triangular: { distribution_params: ["lower", "peak", "upper"] },
-        binomial: { distribution_params: ["probabiliy", "amount"] },
+        binomial: { distribution_params: ["probability", "amount"] },
         arbitraryFiniteProbabilityDistribution: { distribution_params: [] }
     },
 
@@ -57,7 +57,9 @@ export const SimulationModelDescriptor = {
             "name" : "EnvironmentImpactParameters",
             "properties": [
                 { "name": "costDrivers", "type": "AbstractCostDriver", isMany : true },
-                { "name": "variants", "type": "Variant", isMany : true }
+                { "name": "variants", "type": "Variant", isMany : true },
+                { "name": "selectedImpactMethod", "type": "String" },
+                { "name": "selectedNormalizationSet", "type": "String" }
             ]
         },
 
@@ -124,6 +126,8 @@ export const SimulationModelDescriptor = {
                 { "name": "id", "type": "String"},
                 { "name": "name", "type": "String"},
                 { "name": "cost", "type": "Real"},
+                { "name": "unit", "type": "String"},
+                { "name": "processName", "type": "String"}
             ]
         },
         {
@@ -140,6 +144,7 @@ export const SimulationModelDescriptor = {
             "properties": [
                 { "name": "abstractDriver", "type": "String"},
                 { "name": "concreteDriver", "type": "String"},
+                { "name": "distribution", "type": "Distribution"}
             ]
         },
         {

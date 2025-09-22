@@ -35,7 +35,7 @@ const Event = ({ getData, currentElement }) => {
         currentElement && !currentElement.$type.includes('EndEvent') ? 
           <>
             <Text fontWeight="bold" fontSize="md">Interarrival Time:</Text>
-            <DistributionEditor {...{ state: distributionToState(eventConfiguration.interArrivalTime), setState: setArrivalRate }} />
+            <DistributionEditor {...{ state: distributionToState(eventConfiguration.interArrivalTime), setState: setArrivalRate, showTimeUnit: true }} />
           </>
           : <>Nothing to configure</>
       )

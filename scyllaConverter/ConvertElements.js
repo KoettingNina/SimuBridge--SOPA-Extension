@@ -6,7 +6,7 @@
  *
  */
 
-import { TimeUnits } from 'simulation-bridge-datamodel/SimulationModelDescriptor.js';
+import { TimeUnits, DistributionTypes } from 'simulation-bridge-datamodel/SimulationModelDescriptor.js';
 
 export default {
 
@@ -207,6 +207,11 @@ function createOneDriverConcretization(driver) {
     attributes.abstractId = driver.abstractDriver;
     attributes.concreteId = driver.concreteDriver;
     item._attributes = attributes;
+
+    if (driver.distribution) {
+        item.distribution = convertDistributionToXmlObj(driver.distribution);
+    }
+
     return item;
 }
 
@@ -215,7 +220,8 @@ function createOneConcreteCostDriver(concreteCostDriver) { // aka createOneCon
     var attributes = new Object;
     attributes.id = concreteCostDriver.id;
     attributes.name = concreteCostDriver.name;
-    attributes.cost = concreteCostDriver.cost;
+    //TODO: vielleicht nicht mehr notwendig, Kosten nicht mitgegeben, sondern in Scylla berechnet
+    //attributes.cost = concreteCostDriver.cost;
     item._attributes = attributes;
     return item;
 }
@@ -350,4 +356,32 @@ function getTimeUnit(timeUnit) {
         [TimeUnits.MINUTES] : 'MINUTES',
         [TimeUnits.HOURS] : 'HOURS'
     }[timeUnit];
+}
+
+function convertDistributionToXmlObj(distribution) {
+    if (!distribution) return undefined;
+
+    const type = distribution.distributionType;
+    const params = DistributionTypes[type]?.distribution_params;
+    if (!params) return {};
+
+    const xmlTypeName = type === "arbitraryFiniteProbabilityDistribution" ? "arbitraryFiniteProbabilityDistribution" : type + "Distribution";
+    let xmlObj = {};
+    if (type === "arbitraryFiniteProbabilityDistribution" || type === "arbitraryFinite") {
+        xmlObj[xmlTypeName] = {
+            entry: (distribution.values || [])
+                .filter(value => value !== '' && value !== null && value !== undefined)
+                .map(value => ({
+                    value: value,
+                    frequency: 1
+                }))
+        };
+    } else {
+        let paramObj = {};
+        params.forEach((param, idx) => {
+            paramObj[param] = distribution.values[idx];
+        });
+        xmlObj[xmlTypeName] = paramObj;
+    }
+    return xmlObj;
 }

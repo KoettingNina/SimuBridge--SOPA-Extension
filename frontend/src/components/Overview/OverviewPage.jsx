@@ -152,7 +152,7 @@ function OverviewPage({getData, toast, setScenariosCompare}) {
                             {(getData().getAllScenarios() && getData().getAllScenarios().length)
                                 ? <OverviewTable getData={getData}/>
                                 : <CardBody>
-                                   No scenarios exist yet. <Button variant='link' as={Link} to="/processminer">Go to process miner view to create one</Button> or <CreateEmptyScenarioButton variant='link' {...{getData, toast, label:'create an empy scenario'}}/>
+                                   No scenarios exist yet. <Button variant='link' as={Link} to="/processminer">Go to process miner view to create one</Button> or <CreateEmptyScenarioButton variant='link' {...{getData, toast, label:'create an empty scenario'}}/>
                                 </CardBody>}
                         </CardBody>
                     </Card>

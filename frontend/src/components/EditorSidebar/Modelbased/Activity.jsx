@@ -129,7 +129,7 @@ const Activity = ({ getData, currentElement, setCurrentRightSideBar }) => {
             </AccordionButton>
           </h2>
           <AccordionPanel pb={4}>
-            <DistributionEditor {...{ state: distributionToState(activityConfiguration.duration), setState: setDuration }} />
+            <DistributionEditor {...{ state: distributionToState(activityConfiguration.duration), setState: setDuration, showTimeUnit: true }} />
           </AccordionPanel>
         </AccordionItem>
 

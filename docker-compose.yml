@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   simubridge-sopa:
@@ -17,6 +17,7 @@ services:
       dockerfile_inline: |
         FROM ghcr.io/insm-tum/scylla-container:main
         ADD https://github.com/INSM-TUM/Scylla-Plugin--SOPA/releases/download/0.1.2-SNAPSHOT/scylla-plugin--sopa.jar /app/plugins/scylla-plugin--sopa.jar
+        
     container_name: scylla-sopa-extended
     ports:
       - "8080:8080"

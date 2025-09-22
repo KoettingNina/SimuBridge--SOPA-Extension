@@ -3,28 +3,31 @@ import { getParamsForDistribution } from "../util/Distributions"
 import { AddIcon, MinusIcon } from "@chakra-ui/icons"
 import { TimeUnits, DistributionTypes } from "simulation-bridge-datamodel/SimulationModelDescriptor"
 
-export default function DistributionEditor({ state, setState }) {
+export default function DistributionEditor({ state, setState, showTimeUnit, targetUnit}) {
 
     function setDistributionType(value) {
-        setState({
+        const newState = {
             ...state,
             distributionType: value,
             distributionValues: new Array(DistributionTypes[value].distribution_params.length).fill(0)
-        })
+        };
+        setState(newState);
     }
 
     function setDistributionValues(value) {
-        setState({
+        const newState = {
             ...state,
             distributionValues: value
-        })
+        };
+        setState(newState);
     }
 
     function setTimeUnit(value) {
-        setState({
+        const newState = {
             ...state,
             timeUnit: value
-        });
+        };
+        setState(newState);
     }
 
     function camelCaseToSpaces(camelCaseString) {
@@ -44,14 +47,27 @@ export default function DistributionEditor({ state, setState }) {
                 </Select>
             </FormControl>
 
+            {showTimeUnit && (
+                <FormControl w="47%">
+                    <FormLabel>Time Unit:</FormLabel>
+                    <Select name="timeUnit" value={state.timeUnit} onChange={(event) => setTimeUnit(event.target.value)} bg="white" {...(!state.timeUnit && {placeholder : 'Select timeunit', color : 'red'})}>
+                        {Object.values(TimeUnits).map(timeUnit => <option style={{ color: 'black' }} key={timeUnit} value={timeUnit}>{timeUnit}</option>)}
+                    </Select>
+                </FormControl>
+            )}
 
-            <FormControl w="47%">
-                <FormLabel>Time Unit:</FormLabel>
-                <Select name="timeUnit" value={state.timeUnit} onChange={(event) => setTimeUnit(event.target.value)} bg="white" {...(!state.timeUnit && {placeholder : 'Select timeunit', color : 'red'})}>
-                    {Object.values(TimeUnits).map(timeUnit => <option style={{ color: 'black' }} key={timeUnit} value={timeUnit}>{timeUnit}</option>)}
-                </Select>
-
-            </FormControl>
+            {targetUnit && (
+                <FormControl w="47%">
+                    <FormLabel>
+                        Target Unit: 
+                    </FormLabel>
+                    <Input
+                        value={targetUnit}
+                        isReadOnly
+                                                
+                    />
+                </FormControl>
+            )}
         </Flex>
 
         {state.distributionType === "arbitraryFiniteProbabilityDistribution" ?

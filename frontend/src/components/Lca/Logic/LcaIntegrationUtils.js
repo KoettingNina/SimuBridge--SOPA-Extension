@@ -11,16 +11,18 @@ export const calculateCostDrivers = async (apiUrl, impactMethodId, normalization
     for (const el of costDrivers) {
       await (openLca.calculateCostDriver)(
         apiUrl, impactMethod, normalizationSetId, el,
-        (driverWeights) => {
+        (result) => {
+          const driverWeights = result.weights;
           const impactSum = driverWeights.map(i => i.amount || 0).reduce((sum, current) => sum + current, 0);
-          normalizedCostDrivers.push(
-            {
-              id: el.id,
-              name: el.name,
-              category: el.category,
-              cost: impactSum
-            }
-          );
+          normalizedCostDrivers.push({
+            id: el.id,
+            name: el.name,
+            category: el.category,
+            cost: impactSum,
+            targetAmount: el.targetAmount,
+            unit: el.targetUnit?.name,
+            processName: el.refProcess?.name || el.processName || el.name || ""
+          });
 
           updateProgress((costDrivers.indexOf(el) + 2) / (costDrivers.length + 1) * 100);
         },

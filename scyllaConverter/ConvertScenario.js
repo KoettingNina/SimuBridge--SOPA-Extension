@@ -25,7 +25,6 @@ export async function convertScenario(scenarioRaw) {
     if (!scenario.models.length) throw 'No models to convert were provided';
 
     // create one global configuration:
-    //console.log("Scenario: ", scenario);
     const globalConfig_json = createNewJsonGlob(scenario);
     var globalConfig = json2xml(globalConfig_json, options);
 
