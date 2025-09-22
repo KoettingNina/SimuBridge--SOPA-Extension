@@ -16,7 +16,7 @@ services:
     build: 
       dockerfile_inline: |
         FROM ghcr.io/insm-tum/scylla-container:main
-        ADD https://github.com/KoettingNina/Scylla-Plugin--SOPA/releases/download/v1.0.0/scylla-plugin--sopa.jar /app/plugins/scylla-plugin--sopa.jar
+        ADD https://github.com/KoettingNina/Scylla-Plugin--SOPA/releases/download/v1.0.0/sopa-0.1.2-SNAPSHOT.jar /app/plugins/scylla-plugin--sopa.jar
         
     container_name: scylla-sopa-extended
     ports:
