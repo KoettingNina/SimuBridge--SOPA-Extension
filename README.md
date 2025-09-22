@@ -3,7 +3,7 @@
 ## :information_source: About
 This repository is a supplementary branch to the main [SimuBridge](https://github.com/INSM-TUM/SimuBridge) project. It contains the source code for the web application that is the heart piece of the project. Please refer to the [SimuBridge project root repository](https://github.com/INSM-TUM/SimuBridge) for overall project documentation.
 
-This project focuses on **sustainability related information on SimuBridge**. The extensions made allows users to assign abstract environmental cost drivers to specific activities, and further refine these into concrete cost drivers for accurate impact assessment. The platform facilitates a deeper understanding of the environmental implications of different operational choices, providing valuable insights for sustainable decision-making. 
+This project focuses on **sustainability related information on SimuBridge**. The extensions made allows users to assign probabilistic distributions to cost driver concretizations. The platform facilitates a deeper understanding of the environmental implications of different operational choices, providing valuable insights for sustainable decision-making. 
 To this end, it communicates with the sustainability database software [openLCA](https://www.openlca.org/) and the business process simulation engine [Scylla](https://github.com/bptlab/scylla) using a tailored [plugin](https://github.com/INSM-TUM/Scylla-Plugin--SOPA).
 
 Have a look at the [demo](./demo) folder for a little demonstration how the extension works.
@@ -26,53 +26,30 @@ Download the demo data we provide at `./demo/LCA/demo_dataset.zolca` and import 
 ## 📦️ Added & Extended UI Pages
 This extension adds and extends multiple pages to the basic SimuBridge UI.
 
-### OpenLCA Integration (added)
+### OpenLCA Integration (modified)
 ![Image](https://github.com/INSM-TUM-Teaching/SImuBridge-OLCA/assets/92756562/ea167f10-663d-4ea9-8df3-7ece260c61c7)
-Configure LCA with host and port for a flexible data fetching. Note that the availability of LCA data and impact calculation methods is determined by the database loaded into openLCA.
+This step only fetches the impact method and normalization set. The cost computation is taken out in this step. 
 
-### Model-based Parameters (extended)
-![Image](https://github.com/INSM-TUM-Teaching/SImuBridge-OLCA/assets/92756562/8f63b277-1926-44e3-b5f0-0545cf485d22)
-Assign abstract cost drivers to activities within your process model in model based parameters panel.
 
-### LCA Variants (added)
+### LCA Variant Configuration (added)
 ![Image](https://github.com/INSM-TUM-Teaching/SImuBridge-OLCA/assets/92756562/c4c45554-4587-4fc5-8bcc-b1eb9a0ce834)
-Use this panel to map abstract cost drivers to concrete cost drivers from dropdown menus.
-Configure the frequency of cost variants to simulate the process instances and calculate the overall environmental impact.
-
-### Output Visualization (added)
-Shows a comparison of the environmental impact score of previously run scenarios.
+- **Parameter Configuration**: Configure distribution parameters for each concrete driver:
+- **Information Tooltips**: Access detailed descriptions of concrete cost drivers via info icons
 
 
-##  Code Structure 
-This repository adds the following components and logic classes to the base SimuBridge project:
+## 📊 Supported Distribution Types
+The system supports various statistical distributions for parameterizing concrete cost drivers:
 
-```
-Lca/  
-├── Components/  
-│   ├── BasicSpinner.jsx  
-│   ├── FormattedConcreteDriver.jsx  
-│   ├── LcaIntegration.jsx  
-│   ├── LcaVariantsConfiguration.jsx  
-│   ├── OlcaConnectionAlert.jsx  
-│   └── VariantEditor.jsx  
-└── Logic/  
-    ├── LcaDataManager.js  
-    ├── LcaIntegrationUtils.js  
-    └── OpenLcaConnector.js
-```
-  
-### Components
-- `BasicSpinner.jsx`: Auxiliary React component for the loading spinner.
-- `FormattedConcreteDriver.jsx`: Component to display formatted data of concrete cost drivers.
-- `LcaIntegration.jsx`: Interface for configuring external LCA data integration.
-- `LcaVariantsConfiguration.jsx`: Manages the mapping of abstract and concrete cost drivers for variants.
-- `VariantEditor.jsx`: UI component for creating or editing variants.
-- `OlcaConnectionAlert.jsx`: Notifies about the OpenLCA connection status.
+- **Constant**: Fixed value distribution with configurable target unit (e.g., kg*km, t*km)
+- **Normal**: Gaussian distribution with mean and variance parameters
+- **Exponential**: Exponential distribution with mean parameter
+- **Uniform**: Uniform distribution with lower and upper bounds
+- **Triangular**: Triangular distribution with lower, peak, and upper bounds
+- **Erlang**: Erlang distribution with order and mean parameters
+- **Binomial**: Binomial distribution with probability and amount parameters
+- **Arbitrary Finite Probability Distribution**: Custom probability distributions
 
-### Logic
-- `LcaDataManager.js`: Manages app data storage.
-- `LcaIntegrationUtils.js`: Handles requests to external LCA systems.
-- `OpenLcaConnector.js`: Specialized connector for OpenLCA software integration.
+Each distribution type includes appropriate parameter validation and supports different target units for environmental impact calculations.
 
 
 
