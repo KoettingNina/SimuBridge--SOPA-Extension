@@ -27,12 +27,12 @@ Download the demo data we provide at `./demo/LCA/demo_dataset.zolca` and import 
 This extension adds and extends multiple pages to the basic SimuBridge UI.
 
 ### OpenLCA Integration (modified)
-![Image](https://github.com/INSM-TUM-Teaching/SImuBridge-OLCA/assets/92756562/ea167f10-663d-4ea9-8df3-7ece260c61c7)
+![Image](assets/OpenLCA%20Integration.png)
 This step only fetches the impact method and normalization set. The cost computation is taken out in this step. 
 
 
 ### LCA Variant Configuration (added)
-![Image](https://github.com/INSM-TUM-Teaching/SImuBridge-OLCA/assets/92756562/c4c45554-4587-4fc5-8bcc-b1eb9a0ce834)
+![Image](assets/LCA%20Variant%20Configuration.png)
 - **Parameter Configuration**: Configure distribution parameters for each concrete driver:
 - **Information Tooltips**: Access detailed descriptions of concrete cost drivers via info icons
 
