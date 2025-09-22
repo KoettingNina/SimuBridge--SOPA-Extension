@@ -221,7 +221,7 @@ function createOneConcreteCostDriver(concreteCostDriver) { // aka createOneCon
     attributes.id = concreteCostDriver.id;
     attributes.name = concreteCostDriver.name;
     //TODO: vielleicht nicht mehr notwendig, Kosten nicht mitgegeben, sondern in Scylla berechnet
-    //attributes.cost = concreteCostDriver.cost;
+    attributes.cost = concreteCostDriver.cost;
     item._attributes = attributes;
     return item;
 }

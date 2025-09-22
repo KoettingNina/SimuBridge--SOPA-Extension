@@ -29,7 +29,7 @@ export const mapAbstractDriversFromConcrete = (concreteCostDrivers) => {
             id: el.id,
             name: el.name,
             //TODO test kostenrechnung raus
-            //cost: el.cost || 0,
+            cost: el.cost || 0,
             
             unit: el.targetUnit?.name,
              processName: el.refProcess?.name
